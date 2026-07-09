@@ -19,7 +19,9 @@ require_once CB_CORE_PATH . 'includes/post-types.php';
 require_once CB_CORE_PATH . 'includes/taxonomies.php';
 require_once CB_CORE_PATH . 'includes/meta-boxes.php';
 require_once CB_CORE_PATH . 'includes/multilingual/language-manager.php';
+require_once CB_CORE_PATH . 'includes/admin/field-renderer.php';
 require_once CB_CORE_PATH . 'includes/admin/settings-page.php';
+require_once CB_CORE_PATH . 'includes/admin/homepage-builder.php';
 require_once CB_CORE_PATH . 'includes/inquiry/inquiry-form.php';
 require_once CB_CORE_PATH . 'includes/seo/meta-tags.php';
 require_once CB_CORE_PATH . 'includes/seed.php';
@@ -48,11 +50,13 @@ add_action('add_meta_boxes', 'cb_register_meta_boxes');
 add_action('save_post', 'cb_save_common_meta_boxes');
 add_action('admin_menu', 'cb_register_settings_pages');
 add_action('admin_init', 'cb_register_settings');
+add_action('admin_enqueue_scripts', 'cb_admin_enqueue_assets');
 
 add_shortcode('cb_inquiry_form', 'cb_render_inquiry_form');
 add_action('admin_post_nopriv_cb_submit_inquiry', 'cb_handle_inquiry_submission');
 add_action('admin_post_cb_submit_inquiry', 'cb_handle_inquiry_submission');
 
 add_action('wp_head', 'cb_render_seo_meta', 1);
+add_action('wp_head', 'cb_render_dynamic_css_variables', 5);
 add_action('wp_head', 'cb_render_hreflang');
 add_action('wp_head', 'cb_render_schema');

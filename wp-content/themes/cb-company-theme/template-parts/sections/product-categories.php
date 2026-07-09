@@ -1,4 +1,4 @@
-<section class="cb-section">
+<section <?php echo cb_theme_section_attrs($section, 'product_categories'); ?>>
     <div class="cb-container">
         <div class="cb-section-heading">
             <div><?php cb_theme_section_header($section); ?></div>
@@ -6,7 +6,7 @@
         </div>
         <div class="cb-card-grid cb-category-grid">
             <?php foreach (get_terms(['taxonomy' => 'product_category', 'hide_empty' => false, 'number' => 4]) as $term) : ?>
-                <article class="cb-category-card">
+                <article class="<?php echo esc_attr(cb_theme_card_classes('cb-category-card', 'category_card_style')); ?>">
                     <?php echo cb_theme_image(get_term_meta($term->term_id, '_cb_banner_image', true), $term->name); ?>
                     <div><h3><?php echo esc_html($term->name); ?></h3><p><?php echo esc_html($term->description); ?></p><a class="cb-round-link" href="<?php echo esc_url(get_term_link($term)); ?>">→</a></div>
                 </article>

@@ -1,4 +1,4 @@
-<section class="cb-section cb-process">
+<section <?php echo cb_theme_section_attrs($section, 'oem_odm_process', 'cb-process'); ?>>
     <div class="cb-container">
         <?php cb_theme_section_header($section); ?>
         <div class="cb-process-row">

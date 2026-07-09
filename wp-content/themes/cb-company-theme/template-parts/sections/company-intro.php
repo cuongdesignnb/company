@@ -1,6 +1,6 @@
-<section id="about" class="cb-section cb-intro">
+<section id="about" <?php echo cb_theme_section_attrs($section, 'company_intro', 'cb-intro'); ?>>
     <div class="cb-container cb-two-col">
-        <div><?php echo cb_theme_image($section['image'] ?? '', $section['title'] ?? '', 'cb-rounded-image'); ?></div>
+        <div><?php echo cb_theme_image($section['image_url'] ?: ($section['image'] ?? ''), $section['title'] ?? '', 'cb-rounded-image'); ?></div>
         <div>
             <?php cb_theme_section_header($section); ?>
             <div class="cb-stats-row">

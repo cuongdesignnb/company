@@ -18,6 +18,31 @@ function cb_theme_option($key, $default = '')
     return function_exists('cb_get_option') ? cb_get_option($key, $default) : $default;
 }
 
+function cb_theme_option_enabled($key, $default = '1')
+{
+    return cb_theme_option($key, $default) === '1';
+}
+
+function cb_theme_logo($context = 'header')
+{
+    $is_mobile = $context === 'mobile';
+    $logo_url = $is_mobile ? cb_theme_option('mobile_logo_url') : cb_theme_option('logo_url');
+    if (!$logo_url) {
+        $logo_url = cb_theme_option('logo_url');
+    }
+    $home = home_url('/' . cb_theme_lang() . '/');
+    echo '<a class="cb-logo" href="' . esc_url($home) . '" aria-label="' . esc_attr(get_bloginfo('name')) . '">';
+    if ($logo_url) {
+        echo '<img class="cb-logo-image" src="' . esc_url($logo_url) . '" alt="' . esc_attr(cb_theme_option('logo_text', get_bloginfo('name'))) . '">';
+    } else {
+        echo '<span class="cb-logo-mark">' . esc_html(cb_theme_option('brand_mark_text', 'A')) . '</span>';
+    }
+    if (cb_theme_option_enabled('show_logo_text')) {
+        echo '<span class="cb-logo-text"><strong>' . esc_html(cb_theme_option('logo_text', 'AURELIA')) . '</strong><small>' . esc_html(cb_theme_option('logo_subtext', 'MANUFACTURING')) . '</small></span>';
+    }
+    echo '</a>';
+}
+
 function cb_theme_post_url($post_id)
 {
     $url = get_permalink($post_id);
@@ -28,16 +53,19 @@ function cb_theme_post_url($post_id)
     return $url;
 }
 
-function cb_theme_image($url, $alt = '', $class = '')
+function cb_theme_image($url, $alt = '', $class = '', $width = 640, $height = 420)
 {
     if (!$url) {
         $url = get_template_directory_uri() . '/assets/images/aurelia-reference.png';
     }
-    return '<img class="' . esc_attr($class) . '" src="' . esc_url($url) . '" alt="' . esc_attr($alt) . '" loading="lazy">';
+    return '<img class="' . esc_attr($class) . '" src="' . esc_url($url) . '" alt="' . esc_attr($alt) . '" loading="lazy" width="' . esc_attr((string) $width) . '" height="' . esc_attr((string) $height) . '">';
 }
 
 function cb_theme_items($section)
 {
+    if (!empty($section['items']) && is_array($section['items'])) {
+        return $section['items'];
+    }
     return function_exists('cb_parse_lines') ? cb_parse_lines($section['items'] ?? '') : [];
 }
 
@@ -61,6 +89,9 @@ function cb_render_page_sections($post_id = 0)
         $sections = cb_default_homepage_sections();
     }
     foreach ((array) $sections as $section) {
+        if (function_exists('cb_normalize_homepage_section')) {
+            $section = cb_normalize_homepage_section($section);
+        }
         if (($section['enable'] ?? '1') !== '1') {
             continue;
         }
@@ -70,4 +101,66 @@ function cb_render_page_sections($post_id = 0)
             include $file;
         }
     }
+}
+
+function cb_theme_section_attrs($section, $type, $extra_class = '')
+{
+    $classes = [
+        'cb-section',
+        'cb-section-' . sanitize_html_class(str_replace('_', '-', $type)),
+        'cb-layout-' . sanitize_html_class($section['layout_style'] ?? 'default'),
+    ];
+    if (!empty($section['section_class'])) {
+        $classes[] = sanitize_html_class($section['section_class']);
+    }
+    if ($extra_class) {
+        $classes[] = $extra_class;
+    }
+    $styles = [];
+    if (!empty($section['background_color']) && sanitize_hex_color($section['background_color'])) {
+        $styles[] = 'background-color:' . sanitize_hex_color($section['background_color']);
+    }
+    if (!empty($section['text_color']) && sanitize_hex_color($section['text_color'])) {
+        $styles[] = 'color:' . sanitize_hex_color($section['text_color']);
+    }
+    foreach (['padding_top' => 'padding-top', 'padding_bottom' => 'padding-bottom'] as $key => $property) {
+        if (!empty($section[$key]) && function_exists('cb_sanitize_css_size')) {
+            $size = cb_sanitize_css_size($section[$key], '');
+            if ($size) {
+                $styles[] = $property . ':' . $size;
+            }
+        }
+    }
+    if ($type === 'hero_slider') {
+        $hero_image = $section['image_url'] ?? ($section['image'] ?? '');
+        if (!empty($section['hero_slides'][0]['image_url'])) {
+            $hero_image = $section['hero_slides'][0]['image_url'];
+        }
+        if ($hero_image) {
+            $styles[] = '--hero-image:url(' . esc_url($hero_image) . ')';
+        }
+    }
+    $id = !empty($section['section_id']) ? ' id="' . esc_attr(sanitize_title($section['section_id'])) . '"' : '';
+    $style = $styles ? ' style="' . esc_attr(implode(';', $styles)) . '"' : '';
+    return $id . ' class="' . esc_attr(implode(' ', array_filter($classes))) . '"' . $style;
+}
+
+function cb_theme_button_classes($variant = 'primary')
+{
+    return implode(' ', array_filter([
+        'cb-btn',
+        $variant === 'primary' ? 'cb-btn-primary' : 'cb-btn-outline',
+        'cb-btn-' . sanitize_html_class(cb_theme_option('button_style', 'pill')),
+        'cb-hover-' . sanitize_html_class(cb_theme_option('button_hover_effect', 'lift')),
+    ]));
+}
+
+function cb_theme_card_classes($base, $style_key)
+{
+    return implode(' ', [
+        $base,
+        'cb-card-style-' . sanitize_html_class(cb_theme_option($style_key, 'clean')),
+        'cb-shadow-' . sanitize_html_class(cb_theme_option('card_shadow', 'soft')),
+        'cb-hover-' . sanitize_html_class(cb_theme_option('card_hover_effect', 'lift')),
+    ]);
 }

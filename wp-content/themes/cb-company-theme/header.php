@@ -1,21 +1,30 @@
 <?php
+$header_classes = [
+    'cb-site-header',
+    'cb-header-layout-' . sanitize_html_class(cb_theme_option('header_layout', 'logo_left_menu_center_cta_right')),
+    'cb-header-style-' . sanitize_html_class(cb_theme_option('header_style', 'white')),
+    cb_theme_option_enabled('header_sticky') ? 'is-sticky' : '',
+    cb_theme_option_enabled('header_shadow') ? 'has-shadow' : '',
+    cb_theme_option_enabled('header_blur') ? 'has-blur' : '',
+];
+$container_class = cb_theme_option_enabled('header_full_width', '0') ? 'cb-header-fluid' : 'cb-container';
 ?><!doctype html>
 <html <?php language_attributes(); ?>>
 <head>
     <meta charset="<?php bloginfo('charset'); ?>">
     <meta name="viewport" content="width=device-width, initial-scale=1">
+    <?php if (cb_theme_option('favicon_url')) : ?>
+        <link rel="icon" href="<?php echo esc_url(cb_theme_option('favicon_url')); ?>">
+    <?php endif; ?>
     <?php wp_head(); ?>
 </head>
 <body <?php body_class(); ?>>
 <?php wp_body_open(); ?>
-<header class="cb-site-header">
-    <div class="cb-container cb-header-inner">
-        <a class="cb-logo" href="<?php echo esc_url(home_url('/' . cb_theme_lang() . '/')); ?>" aria-label="<?php bloginfo('name'); ?>">
-            <span class="cb-logo-mark">A</span>
-            <span><strong><?php echo esc_html(cb_theme_option('logo_text', 'AURELIA')); ?></strong><small><?php echo esc_html(cb_theme_option('logo_subtext', 'MANUFACTURING')); ?></small></span>
-        </a>
-        <button class="cb-menu-toggle" type="button" aria-expanded="false" aria-controls="cb-primary-menu">☰</button>
-        <nav id="cb-primary-menu" class="cb-main-nav" aria-label="Primary navigation">
+<header class="<?php echo esc_attr(implode(' ', array_filter($header_classes))); ?>">
+    <div class="<?php echo esc_attr($container_class); ?> cb-header-inner">
+        <?php cb_theme_logo('header'); ?>
+        <button class="cb-menu-toggle" type="button" aria-expanded="false" aria-controls="cb-primary-menu" aria-label="<?php echo esc_attr__('Toggle menu', 'cb-company-theme'); ?>">☰</button>
+        <nav id="cb-primary-menu" class="cb-main-nav cb-mobile-<?php echo esc_attr(cb_theme_option('mobile_menu_style', 'offcanvas')); ?>" aria-label="Primary navigation">
             <?php
             $location = 'primary_' . cb_theme_lang();
             if (has_nav_menu($location)) {
@@ -33,10 +42,15 @@
             ?>
         </nav>
         <div class="cb-header-actions">
-            <?php if (function_exists('cb_language_switcher') && cb_theme_option('show_language_switcher', '1') === '1') {
+            <?php if (cb_theme_option_enabled('show_search')) : ?>
+                <a class="cb-header-icon" href="<?php echo esc_url(home_url('/?s=')); ?>" aria-label="<?php echo esc_attr__('Search', 'cb-company-theme'); ?>">⌕</a>
+            <?php endif; ?>
+            <?php if (function_exists('cb_language_switcher') && cb_theme_option_enabled('show_language_switcher')) {
                 cb_language_switcher();
             } ?>
-            <a class="cb-btn cb-btn-primary" href="<?php echo esc_url(cb_theme_option('header_cta_url', '#inquiry')); ?>"><?php echo esc_html(cb_theme_option('header_cta_text', cb_theme_t('get_quote'))); ?></a>
+            <?php if (cb_theme_option_enabled('show_header_cta')) : ?>
+                <a class="<?php echo esc_attr(cb_theme_button_classes('primary')); ?>" href="<?php echo esc_url(cb_theme_option('header_cta_url', '#inquiry')); ?>"><?php echo esc_html(cb_theme_option('header_cta_text', cb_theme_t('get_quote'))); ?></a>
+            <?php endif; ?>
         </div>
     </div>
 </header>

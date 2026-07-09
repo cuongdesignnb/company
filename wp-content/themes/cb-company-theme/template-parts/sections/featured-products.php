@@ -1,4 +1,4 @@
-<section class="cb-section cb-soft-band">
+<section <?php echo cb_theme_section_attrs($section, 'featured_products', 'cb-soft-band'); ?>>
     <div class="cb-container">
         <div class="cb-section-heading">
             <div><?php cb_theme_section_header($section); ?></div>
@@ -7,7 +7,7 @@
             <?php
             $q = new WP_Query([
                 'post_type' => 'product',
-                'posts_per_page' => 6,
+                'posts_per_page' => absint($section['limit'] ?? 6) ?: 6,
                 'meta_query' => [
                     ['key' => '_cb_featured', 'value' => '1'],
                     ['key' => '_cb_language', 'value' => cb_theme_lang()],

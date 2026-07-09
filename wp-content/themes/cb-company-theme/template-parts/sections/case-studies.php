@@ -1,4 +1,4 @@
-<section class="cb-section">
+<section <?php echo cb_theme_section_attrs($section, 'case_studies'); ?>>
     <div class="cb-container">
         <div class="cb-section-heading"><div><?php cb_theme_section_header($section); ?></div><a href="<?php echo esc_url($section['button_url'] ?? '#'); ?>"><?php echo esc_html($section['button_text'] ?? cb_theme_t('learn_more')); ?> →</a></div>
         <div class="cb-card-grid">
