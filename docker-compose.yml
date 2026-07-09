@@ -1,0 +1,46 @@
+services:
+  db:
+    image: mariadb:11.4
+    container_name: cb_companywp_db
+    restart: unless-stopped
+    environment:
+      MARIADB_DATABASE: companywp
+      MARIADB_USER: companywp
+      MARIADB_PASSWORD: companywp_pass
+      MARIADB_ROOT_PASSWORD: companywp_root
+    volumes:
+      - db_data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "healthcheck.sh", "--connect", "--innodb_initialized"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+
+  wordpress:
+    image: wordpress:6.6.2-php8.2-apache
+    container_name: cb_companywp_site
+    restart: unless-stopped
+    depends_on:
+      db:
+        condition: service_healthy
+    ports:
+      - "47329:80"
+    environment:
+      WORDPRESS_DB_HOST: db:3306
+      WORDPRESS_DB_NAME: companywp
+      WORDPRESS_DB_USER: companywp
+      WORDPRESS_DB_PASSWORD: companywp_pass
+      WORDPRESS_CONFIG_EXTRA: |
+        define('WP_DEBUG', true);
+        define('WP_DEBUG_DISPLAY', false);
+        define('WP_DEBUG_LOG', true);
+        define('WP_MEMORY_LIMIT', '256M');
+    volumes:
+      - wordpress_data:/var/www/html
+      - ./wp-content/themes/cb-company-theme:/var/www/html/wp-content/themes/cb-company-theme
+      - ./wp-content/plugins/cb-company-core:/var/www/html/wp-content/plugins/cb-company-core
+      - ./wp-content/plugins/cb-webp-converter:/var/www/html/wp-content/plugins/cb-webp-converter
+
+volumes:
+  db_data:
+  wordpress_data:

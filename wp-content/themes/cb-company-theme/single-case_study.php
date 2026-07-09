@@ -1,0 +1,3 @@
+<?php get_header(); ?>
+<section class="cb-page-band"><div class="cb-container cb-content"><?php while (have_posts()) : the_post(); if (function_exists('cb_breadcrumb')) { cb_breadcrumb(); } ?><h1><?php the_title(); ?></h1><p class="cb-eyebrow"><?php echo esc_html(get_post_meta(get_the_ID(), '_cb_country', true)); ?></p><?php the_content(); ?><h2>Problem</h2><p><?php echo esc_html(get_post_meta(get_the_ID(), '_cb_problem', true)); ?></p><h2>Solution</h2><p><?php echo esc_html(get_post_meta(get_the_ID(), '_cb_solution', true)); ?></p><h2>Result</h2><p><?php echo esc_html(get_post_meta(get_the_ID(), '_cb_result', true)); ?></p><?php endwhile; ?></div></section>
+<?php get_footer(); ?>
