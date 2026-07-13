@@ -6,11 +6,11 @@ if (!defined('ABSPATH')) {
 function cb_register_taxonomies()
 {
     $taxes = [
-        'product_category' => ['Product Categories', 'Product Category', ['product']],
-        'product_tag' => ['Product Tags', 'Product Tag', ['product']],
-        'factory_category' => ['Factory Categories', 'Factory Category', ['factory_showcase']],
-        'case_category' => ['Case Categories', 'Case Category', ['case_study']],
-        'video_category' => ['Video Categories', 'Video Category', ['video']],
+        'product_category' => [__('Danh mục sản phẩm', 'cb-company-core'), __('Danh mục sản phẩm', 'cb-company-core'), ['product']],
+        'product_tag' => [__('Thẻ sản phẩm', 'cb-company-core'), __('Thẻ sản phẩm', 'cb-company-core'), ['product']],
+        'factory_category' => [__('Danh mục nhà máy', 'cb-company-core'), __('Danh mục nhà máy', 'cb-company-core'), ['factory_showcase']],
+        'case_category' => [__('Danh mục dự án', 'cb-company-core'), __('Danh mục dự án', 'cb-company-core'), ['case_study']],
+        'video_category' => [__('Danh mục video', 'cb-company-core'), __('Danh mục video', 'cb-company-core'), ['video']],
     ];
 
     foreach ($taxes as $tax => $data) {

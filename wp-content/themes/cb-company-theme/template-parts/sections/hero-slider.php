@@ -1,11 +1,11 @@
 <?php
-$slide = !empty($section['hero_slides'][0]) && is_array($section['hero_slides'][0]) ? $section['hero_slides'][0] : [];
+$slide = !empty($section['items'][0]) && is_array($section['items'][0]) ? $section['items'][0] : (!empty($section['hero_slides'][0]) && is_array($section['hero_slides'][0]) ? $section['hero_slides'][0] : []);
 $hero_image = $slide['image_url'] ?? ($section['image_url'] ?: ($section['image'] ?? ''));
 $hero_title = $slide['title'] ?? ($section['title'] ?? '');
 $hero_eyebrow = $slide['eyebrow'] ?? ($section['eyebrow'] ?? '');
 $hero_description = $slide['description'] ?? ($section['description'] ?? '');
 $button_1_text = $slide['button_1_text'] ?? ($section['button_text'] ?? cb_theme_t('learn_more'));
-$button_1_url = $slide['button_1_url'] ?? ($section['button_url'] ?? '#');
+$button_1_url = $slide['url'] ?? ($slide['button_1_url'] ?? ($section['button_url'] ?? '#'));
 ?>
 <section <?php echo cb_theme_section_attrs($section, 'hero_slider', 'cb-hero'); ?>>
     <div class="cb-container cb-hero-inner">

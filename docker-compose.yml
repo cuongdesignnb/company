@@ -1,6 +1,9 @@
 services:
   db:
     image: mariadb:11.4
+    command:
+      - --character-set-server=utf8mb4
+      - --collation-server=utf8mb4_unicode_ci
     container_name: cb_companywp_db
     restart: unless-stopped
     environment:
@@ -30,8 +33,9 @@ services:
       WORDPRESS_DB_NAME: companywp
       WORDPRESS_DB_USER: companywp
       WORDPRESS_DB_PASSWORD: companywp_pass
+      WORDPRESS_DB_CHARSET: utf8mb4
+      WORDPRESS_DEBUG: "1"
       WORDPRESS_CONFIG_EXTRA: |
-        define('WP_DEBUG', true);
         define('WP_DEBUG_DISPLAY', false);
         define('WP_DEBUG_LOG', true);
         define('WP_MEMORY_LIMIT', '256M');

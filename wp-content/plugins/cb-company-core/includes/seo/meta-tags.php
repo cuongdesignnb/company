@@ -9,6 +9,17 @@ function cb_render_seo_meta()
     $title = $id ? get_post_meta($id, '_cb_seo_title', true) : '';
     $description = $id ? get_post_meta($id, '_cb_seo_description', true) : '';
     $image = $id ? get_post_meta($id, '_cb_seo_image', true) : '';
+    $canonical = $id ? get_post_meta($id, '_cb_canonical', true) : '';
+    $noindex = $id ? get_post_meta($id, '_cb_noindex', true) : '0';
+
+    if ($id && is_page() && function_exists('cb_ui_get')) {
+        $context = cb_page_ui_context($id);
+        $title = cb_ui_get('seo_title', $context, $id, $title);
+        $description = cb_ui_get('seo_description', $context, $id, $description);
+        $image = cb_ui_get('og_image', $context, $id, $image);
+        $canonical = cb_ui_get('canonical', $context, $id, '');
+        $noindex = cb_ui_get('noindex', $context, $id, '0');
+    }
 
     if (!$title) {
         $title = wp_get_document_title();
@@ -20,14 +31,33 @@ function cb_render_seo_meta()
         $image = get_the_post_thumbnail_url($id, 'large');
     }
 
+    if (!$canonical && $id && is_page() && cb_page_ui_context($id) === 'home') {
+        $language = get_post_meta($id, '_cb_language', true) ?: cb_get_current_language();
+        $canonical = home_url('/' . $language . '/');
+    }
+    $canonical = $canonical ?: (is_singular() ? get_permalink($id) : home_url(add_query_arg([])));
+
     echo '<meta name="description" content="' . esc_attr(wp_strip_all_tags($description)) . '">' . "\n";
-    echo '<link rel="canonical" href="' . esc_url(is_singular() ? get_permalink($id) : home_url(add_query_arg([]))) . '">' . "\n";
+    echo '<link rel="canonical" href="' . esc_url($canonical) . '">' . "\n";
+    if ((string) $noindex === '1') {
+        echo '<meta name="robots" content="noindex, nofollow">' . "\n";
+    }
     echo '<meta property="og:title" content="' . esc_attr($title) . '">' . "\n";
     echo '<meta property="og:description" content="' . esc_attr(wp_strip_all_tags($description)) . '">' . "\n";
     if ($image) {
         echo '<meta property="og:image" content="' . esc_url($image) . '">' . "\n";
     }
-    echo '<meta property="og:url" content="' . esc_url(home_url(add_query_arg([]))) . '">' . "\n";
+    echo '<meta property="og:url" content="' . esc_url($canonical) . '">' . "\n";
+}
+
+function cb_filter_document_title($title)
+{
+    $id = get_queried_object_id();
+    if (!$id || !is_page() || !function_exists('cb_ui_get')) {
+        return $title;
+    }
+    $custom = cb_ui_get('seo_title', cb_page_ui_context($id), $id, '');
+    return $custom !== '' ? $custom : $title;
 }
 
 function cb_breadcrumb()

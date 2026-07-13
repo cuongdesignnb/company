@@ -1,0 +1,16 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: CB Company Core 1.1.0\n"
+"Language: vi\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+
+msgid "Homepage"
+msgstr "Trang chủ"
+
+msgid "Select image"
+msgstr "Chọn hình ảnh"
+
+msgid "Save changes"
+msgstr "Lưu thay đổi"

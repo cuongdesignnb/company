@@ -5,6 +5,7 @@ $footer_classes = [
 ];
 ?>
 </main>
+<?php if (!cb_theme_page_ui_enabled('hide_footer')) : ?>
 <footer class="<?php echo esc_attr(implode(' ', $footer_classes)); ?>">
     <div class="cb-container cb-footer-grid">
         <?php if (cb_theme_option_enabled('show_footer_logo')) : ?>
@@ -44,7 +45,7 @@ $footer_classes = [
                 <?php if (cb_theme_option_enabled('show_footer_social')) : ?>
                     <div class="cb-footer-social">
                         <?php foreach (cb_parse_lines(cb_theme_option('social_links')) as $social) : ?>
-                            <a href="<?php echo esc_url($social['value']); ?>"><?php echo esc_html($social['label']); ?></a>
+                            <a href="<?php echo esc_url($social['url'] ?: $social['value']); ?>"><?php echo esc_html($social['label']); ?></a>
                         <?php endforeach; ?>
                     </div>
                 <?php endif; ?>
@@ -53,6 +54,7 @@ $footer_classes = [
     </div>
     <div class="cb-footer-bottom cb-container"><?php echo esc_html(cb_theme_option('copyright_text')); ?></div>
 </footer>
+<?php endif; ?>
 <?php if (cb_theme_option_enabled('floating_contact')) : ?>
     <a class="cb-floating-quote" href="#inquiry"><?php echo esc_html(cb_theme_t('get_quote')); ?></a>
 <?php endif; ?>

@@ -6,10 +6,10 @@ if (!defined('ABSPATH')) {
 function cb_register_post_types()
 {
     $types = [
-        'product' => ['Products', 'Product', 'dashicons-products'],
-        'factory_showcase' => ['Factory Showcase', 'Factory Item', 'dashicons-building'],
-        'case_study' => ['Case Studies', 'Case Study', 'dashicons-portfolio'],
-        'video' => ['Videos', 'Video', 'dashicons-video-alt3'],
+        'product' => [__('Sản phẩm', 'cb-company-core'), __('Sản phẩm', 'cb-company-core'), 'dashicons-products'],
+        'factory_showcase' => [__('Nhà máy', 'cb-company-core'), __('Hạng mục nhà máy', 'cb-company-core'), 'dashicons-building'],
+        'case_study' => [__('Dự án', 'cb-company-core'), __('Dự án', 'cb-company-core'), 'dashicons-portfolio'],
+        'video' => [__('Video', 'cb-company-core'), __('Video', 'cb-company-core'), 'dashicons-video-alt3'],
     ];
 
     foreach ($types as $type => $data) {
@@ -25,7 +25,7 @@ function cb_register_post_types()
     }
 
     register_post_type('inquiry', [
-        'labels' => ['name' => 'Inquiries', 'singular_name' => 'Inquiry'],
+        'labels' => ['name' => __('Yêu cầu báo giá', 'cb-company-core'), 'singular_name' => __('Yêu cầu', 'cb-company-core')],
         'public' => false,
         'show_ui' => true,
         'show_in_menu' => true,

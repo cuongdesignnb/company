@@ -75,9 +75,18 @@ function cb_handle_inquiry_submission()
         foreach ($fields as $key => $value) {
             update_post_meta($post_id, $key, $value);
         }
-        $admin_email = get_option('admin_email');
-        wp_mail($admin_email, 'New website inquiry', "Name: {$name}\nEmail: {$email}\nMessage:\n{$message}");
-        wp_mail($email, 'We received your inquiry', 'Thank you for contacting us. Our team will reply soon.');
+        $mail_settings = cb_get_group_options('cb_form_settings', cb_default_form_settings());
+        $admin_email = sanitize_email($mail_settings['admin_email'] ?: get_option('admin_email'));
+        $language = $fields['_cb_language'] === 'zh' ? 'zh' : 'en';
+        $headers = ['Content-Type: text/html; charset=UTF-8'];
+        $admin_subject = $language === 'zh' ? $mail_settings['subject_zh'] : $mail_settings['subject_en'];
+        $admin_body = '<p><strong>' . esc_html__('Name', 'cb-company-core') . ':</strong> ' . esc_html($name) . '</p><p><strong>Email:</strong> ' . esc_html($email) . '</p><p><strong>' . esc_html__('Message', 'cb-company-core') . ':</strong><br>' . nl2br(esc_html($message)) . '</p>';
+        wp_mail($admin_email, $admin_subject, $admin_body, $headers);
+        if (($mail_settings['auto_reply'] ?? '1') === '1') {
+            $reply_subject = $language === 'zh' ? '我们已收到您的询价' : 'We received your inquiry';
+            $reply_body = $language === 'zh' ? '<p>感谢您的联系。我们的团队会尽快回复。</p>' : '<p>Thank you for contacting us. Our team will reply soon.</p>';
+            wp_mail($email, $reply_subject, $reply_body, $headers);
+        }
     }
 
     $redirect = add_query_arg('cb_inquiry', 'sent', esc_url_raw(wp_unslash($_POST['source_url'] ?? home_url('/'))));

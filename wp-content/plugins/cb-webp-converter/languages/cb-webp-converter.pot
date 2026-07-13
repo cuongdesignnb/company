@@ -1,0 +1,9 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: CB WebP Converter 1.0.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Domain: cb-webp-converter\n"
+
+msgid "WebP Converter"
+msgstr ""

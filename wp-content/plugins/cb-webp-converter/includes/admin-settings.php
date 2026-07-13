@@ -5,7 +5,7 @@ if (!defined('ABSPATH')) {
 
 function cb_webp_register_settings_page()
 {
-    add_options_page('CB WebP Converter', 'CB WebP Converter', 'manage_options', 'cb-webp-converter', 'cb_webp_render_settings_page');
+    add_options_page(__('Chuyển đổi WebP', 'cb-webp-converter'), __('Chuyển đổi WebP', 'cb-webp-converter'), 'manage_options', 'cb-webp-converter', 'cb_webp_render_settings_page');
 }
 
 function cb_webp_register_settings()
@@ -29,21 +29,21 @@ function cb_webp_sanitize_options($input)
 function cb_webp_render_settings_page()
 {
     $options = cb_webp_options();
-    echo '<div class="wrap"><h1>CB WebP Converter</h1><form method="post" action="options.php">';
+    echo '<div class="wrap"><h1>' . esc_html__('Chuyển đổi WebP', 'cb-webp-converter') . '</h1><form method="post" action="options.php">';
     settings_fields('cb_webp_options_group');
     echo '<table class="form-table">';
-    foreach (['enabled' => 'Enable Auto Convert', 'convert_thumbnails' => 'Convert Thumbnails', 'keep_original' => 'Keep Original File'] as $key => $label) {
-        echo '<tr><th>' . esc_html($label) . '</th><td><label><input type="checkbox" name="cb_webp_options[' . esc_attr($key) . ']" value="1" ' . checked($options[$key], '1', false) . '> Enabled</label></td></tr>';
+    foreach (['enabled' => __('Tự động chuyển đổi', 'cb-webp-converter'), 'convert_thumbnails' => __('Chuyển đổi ảnh thumbnail', 'cb-webp-converter'), 'keep_original' => __('Giữ file gốc', 'cb-webp-converter')] as $key => $label) {
+        echo '<tr><th>' . esc_html($label) . '</th><td><label><input type="checkbox" name="cb_webp_options[' . esc_attr($key) . ']" value="1" ' . checked($options[$key], '1', false) . '> ' . esc_html__('Bật', 'cb-webp-converter') . '</label></td></tr>';
     }
-    echo '<tr><th>WebP Quality</th><td><input type="number" min="1" max="100" name="cb_webp_options[quality]" value="' . esc_attr($options['quality']) . '"></td></tr>';
-    echo '<tr><th>Skip Images Larger Than (MB)</th><td><input type="number" min="1" name="cb_webp_options[skip_larger_than]" value="' . esc_attr($options['skip_larger_than']) . '"></td></tr>';
-    echo '<tr><th>Conversion Log</th><td><textarea readonly class="large-text" rows="8" name="cb_webp_options[log]">' . esc_textarea($options['log']) . '</textarea></td></tr>';
+    echo '<tr><th>' . esc_html__('Chất lượng WebP', 'cb-webp-converter') . '</th><td><input type="number" min="1" max="100" name="cb_webp_options[quality]" value="' . esc_attr($options['quality']) . '"></td></tr>';
+    echo '<tr><th>' . esc_html__('Bỏ qua ảnh lớn hơn (MB)', 'cb-webp-converter') . '</th><td><input type="number" min="1" name="cb_webp_options[skip_larger_than]" value="' . esc_attr($options['skip_larger_than']) . '"></td></tr>';
+    echo '<tr><th>' . esc_html__('Nhật ký chuyển đổi', 'cb-webp-converter') . '</th><td><textarea readonly class="large-text" rows="8" name="cb_webp_options[log]">' . esc_textarea($options['log']) . '</textarea></td></tr>';
     echo '</table>';
     submit_button();
     echo '</form><hr><form method="post" action="' . esc_url(admin_url('admin-post.php')) . '">';
     wp_nonce_field('cb_webp_bulk_convert', 'cb_webp_nonce');
     echo '<input type="hidden" name="action" value="cb_webp_bulk_convert">';
-    submit_button('Bulk Convert Existing Images');
+    submit_button(__('Chuyển đổi hàng loạt ảnh hiện có', 'cb-webp-converter'));
     echo '</form></div>';
 }
 

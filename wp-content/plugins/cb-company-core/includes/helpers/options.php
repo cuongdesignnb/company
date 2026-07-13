@@ -3,122 +3,123 @@ if (!defined('ABSPATH')) {
     exit;
 }
 
-function cb_default_theme_options()
+function cb_default_design_settings()
 {
     return [
-        'logo_id' => '',
-        'logo_url' => '',
-        'mobile_logo_id' => '',
-        'mobile_logo_url' => '',
-        'favicon_id' => '',
-        'favicon_url' => '',
-        'logo_text' => 'AURELIA',
-        'logo_subtext' => 'MANUFACTURING',
-        'brand_mark_text' => 'A',
-        'show_logo_text' => '1',
-        'primary_color' => '#ef6b6f',
-        'primary_dark_color' => '#d94c51',
-        'primary_light_color' => '#fff1f1',
-        'secondary_color' => '#16191f',
-        'accent_color' => '#f8dfe1',
-        'heading_color' => '#17191f',
-        'body_color' => '#5d6470',
-        'muted_color' => '#7b838f',
-        'border_color' => '#eef0f4',
-        'background_color' => '#ffffff',
-        'section_soft_bg' => '#fff6f6',
-        'footer_bg_color' => '#17191f',
-        'footer_text_color' => '#cfd3dc',
-        'footer_heading_color' => '#ffffff',
-        'header_bg_color' => '#ffffff',
-        'header_text_color' => '#17191f',
-        'font_body' => 'system',
-        'font_heading' => 'system',
-        'base_font_size' => '15px',
-        'body_line_height' => '1.6',
-        'heading_line_height' => '1.14',
-        'h1_size_desktop' => '58px',
-        'h1_size_mobile' => '34px',
-        'h2_size_desktop' => '34px',
-        'h2_size_mobile' => '24px',
-        'font_weight_heading' => '800',
-        'font_weight_button' => '800',
-        'container_width' => '1220px',
-        'content_width' => '920px',
-        'section_padding_y' => '72px',
-        'section_padding_y_mobile' => '46px',
-        'grid_gap' => '18px',
-        'page_hero_padding_y' => '70px',
-        'border_radius_sm' => '6px',
-        'border_radius_md' => '12px',
-        'border_radius_lg' => '22px',
-        'radius' => '12px',
-        'header_layout' => 'logo_left_menu_center_cta_right',
-        'header_style' => 'white',
-        'header_height' => '72px',
-        'header_sticky' => '1',
-        'header_blur' => '1',
-        'header_shadow' => '1',
-        'header_full_width' => '0',
-        'show_search' => '1',
-        'show_language_switcher' => '1',
-        'show_header_cta' => '1',
-        'header_cta_text' => 'Get a Quote',
-        'header_cta_url' => '#inquiry',
-        'mobile_header_style' => 'offcanvas',
-        'button_radius' => '999px',
-        'button_height' => '42px',
-        'button_padding_x' => '20px',
-        'button_style' => 'pill',
-        'button_shadow' => '1',
-        'button_hover_effect' => 'lift',
-        'card_radius' => '14px',
-        'card_shadow' => 'soft',
-        'card_border' => '1',
-        'card_hover_effect' => 'lift',
-        'product_card_style' => 'clean',
-        'category_card_style' => 'image_top',
-        'news_card_style' => 'image_left',
-        'footer_layout' => 'four_columns',
-        'show_footer_logo' => '1',
-        'show_footer_products' => '1',
-        'show_footer_links' => '1',
-        'show_footer_contact' => '1',
-        'show_footer_social' => '1',
-        'show_footer_subscribe' => '0',
-        'contact_phone' => '+86 188 0000 8888',
-        'contact_email' => 'sales@example.com',
+        'logo_id' => '', 'logo_url' => '', 'mobile_logo_id' => '', 'mobile_logo_url' => '',
+        'footer_logo_id' => '', 'footer_logo_url' => '', 'favicon_id' => '', 'favicon_url' => '',
+        'logo_text' => 'AURELIA', 'logo_subtext' => 'MANUFACTURING', 'brand_mark_text' => 'A',
+        'brand_description' => 'Precision kitchen appliance manufacturing.', 'show_logo_text' => '1',
+        'primary_color' => '#ef6b6f', 'primary_dark_color' => '#d94c51', 'primary_light_color' => '#fff1f1',
+        'secondary_color' => '#16191f', 'accent_color' => '#f8dfe1', 'heading_color' => '#17191f',
+        'body_color' => '#5d6470', 'muted_color' => '#7b838f', 'border_color' => '#eef0f4',
+        'background_color' => '#ffffff', 'section_soft_bg' => '#fff6f6',
+        'font_body' => 'system', 'font_heading' => 'system', 'base_font_size' => '15px',
+        'body_line_height' => '1.6', 'heading_line_height' => '1.14',
+        'h1_size_desktop' => '58px', 'h1_size_mobile' => '34px',
+        'h2_size_desktop' => '34px', 'h2_size_mobile' => '24px',
+        'font_weight_heading' => '800', 'font_weight_button' => '800',
+        'container_width' => '1220px', 'content_width' => '920px',
+        'section_padding_y' => '72px', 'section_padding_y_mobile' => '46px', 'grid_gap' => '18px',
+        'page_hero_padding_y' => '70px', 'border_radius_sm' => '6px',
+        'border_radius_md' => '12px', 'border_radius_lg' => '22px',
+        'button_radius' => '999px', 'button_height' => '42px', 'button_padding_x' => '20px',
+        'button_style' => 'pill', 'button_shadow' => '1', 'button_hover_effect' => 'lift',
+        'card_radius' => '14px', 'card_shadow' => 'soft', 'card_border' => '1',
+        'card_hover_effect' => 'lift', 'product_card_style' => 'clean',
+        'category_card_style' => 'image_top', 'news_card_style' => 'image_left',
+        'mobile_breakpoint' => '760px', 'mobile_product_columns' => '1',
+        'tablet_product_columns' => '3', 'desktop_product_columns' => '4',
+    ];
+}
+
+function cb_default_header_settings()
+{
+    return [
+        'header_layout' => 'logo_left_menu_center_cta_right', 'header_style' => 'white',
+        'header_height' => '72px', 'header_sticky' => '1', 'header_blur' => '1',
+        'header_shadow' => '1', 'header_full_width' => '0', 'header_bg_color' => '#ffffff',
+        'header_text_color' => '#17191f', 'show_search' => '1',
+        'show_language_switcher' => '1', 'show_header_cta' => '1',
+        'header_cta_text' => 'Get a Quote', 'header_cta_url' => '#inquiry',
+        'mobile_header_style' => 'offcanvas', 'mobile_menu_style' => 'offcanvas',
+        'mobile_show_cta' => '0', 'mobile_show_language' => '1', 'mobile_hero_compact' => '1',
+    ];
+}
+
+function cb_default_footer_settings()
+{
+    return [
+        'footer_layout' => 'four_columns', 'footer_bg_color' => '#17191f',
+        'footer_text_color' => '#cfd3dc', 'footer_heading_color' => '#ffffff',
+        'show_footer_logo' => '1', 'show_footer_products' => '1', 'show_footer_links' => '1',
+        'show_footer_contact' => '1', 'show_footer_social' => '1', 'show_footer_subscribe' => '0',
+        'contact_phone' => '+86 188 0000 8888', 'contact_email' => 'sales@example.com',
         'company_address' => '88 Industrial Road, Guangzhou, China',
         'footer_description' => 'Manufacturer of reliable kitchen appliances for OEM and ODM brands worldwide.',
         'copyright_text' => 'Copyright (c) 2026 Aurelia Manufacturing. All rights reserved.',
-        'social_links' => "LinkedIn|https://linkedin.com\nYouTube|https://youtube.com\nFacebook|https://facebook.com",
-        'enable_animation' => '1',
-        'animation_style' => 'fade_up',
-        'animation_duration' => '600ms',
-        'animation_delay_step' => '80ms',
-        'enable_counter_anim' => '1',
-        'enable_hover_anim' => '1',
-        'mobile_breakpoint' => '760px',
-        'mobile_menu_style' => 'offcanvas',
-        'mobile_show_cta' => '0',
-        'mobile_show_language' => '1',
-        'mobile_hero_compact' => '1',
-        'mobile_product_columns' => '1',
-        'tablet_product_columns' => '3',
-        'desktop_product_columns' => '4',
+        'social_links' => [
+            ['title' => 'LinkedIn', 'description' => '', 'image_id' => 0, 'image_url' => '', 'url' => 'https://linkedin.com'],
+            ['title' => 'YouTube', 'description' => '', 'image_id' => 0, 'image_url' => '', 'url' => 'https://youtube.com'],
+        ],
         'floating_contact' => '1',
     ];
 }
 
+function cb_default_template_settings()
+{
+    $base = [
+        'layout' => 'default', 'container_width' => '', 'sidebar' => 'none',
+        'show_breadcrumb' => '1', 'background_color' => '', 'text_color' => '',
+        'columns_desktop' => '4', 'columns_tablet' => '3', 'columns_mobile' => '1',
+        'seo_title' => '', 'seo_description' => '',
+    ];
+    return [
+        'home' => $base,
+        'standard_page' => $base,
+        'about_page' => $base,
+        'product_archive' => $base + ['product_card_style' => 'clean'],
+        'product_category' => $base + ['product_card_style' => 'clean'],
+        'product_single' => $base + [
+            'product_layout' => 'gallery_left', 'sticky_summary' => '1', 'column_gap' => '42px',
+            'show_short_description' => '1', 'show_quick_specs' => '1', 'show_catalog' => '1',
+            'show_video' => '1', 'show_related_products' => '1', 'show_inquiry' => '1',
+            'show_bottom_cta' => '1', 'mobile_gallery_first' => '1', 'mobile_sticky_cta' => '0',
+        ],
+        'factory_archive' => $base, 'factory_single' => $base,
+        'case_archive' => $base, 'case_single' => $base,
+        'video_archive' => $base, 'video_single' => $base,
+        'news_archive' => $base, 'news_category' => $base, 'news_single' => $base,
+        'contact_page' => $base, 'search' => $base, '404' => $base,
+    ];
+}
+
+function cb_default_theme_options()
+{
+    return array_merge(cb_default_design_settings(), cb_default_header_settings(), cb_default_footer_settings());
+}
+
+function cb_get_group_options($option, $defaults = [])
+{
+    $stored = get_option($option, []);
+    return wp_parse_args(is_array($stored) ? $stored : [], $defaults);
+}
+
 function cb_get_options()
 {
-    return wp_parse_args((array) get_option('cb_theme_options', []), cb_default_theme_options());
+    $legacy = cb_get_group_options('cb_theme_options');
+    $groups = array_merge(
+        cb_get_group_options('cb_design_settings', cb_default_design_settings()),
+        cb_get_group_options('cb_header_settings', cb_default_header_settings()),
+        cb_get_group_options('cb_footer_settings', cb_default_footer_settings())
+    );
+    return wp_parse_args($groups, wp_parse_args($legacy, cb_default_theme_options()));
 }
 
 function cb_get_option($key, $default = '')
 {
     $options = cb_get_options();
-    return isset($options[$key]) ? $options[$key] : $default;
+    return array_key_exists($key, $options) ? $options[$key] : $default;
 }
 
 function cb_default_string_translations()
@@ -152,10 +153,7 @@ function cb_t($key)
 {
     $lang = cb_get_current_language();
     $translations = wp_parse_args((array) get_option('cb_string_translations', []), cb_default_string_translations());
-    if (isset($translations[$key][$lang]) && $translations[$key][$lang] !== '') {
-        return $translations[$key][$lang];
-    }
-    return $translations[$key]['en'] ?? $key;
+    return $translations[$key][$lang] ?? $translations[$key]['en'] ?? $key;
 }
 
 function cb_sanitize_textarea_lines($value)
@@ -166,11 +164,22 @@ function cb_sanitize_textarea_lines($value)
 
 function cb_parse_lines($value)
 {
+    if (is_array($value)) {
+        return array_map(static function ($item) {
+            $item = (array) $item;
+            return [
+                'label' => $item['title'] ?? $item['label'] ?? '',
+                'value' => $item['description'] ?? $item['value'] ?? '',
+                'image' => $item['image_url'] ?? $item['image'] ?? '',
+                'url' => $item['url'] ?? '',
+            ];
+        }, $value);
+    }
     $items = [];
     foreach (preg_split('/\r\n|\r|\n/', (string) $value) as $line) {
         $parts = array_map('trim', explode('|', $line, 3));
         if (!empty($parts[0])) {
-            $items[] = ['label' => $parts[0], 'value' => $parts[1] ?? '', 'image' => $parts[2] ?? ''];
+            $items[] = ['label' => $parts[0], 'value' => $parts[1] ?? '', 'image' => $parts[2] ?? '', 'url' => ''];
         }
     }
     return $items;
@@ -182,10 +191,7 @@ function cb_sanitize_css_size($value, $default = '')
     if ($value === '') {
         return $default;
     }
-    if (preg_match('/^\d+(\.\d+)?(px|rem|em|%|vh|vw|ms|s)?$/', $value)) {
-        return $value;
-    }
-    return $default;
+    return preg_match('/^\d+(\.\d+)?(px|rem|em|%|vh|vw|ms|s)?$/', $value) ? $value : $default;
 }
 
 function cb_sanitize_choice($value, $allowed, $default)
@@ -194,67 +200,82 @@ function cb_sanitize_choice($value, $allowed, $default)
     return in_array($value, $allowed, true) ? $value : $default;
 }
 
+function cb_sanitize_settings_group($input, $defaults)
+{
+    $input = is_array($input) ? wp_unslash($input) : [];
+    $clean = [];
+    foreach ($defaults as $key => $default) {
+        $value = $input[$key] ?? $default;
+        if (is_array($default)) {
+            $clean[$key] = cb_sanitize_repeater_items($value);
+        } elseif (str_ends_with($key, '_id')) {
+            $clean[$key] = (string) absint($value);
+        } elseif (str_contains($key, 'url')) {
+            $clean[$key] = esc_url_raw($value);
+        } elseif (str_contains($key, 'color')) {
+            $clean[$key] = sanitize_hex_color($value) ?: '';
+        } elseif (preg_match('/^(show_|enable_|mobile_show_|header_|footer_|floating_)/', $key) && in_array((string) $default, ['0', '1'], true)) {
+            $clean[$key] = $value === '1' ? '1' : '0';
+        } elseif (preg_match('/(width|height|size|padding|radius|gap|duration|line_height)$/', $key)) {
+            $clean[$key] = cb_sanitize_css_size($value, $default);
+        } elseif (str_contains($key, 'email')) {
+            $clean[$key] = sanitize_email($value);
+        } elseif (str_contains($key, 'description') || str_contains($key, 'address')) {
+            $clean[$key] = sanitize_textarea_field($value);
+        } else {
+            $clean[$key] = sanitize_text_field($value);
+        }
+    }
+    return $clean;
+}
+
+function cb_sanitize_repeater_items($items)
+{
+    $clean = [];
+    foreach ((array) $items as $item) {
+        $item = (array) $item;
+        $clean[] = [
+            'title' => sanitize_text_field($item['title'] ?? ''),
+            'description' => sanitize_textarea_field($item['description'] ?? ''),
+            'image_id' => absint($item['image_id'] ?? 0),
+            'image_url' => esc_url_raw($item['image_url'] ?? ''),
+            'url' => esc_url_raw($item['url'] ?? ''),
+        ];
+    }
+    return array_values(array_filter($clean, static fn($item) => implode('', array_map('strval', $item)) !== '0'));
+}
+
 function cb_render_dynamic_css_variables()
 {
-    $defaults = cb_default_theme_options();
-    $options = cb_get_options();
-    $colors = [
-        '--cb-primary' => 'primary_color',
-        '--cb-primary-dark' => 'primary_dark_color',
-        '--cb-primary-light' => 'primary_light_color',
-        '--cb-secondary' => 'secondary_color',
-        '--cb-accent' => 'accent_color',
-        '--cb-heading' => 'heading_color',
-        '--cb-body' => 'body_color',
-        '--cb-muted' => 'muted_color',
-        '--cb-border' => 'border_color',
-        '--cb-bg' => 'background_color',
-        '--cb-soft-bg' => 'section_soft_bg',
-        '--cb-footer-bg' => 'footer_bg_color',
-        '--cb-footer-text' => 'footer_text_color',
-        '--cb-footer-heading' => 'footer_heading_color',
-        '--cb-header-bg' => 'header_bg_color',
-        '--cb-header-text' => 'header_text_color',
-    ];
-    $sizes = [
-        '--cb-container' => 'container_width',
-        '--cb-content' => 'content_width',
-        '--cb-section-padding-y' => 'section_padding_y',
-        '--cb-section-padding-y-mobile' => 'section_padding_y_mobile',
-        '--cb-grid-gap' => 'grid_gap',
-        '--cb-page-hero-padding-y' => 'page_hero_padding_y',
-        '--cb-radius-sm' => 'border_radius_sm',
-        '--cb-radius-md' => 'border_radius_md',
-        '--cb-radius-lg' => 'border_radius_lg',
-        '--cb-radius' => 'card_radius',
-        '--cb-card-radius' => 'card_radius',
-        '--cb-button-radius' => 'button_radius',
-        '--cb-button-height' => 'button_height',
-        '--cb-button-padding-x' => 'button_padding_x',
-        '--cb-base-font-size' => 'base_font_size',
-        '--cb-body-line-height' => 'body_line_height',
-        '--cb-heading-line-height' => 'heading_line_height',
-        '--cb-h1-desktop' => 'h1_size_desktop',
-        '--cb-h1-mobile' => 'h1_size_mobile',
-        '--cb-h2-desktop' => 'h2_size_desktop',
-        '--cb-h2-mobile' => 'h2_size_mobile',
-        '--cb-heading-weight' => 'font_weight_heading',
-        '--cb-button-weight' => 'font_weight_button',
-        '--cb-header-height' => 'header_height',
-        '--cb-animation-duration' => 'animation_duration',
-        '--cb-animation-delay-step' => 'animation_delay_step',
+    $map = [
+        '--cb-primary' => 'primary_color', '--cb-primary-dark' => 'primary_dark_color',
+        '--cb-primary-light' => 'primary_light_color', '--cb-secondary' => 'secondary_color',
+        '--cb-accent' => 'accent_color', '--cb-heading' => 'heading_color', '--cb-body' => 'body_color',
+        '--cb-muted' => 'muted_color', '--cb-border' => 'border_color', '--cb-bg' => 'background_color',
+        '--cb-soft-bg' => 'section_soft_bg', '--cb-footer-bg' => 'footer_bg_color',
+        '--cb-footer-text' => 'footer_text_color', '--cb-footer-heading' => 'footer_heading_color',
+        '--cb-header-bg' => 'header_bg_color', '--cb-header-text' => 'header_text_color',
+        '--cb-container' => 'container_width', '--cb-content' => 'content_width',
+        '--cb-section-padding-y' => 'section_padding_y', '--cb-section-padding-y-mobile' => 'section_padding_y_mobile',
+        '--cb-grid-gap' => 'grid_gap', '--cb-page-hero-padding-y' => 'page_hero_padding_y',
+        '--cb-radius-sm' => 'border_radius_sm', '--cb-radius-md' => 'border_radius_md',
+        '--cb-radius-lg' => 'border_radius_lg', '--cb-radius' => 'card_radius',
+        '--cb-card-radius' => 'card_radius', '--cb-button-radius' => 'button_radius',
+        '--cb-button-height' => 'button_height', '--cb-button-padding-x' => 'button_padding_x',
+        '--cb-base-font-size' => 'base_font_size', '--cb-body-line-height' => 'body_line_height',
+        '--cb-heading-line-height' => 'heading_line_height', '--cb-h1-desktop' => 'h1_size_desktop',
+        '--cb-h1-mobile' => 'h1_size_mobile', '--cb-h2-desktop' => 'h2_size_desktop',
+        '--cb-h2-mobile' => 'h2_size_mobile', '--cb-heading-weight' => 'font_weight_heading',
+        '--cb-button-weight' => 'font_weight_button', '--cb-header-height' => 'header_height',
         '--cb-mobile-product-columns' => 'mobile_product_columns',
         '--cb-tablet-product-columns' => 'tablet_product_columns',
         '--cb-desktop-product-columns' => 'desktop_product_columns',
     ];
-
-    $css = ':root{';
-    foreach ($colors as $var => $key) {
-        $css .= $var . ':' . (sanitize_hex_color($options[$key] ?? '') ?: $defaults[$key]) . ';';
+    $css = ':root{--cb-font-body:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI","Noto Sans",Arial,sans-serif;';
+    $css .= '--cb-font-heading:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI","Noto Sans",Arial,sans-serif;';
+    foreach ($map as $variable => $key) {
+        $css .= $variable . ':' . esc_html((string) cb_get_option($key)) . ';';
     }
-    foreach ($sizes as $var => $key) {
-        $css .= $var . ':' . cb_sanitize_css_size($options[$key] ?? '', $defaults[$key] ?? '') . ';';
-    }
-    $css .= '}';
-    echo '<style id="cb-dynamic-theme-vars">' . esc_html($css) . '</style>' . "\n";
+    $css .= '}html:lang(zh-CN){--cb-font-body:"PingFang SC","Microsoft YaHei","Noto Sans SC","Noto Sans CJK SC",system-ui,sans-serif;--cb-font-heading:var(--cb-font-body);}';
+    echo '<style id="cb-dynamic-theme-vars">' . $css . '</style>' . "\n";
 }

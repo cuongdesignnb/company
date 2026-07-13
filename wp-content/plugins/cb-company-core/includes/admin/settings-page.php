@@ -3,225 +3,179 @@ if (!defined('ABSPATH')) {
     exit;
 }
 
+function cb_admin_menu_items()
+{
+    return [
+        'cb-company' => [__('Tổng quan', 'cb-company-core'), 'dashicons-dashboard'],
+        'cb-company-design' => [__('Thiết kế chung', 'cb-company-core'), 'dashicons-art'],
+        'cb-company-header' => [__('Header', 'cb-company-core'), 'dashicons-align-wide'],
+        'cb-company-footer' => [__('Footer', 'cb-company-core'), 'dashicons-align-full-width'],
+        'cb-company-templates' => [__('Mẫu trang', 'cb-company-core'), 'dashicons-layout'],
+        'cb-company-special-pages' => [__('Trang đặc biệt', 'cb-company-core'), 'dashicons-admin-page'],
+        'cb-company-page-builder' => [__('Trình dựng trang', 'cb-company-core'), 'dashicons-screenoptions'],
+        'cb-company-strings' => [__('Chuỗi giao diện', 'cb-company-core'), 'dashicons-translation'],
+        'cb-company-multilingual' => [__('Đa ngôn ngữ', 'cb-company-core'), 'dashicons-admin-site-alt3'],
+        'cb-company-forms' => [__('Biểu mẫu và email', 'cb-company-core'), 'dashicons-email-alt2'],
+        'cb-company-seo' => [__('SEO', 'cb-company-core'), 'dashicons-chart-line'],
+        'cb-company-performance' => [__('Hiệu năng', 'cb-company-core'), 'dashicons-performance'],
+        'cb-company-tools' => [__('Công cụ', 'cb-company-core'), 'dashicons-admin-tools'],
+    ];
+}
+
 function cb_register_settings_pages()
 {
-    add_menu_page('Company Settings', 'Company Settings', 'manage_options', 'cb-company-settings', 'cb_render_theme_options_page', 'dashicons-admin-customizer', 58);
-    add_submenu_page('cb-company-settings', 'Theme Options', 'Theme Options', 'manage_options', 'cb-company-settings', 'cb_render_theme_options_page');
-    add_submenu_page('cb-company-settings', 'Homepage Builder', 'Homepage Builder', 'manage_options', 'cb-homepage-sections', 'cb_render_homepage_sections_page');
-    add_submenu_page('cb-company-settings', 'String Translations', 'String Translations', 'manage_options', 'cb-string-translations', 'cb_render_string_translations_page');
+    add_menu_page(__('CB Company', 'cb-company-core'), __('CB Company', 'cb-company-core'), 'manage_options', 'cb-company', 'cb_render_dashboard_page', 'dashicons-building', 58);
+    $callbacks = [
+        'cb-company' => 'cb_render_dashboard_page', 'cb-company-design' => 'cb_render_design_settings_page',
+        'cb-company-header' => 'cb_render_header_settings_page', 'cb-company-footer' => 'cb_render_footer_settings_page',
+        'cb-company-templates' => 'cb_render_template_settings_page', 'cb-company-special-pages' => 'cb_render_special_pages_page',
+        'cb-company-page-builder' => 'cb_render_page_builder_index_page', 'cb-company-strings' => 'cb_render_string_translations_page',
+        'cb-company-multilingual' => 'cb_render_multilingual_settings_page', 'cb-company-forms' => 'cb_render_form_settings_page',
+        'cb-company-seo' => 'cb_render_seo_settings_page', 'cb-company-performance' => 'cb_render_performance_settings_page',
+        'cb-company-tools' => 'cb_render_tools_page',
+    ];
+    foreach (cb_admin_menu_items() as $slug => $item) {
+        add_submenu_page('cb-company', $item[0], $item[0], 'manage_options', $slug, $callbacks[$slug]);
+    }
 }
 
 function cb_register_settings()
 {
-    register_setting('cb_theme_options_group', 'cb_theme_options', ['sanitize_callback' => 'cb_sanitize_theme_options']);
-    register_setting('cb_homepage_sections_group', 'cb_homepage_sections', ['sanitize_callback' => 'cb_sanitize_homepage_sections']);
+    register_setting('cb_design_settings_group', 'cb_design_settings', ['sanitize_callback' => 'cb_sanitize_design_settings']);
+    register_setting('cb_header_settings_group', 'cb_header_settings', ['sanitize_callback' => 'cb_sanitize_header_settings']);
+    register_setting('cb_footer_settings_group', 'cb_footer_settings', ['sanitize_callback' => 'cb_sanitize_footer_settings']);
+    register_setting('cb_template_settings_group', 'cb_template_settings', ['sanitize_callback' => 'cb_sanitize_template_settings']);
+    register_setting('cb_special_pages_group', 'cb_special_pages', ['sanitize_callback' => 'cb_sanitize_special_pages']);
     register_setting('cb_string_translations_group', 'cb_string_translations', ['sanitize_callback' => 'cb_sanitize_string_translations']);
+    register_setting('cb_form_settings_group', 'cb_form_settings', ['sanitize_callback' => 'cb_sanitize_form_settings']);
+    register_setting('cb_seo_settings_group', 'cb_seo_settings', ['sanitize_callback' => 'cb_sanitize_seo_settings']);
+    register_setting('cb_performance_settings_group', 'cb_performance_settings', ['sanitize_callback' => 'cb_sanitize_performance_settings']);
 }
 
-function cb_theme_option_schema()
+function cb_design_settings_schema()
 {
     return [
-        'brand' => [
-            'label' => 'Brand',
-            'fields' => [
-                ['logo', 'image_pair', 'Logo image', 'Choose a logo from the Media Library.'],
-                ['mobile_logo', 'image_pair', 'Mobile logo', 'Optional logo for small screens.'],
-                ['favicon', 'image_pair', 'Favicon', 'Optional favicon image.'],
-                ['logo_text', 'text', 'Logo text'],
-                ['logo_subtext', 'text', 'Logo subtext'],
-                ['brand_mark_text', 'text', 'Brand mark text'],
-                ['show_logo_text', 'checkbox', 'Show logo text'],
-            ],
-        ],
-        'colors' => [
-            'label' => 'Colors',
-            'fields' => [
-                ['primary_color', 'color', 'Primary color'],
-                ['primary_dark_color', 'color', 'Primary dark'],
-                ['primary_light_color', 'color', 'Primary light'],
-                ['secondary_color', 'color', 'Secondary color'],
-                ['accent_color', 'color', 'Accent color'],
-                ['heading_color', 'color', 'Heading color'],
-                ['body_color', 'color', 'Body color'],
-                ['muted_color', 'color', 'Muted color'],
-                ['border_color', 'color', 'Border color'],
-                ['background_color', 'color', 'Background color'],
-                ['section_soft_bg', 'color', 'Soft section background'],
-                ['header_bg_color', 'color', 'Header background'],
-                ['header_text_color', 'color', 'Header text'],
-                ['footer_bg_color', 'color', 'Footer background'],
-                ['footer_text_color', 'color', 'Footer text'],
-                ['footer_heading_color', 'color', 'Footer headings'],
-            ],
-        ],
-        'typography' => [
-            'label' => 'Typography',
-            'fields' => [
-                ['font_body', 'select', 'Body font', '', ['system' => 'System UI', 'serif' => 'Serif', 'mono' => 'Monospace']],
-                ['font_heading', 'select', 'Heading font', '', ['system' => 'System UI', 'serif' => 'Serif', 'mono' => 'Monospace']],
-                ['base_font_size', 'dimension', 'Base font size'],
-                ['body_line_height', 'dimension', 'Body line height'],
-                ['heading_line_height', 'dimension', 'Heading line height'],
-                ['h1_size_desktop', 'dimension', 'H1 desktop'],
-                ['h1_size_mobile', 'dimension', 'H1 mobile'],
-                ['h2_size_desktop', 'dimension', 'H2 desktop'],
-                ['h2_size_mobile', 'dimension', 'H2 mobile'],
-                ['font_weight_heading', 'number', 'Heading weight', '', ['min' => 100, 'max' => 950, 'step' => 50]],
-                ['font_weight_button', 'number', 'Button weight', '', ['min' => 100, 'max' => 950, 'step' => 50]],
-            ],
-        ],
-        'layout' => [
-            'label' => 'Layout',
-            'fields' => [
-                ['container_width', 'dimension', 'Container width'],
-                ['content_width', 'dimension', 'Content width'],
-                ['section_padding_y', 'dimension', 'Section padding Y'],
-                ['section_padding_y_mobile', 'dimension', 'Mobile section padding Y'],
-                ['grid_gap', 'dimension', 'Grid gap'],
-                ['page_hero_padding_y', 'dimension', 'Page hero padding Y'],
-                ['border_radius_sm', 'dimension', 'Small radius'],
-                ['border_radius_md', 'dimension', 'Medium radius'],
-                ['border_radius_lg', 'dimension', 'Large radius'],
-            ],
-        ],
-        'header' => [
-            'label' => 'Header',
-            'fields' => [
-                ['header_layout', 'select', 'Header layout', '', ['logo_left_menu_center_cta_right' => 'Logo left, menu center, CTA right', 'logo_left_menu_right' => 'Logo left, menu right', 'logo_center_menu_below' => 'Centered logo, menu below', 'minimal_logo_cta' => 'Minimal logo + CTA']],
-                ['header_style', 'select', 'Header style', '', ['white' => 'White', 'transparent' => 'Transparent', 'dark' => 'Dark']],
-                ['header_height', 'dimension', 'Header height'],
-                ['header_sticky', 'checkbox', 'Sticky header'],
-                ['header_blur', 'checkbox', 'Header blur'],
-                ['header_shadow', 'checkbox', 'Header shadow'],
-                ['header_full_width', 'checkbox', 'Full-width header'],
-                ['show_search', 'checkbox', 'Show search'],
-                ['show_language_switcher', 'checkbox', 'Show language switcher'],
-                ['show_header_cta', 'checkbox', 'Show CTA'],
-                ['header_cta_text', 'text', 'CTA text'],
-                ['header_cta_url', 'text', 'CTA URL'],
-                ['mobile_header_style', 'select', 'Mobile header style', '', ['offcanvas' => 'Offcanvas', 'dropdown' => 'Dropdown']],
-            ],
-        ],
-        'footer' => [
-            'label' => 'Footer',
-            'fields' => [
-                ['footer_layout', 'select', 'Footer layout', '', ['four_columns' => 'Four columns', 'three_columns' => 'Three columns', 'centered' => 'Centered', 'minimal' => 'Minimal']],
-                ['show_footer_logo', 'checkbox', 'Show logo'],
-                ['show_footer_products', 'checkbox', 'Show products column'],
-                ['show_footer_links', 'checkbox', 'Show quick links'],
-                ['show_footer_contact', 'checkbox', 'Show contact'],
-                ['show_footer_social', 'checkbox', 'Show social'],
-                ['show_footer_subscribe', 'checkbox', 'Show subscribe'],
-                ['footer_description', 'textarea', 'Footer description'],
-                ['copyright_text', 'text', 'Copyright text'],
-            ],
-        ],
-        'buttons' => [
-            'label' => 'Buttons',
-            'fields' => [
-                ['button_style', 'select', 'Button style', '', ['rounded' => 'Rounded', 'pill' => 'Pill', 'square' => 'Square', 'soft' => 'Soft']],
-                ['button_radius', 'dimension', 'Button radius'],
-                ['button_height', 'dimension', 'Button height'],
-                ['button_padding_x', 'dimension', 'Horizontal padding'],
-                ['button_shadow', 'checkbox', 'Button shadow'],
-                ['button_hover_effect', 'select', 'Hover effect', '', ['none' => 'None', 'lift' => 'Lift', 'fade' => 'Fade', 'outline' => 'Outline']],
-            ],
-        ],
-        'cards' => [
-            'label' => 'Cards',
-            'fields' => [
-                ['card_radius', 'dimension', 'Card radius'],
-                ['card_shadow', 'select', 'Card shadow', '', ['none' => 'None', 'soft' => 'Soft', 'medium' => 'Medium', 'strong' => 'Strong']],
-                ['card_border', 'checkbox', 'Card border'],
-                ['card_hover_effect', 'select', 'Card hover', '', ['none' => 'None', 'lift' => 'Lift', 'image_zoom' => 'Image zoom', 'border_highlight' => 'Border highlight']],
-                ['product_card_style', 'select', 'Product card style', '', ['clean' => 'Clean', 'soft' => 'Soft', 'bordered' => 'Bordered', 'overlay' => 'Overlay']],
-                ['category_card_style', 'select', 'Category card style', '', ['image_top' => 'Image top', 'soft' => 'Soft', 'bordered' => 'Bordered']],
-                ['news_card_style', 'select', 'News card style', '', ['image_left' => 'Image left', 'image_top' => 'Image top', 'clean' => 'Clean']],
-            ],
-        ],
-        'animation' => [
-            'label' => 'Animation',
-            'fields' => [
-                ['enable_animation', 'checkbox', 'Enable animation'],
-                ['animation_style', 'select', 'Animation style', '', ['none' => 'None', 'fade' => 'Fade', 'fade_up' => 'Fade up', 'slide_up' => 'Slide up', 'scale' => 'Scale']],
-                ['animation_duration', 'dimension', 'Animation duration'],
-                ['animation_delay_step', 'dimension', 'Delay step'],
-                ['enable_counter_anim', 'checkbox', 'Counter animation'],
-                ['enable_hover_anim', 'checkbox', 'Hover animation'],
-            ],
-        ],
-        'mobile' => [
-            'label' => 'Mobile',
-            'fields' => [
-                ['mobile_breakpoint', 'dimension', 'Mobile breakpoint'],
-                ['mobile_menu_style', 'select', 'Mobile menu style', '', ['offcanvas' => 'Offcanvas', 'dropdown' => 'Dropdown']],
-                ['mobile_show_cta', 'checkbox', 'Show CTA on mobile'],
-                ['mobile_show_language', 'checkbox', 'Show language on mobile'],
-                ['mobile_hero_compact', 'checkbox', 'Compact hero on mobile'],
-                ['mobile_product_columns', 'number', 'Mobile product columns', '', ['min' => 1, 'max' => 2]],
-                ['tablet_product_columns', 'number', 'Tablet product columns', '', ['min' => 1, 'max' => 4]],
-                ['desktop_product_columns', 'number', 'Desktop product columns', '', ['min' => 2, 'max' => 6]],
-            ],
-        ],
-        'contact' => [
-            'label' => 'Contact',
-            'fields' => [
-                ['contact_phone', 'text', 'Phone'],
-                ['contact_email', 'text', 'Email'],
-                ['company_address', 'textarea', 'Company address'],
-                ['floating_contact', 'checkbox', 'Floating quote button'],
-                ['social_links', 'textarea', 'Social links', 'One per line: Label|URL'],
-            ],
-        ],
+        'identity' => ['label' => __('Nhận diện', 'cb-company-core'), 'fields' => [
+            ['logo', 'image_pair', __('Logo chính', 'cb-company-core'), __('Logo dùng trên header desktop.', 'cb-company-core')],
+            ['mobile_logo', 'image_pair', __('Logo mobile', 'cb-company-core')],
+            ['footer_logo', 'image_pair', __('Logo footer', 'cb-company-core')],
+            ['favicon', 'image_pair', __('Favicon', 'cb-company-core')],
+            ['logo_text', 'text', __('Tên thương hiệu', 'cb-company-core')],
+            ['logo_subtext', 'text', __('Dòng mô tả thương hiệu', 'cb-company-core')],
+            ['show_logo_text', 'checkbox', __('Hiện chữ cạnh logo', 'cb-company-core')],
+        ]],
+        'colors' => ['label' => __('Màu sắc', 'cb-company-core'), 'fields' => [
+            ['primary_color', 'color', __('Màu chủ đạo', 'cb-company-core')], ['primary_dark_color', 'color', __('Màu chủ đạo đậm', 'cb-company-core')],
+            ['primary_light_color', 'color', __('Màu chủ đạo nhạt', 'cb-company-core')], ['secondary_color', 'color', __('Màu phụ', 'cb-company-core')],
+            ['accent_color', 'color', __('Màu nhấn', 'cb-company-core')], ['heading_color', 'color', __('Màu tiêu đề', 'cb-company-core')],
+            ['body_color', 'color', __('Màu nội dung', 'cb-company-core')], ['muted_color', 'color', __('Màu muted', 'cb-company-core')],
+            ['border_color', 'color', __('Màu đường viền', 'cb-company-core')], ['background_color', 'color', __('Màu nền website', 'cb-company-core')],
+            ['section_soft_bg', 'color', __('Màu nền section nhẹ', 'cb-company-core')],
+        ]],
+        'typography' => ['label' => __('Typography', 'cb-company-core'), 'fields' => [
+            ['font_body', 'select', __('Font nội dung', 'cb-company-core'), '', ['system' => __('Font hệ thống đa ngôn ngữ', 'cb-company-core'), 'serif' => __('Serif', 'cb-company-core')]],
+            ['font_heading', 'select', __('Font tiêu đề', 'cb-company-core'), '', ['system' => __('Font hệ thống đa ngôn ngữ', 'cb-company-core'), 'serif' => __('Serif', 'cb-company-core')]],
+            ['base_font_size', 'dimension', __('Cỡ chữ cơ bản', 'cb-company-core')], ['body_line_height', 'dimension', __('Line height', 'cb-company-core')],
+            ['h1_size_desktop', 'dimension', __('Cỡ H1 desktop', 'cb-company-core')], ['h1_size_mobile', 'dimension', __('Cỡ H1 mobile', 'cb-company-core')],
+            ['h2_size_desktop', 'dimension', __('Cỡ H2 desktop', 'cb-company-core')], ['h2_size_mobile', 'dimension', __('Cỡ H2 mobile', 'cb-company-core')],
+            ['font_weight_heading', 'number', __('Font weight tiêu đề', 'cb-company-core'), '', ['min' => 100, 'max' => 900, 'step' => 100]],
+            ['font_weight_button', 'number', __('Font weight button', 'cb-company-core'), '', ['min' => 100, 'max' => 900, 'step' => 100]],
+        ]],
+        'layout' => ['label' => __('Bố cục', 'cb-company-core'), 'fields' => [
+            ['container_width', 'dimension', __('Chiều rộng container', 'cb-company-core')], ['content_width', 'dimension', __('Chiều rộng nội dung bài viết', 'cb-company-core')],
+            ['section_padding_y', 'dimension', __('Khoảng cách section desktop', 'cb-company-core')], ['section_padding_y_mobile', 'dimension', __('Khoảng cách section mobile', 'cb-company-core')],
+            ['grid_gap', 'dimension', __('Khoảng cách grid', 'cb-company-core')], ['border_radius_sm', 'dimension', __('Border radius nhỏ', 'cb-company-core')],
+            ['border_radius_md', 'dimension', __('Border radius vừa', 'cb-company-core')], ['border_radius_lg', 'dimension', __('Border radius lớn', 'cb-company-core')],
+        ]],
+        'buttons' => ['label' => __('Nút', 'cb-company-core'), 'fields' => [
+            ['button_style', 'select', __('Kiểu nút', 'cb-company-core'), '', ['rounded' => __('Bo góc', 'cb-company-core'), 'pill' => __('Dạng viên thuốc', 'cb-company-core'), 'square' => __('Vuông', 'cb-company-core'), 'soft' => __('Nền nhẹ', 'cb-company-core')]],
+            ['button_height', 'dimension', __('Chiều cao', 'cb-company-core')], ['button_padding_x', 'dimension', __('Padding ngang', 'cb-company-core')],
+            ['button_radius', 'dimension', __('Border radius', 'cb-company-core')], ['button_shadow', 'checkbox', __('Shadow', 'cb-company-core')],
+            ['button_hover_effect', 'select', __('Hover effect', 'cb-company-core'), '', ['none' => __('Không', 'cb-company-core'), 'lift' => __('Nâng lên', 'cb-company-core'), 'fade' => __('Mờ dần', 'cb-company-core'), 'outline' => __('Đổi viền', 'cb-company-core')]],
+        ]],
+        'cards' => ['label' => __('Thẻ nội dung', 'cb-company-core'), 'fields' => [
+            ['card_radius', 'dimension', __('Card radius', 'cb-company-core')], ['card_border', 'checkbox', __('Card border', 'cb-company-core')],
+            ['card_shadow', 'select', __('Card shadow', 'cb-company-core'), '', ['none' => __('Không', 'cb-company-core'), 'soft' => __('Nhẹ', 'cb-company-core'), 'medium' => __('Vừa', 'cb-company-core'), 'strong' => __('Đậm', 'cb-company-core')]],
+            ['card_hover_effect', 'select', __('Card hover effect', 'cb-company-core'), '', ['none' => __('Không', 'cb-company-core'), 'lift' => __('Nâng lên', 'cb-company-core'), 'image_zoom' => __('Phóng ảnh', 'cb-company-core'), 'border_highlight' => __('Nhấn viền', 'cb-company-core')]],
+            ['product_card_style', 'select', __('Product card style', 'cb-company-core'), '', ['clean' => __('Tối giản', 'cb-company-core'), 'soft' => __('Nền nhẹ', 'cb-company-core'), 'bordered' => __('Có viền', 'cb-company-core')]],
+            ['category_card_style', 'select', __('Category card style', 'cb-company-core'), '', ['image_top' => __('Ảnh phía trên', 'cb-company-core'), 'soft' => __('Nền nhẹ', 'cb-company-core'), 'bordered' => __('Có viền', 'cb-company-core')]],
+            ['news_card_style', 'select', __('News card style', 'cb-company-core'), '', ['image_left' => __('Ảnh bên trái', 'cb-company-core'), 'image_top' => __('Ảnh phía trên', 'cb-company-core'), 'clean' => __('Tối giản', 'cb-company-core')]],
+        ]],
+        'responsive' => ['label' => __('Responsive', 'cb-company-core'), 'fields' => [
+            ['mobile_breakpoint', 'dimension', __('Breakpoint mobile', 'cb-company-core')],
+            ['desktop_product_columns', 'number', __('Số cột desktop', 'cb-company-core'), '', ['min' => 2, 'max' => 6]],
+            ['tablet_product_columns', 'number', __('Số cột tablet', 'cb-company-core'), '', ['min' => 1, 'max' => 4]],
+            ['mobile_product_columns', 'number', __('Số cột mobile', 'cb-company-core'), '', ['min' => 1, 'max' => 2]],
+        ]],
     ];
 }
 
-function cb_sanitize_theme_options($input)
+function cb_header_settings_schema()
 {
-    $input = (array) $input;
-    $defaults = cb_default_theme_options();
-    $clean = [];
-    $choice_fields = [
-        'header_layout' => ['logo_left_menu_center_cta_right', 'logo_left_menu_right', 'logo_center_menu_below', 'minimal_logo_cta'],
-        'header_style' => ['white', 'transparent', 'dark'],
-        'mobile_header_style' => ['offcanvas', 'dropdown'],
-        'button_style' => ['rounded', 'pill', 'square', 'soft'],
-        'button_hover_effect' => ['none', 'lift', 'fade', 'outline'],
-        'card_shadow' => ['none', 'soft', 'medium', 'strong'],
-        'card_hover_effect' => ['none', 'lift', 'image_zoom', 'border_highlight'],
-        'product_card_style' => ['clean', 'soft', 'bordered', 'overlay'],
-        'category_card_style' => ['image_top', 'soft', 'bordered'],
-        'news_card_style' => ['image_left', 'image_top', 'clean'],
-        'footer_layout' => ['four_columns', 'three_columns', 'centered', 'minimal'],
-        'animation_style' => ['none', 'fade', 'fade_up', 'slide_up', 'scale'],
-        'mobile_menu_style' => ['offcanvas', 'dropdown'],
-        'font_body' => ['system', 'serif', 'mono'],
-        'font_heading' => ['system', 'serif', 'mono'],
+    return [
+        'desktop' => ['label' => __('Desktop', 'cb-company-core'), 'fields' => [
+            ['header_layout', 'select', __('Bố cục header', 'cb-company-core'), '', ['logo_left_menu_center_cta_right' => __('Logo trái, menu giữa, CTA phải', 'cb-company-core'), 'logo_left_menu_right' => __('Logo trái, menu phải', 'cb-company-core'), 'logo_center_menu_below' => __('Logo giữa, menu dưới', 'cb-company-core'), 'minimal_logo_cta' => __('Tối giản: logo và CTA', 'cb-company-core')]],
+            ['header_style', 'select', __('Kiểu nền', 'cb-company-core'), '', ['white' => __('Trắng', 'cb-company-core'), 'transparent' => __('Trong suốt', 'cb-company-core'), 'dark' => __('Tối', 'cb-company-core')]],
+            ['header_height', 'dimension', __('Chiều cao header', 'cb-company-core')], ['header_sticky', 'checkbox', __('Header sticky', 'cb-company-core')],
+            ['header_blur', 'checkbox', __('Hiệu ứng blur', 'cb-company-core')], ['header_shadow', 'checkbox', __('Đổ bóng', 'cb-company-core')],
+            ['header_full_width', 'checkbox', __('Toàn chiều rộng', 'cb-company-core')], ['header_bg_color', 'color', __('Màu nền', 'cb-company-core')],
+            ['header_text_color', 'color', __('Màu chữ', 'cb-company-core')],
+        ]],
+        'components' => ['label' => __('Thành phần', 'cb-company-core'), 'fields' => [
+            ['show_search', 'checkbox', __('Hiện tìm kiếm', 'cb-company-core')], ['show_language_switcher', 'checkbox', __('Hiện chuyển ngôn ngữ', 'cb-company-core')],
+            ['show_header_cta', 'checkbox', __('Hiện nút CTA', 'cb-company-core')], ['header_cta_text', 'text', __('Nhãn CTA', 'cb-company-core')],
+            ['header_cta_url', 'text', __('Liên kết CTA', 'cb-company-core')],
+        ]],
+        'mobile' => ['label' => __('Mobile', 'cb-company-core'), 'fields' => [
+            ['mobile_header_style', 'select', __('Kiểu menu mobile', 'cb-company-core'), '', ['offcanvas' => __('Trượt bên', 'cb-company-core'), 'dropdown' => __('Thả xuống', 'cb-company-core')]],
+            ['mobile_show_cta', 'checkbox', __('Hiện CTA trên mobile', 'cb-company-core')], ['mobile_show_language', 'checkbox', __('Hiện ngôn ngữ trên mobile', 'cb-company-core')],
+            ['mobile_hero_compact', 'checkbox', __('Hero gọn trên mobile', 'cb-company-core')],
+        ]],
     ];
-    $checkboxes = array_filter(array_keys($defaults), fn($key) => str_starts_with($key, 'show_') || str_starts_with($key, 'enable_') || in_array($key, ['header_sticky', 'header_blur', 'header_shadow', 'header_full_width', 'button_shadow', 'card_border', 'floating_contact', 'mobile_show_cta', 'mobile_show_language', 'mobile_hero_compact'], true));
+}
 
-    foreach ($defaults as $key => $default) {
-        $value = $input[$key] ?? $default;
-        if (in_array($key, $checkboxes, true)) {
-            $clean[$key] = $value === '1' ? '1' : '0';
-        } elseif (str_ends_with($key, '_id')) {
-            $clean[$key] = (string) absint($value);
-        } elseif (str_contains($key, 'color')) {
-            $clean[$key] = sanitize_hex_color($value) ?: $default;
-        } elseif (isset($choice_fields[$key])) {
-            $clean[$key] = cb_sanitize_choice($value, $choice_fields[$key], $default);
-        } elseif (str_contains($key, 'url')) {
-            $clean[$key] = esc_url_raw($value);
-        } elseif (in_array($key, ['social_links', 'company_address', 'footer_description'], true)) {
-            $clean[$key] = sanitize_textarea_field($value);
-        } elseif (preg_match('/(width|height|size|padding|radius|gap|duration|step|line_height|breakpoint)$/', $key)) {
-            $clean[$key] = cb_sanitize_css_size($value, $default);
-        } elseif (str_contains($key, 'columns') || str_contains($key, 'weight')) {
-            $clean[$key] = (string) absint($value);
-        } elseif ($key === 'contact_email') {
-            $clean[$key] = sanitize_email($value);
-        } else {
-            $clean[$key] = sanitize_text_field($value);
+function cb_footer_settings_schema()
+{
+    return [
+        'layout' => ['label' => __('Bố cục', 'cb-company-core'), 'fields' => [
+            ['footer_layout', 'select', __('Bố cục footer', 'cb-company-core'), '', ['four_columns' => __('Bốn cột', 'cb-company-core'), 'three_columns' => __('Ba cột', 'cb-company-core'), 'centered' => __('Căn giữa', 'cb-company-core'), 'minimal' => __('Tối giản', 'cb-company-core')]],
+            ['footer_bg_color', 'color', __('Màu nền', 'cb-company-core')], ['footer_text_color', 'color', __('Màu nội dung', 'cb-company-core')],
+            ['footer_heading_color', 'color', __('Màu tiêu đề', 'cb-company-core')], ['footer_description', 'textarea', __('Mô tả footer', 'cb-company-core')],
+            ['copyright_text', 'text', __('Bản quyền', 'cb-company-core')],
+        ]],
+        'columns' => ['label' => __('Các cột', 'cb-company-core'), 'fields' => [
+            ['show_footer_logo', 'checkbox', __('Hiện logo', 'cb-company-core')], ['show_footer_products', 'checkbox', __('Hiện cột sản phẩm', 'cb-company-core')],
+            ['show_footer_links', 'checkbox', __('Hiện liên kết nhanh', 'cb-company-core')], ['show_footer_contact', 'checkbox', __('Hiện liên hệ', 'cb-company-core')],
+            ['show_footer_social', 'checkbox', __('Hiện mạng xã hội', 'cb-company-core')], ['show_footer_subscribe', 'checkbox', __('Hiện đăng ký nhận tin', 'cb-company-core')],
+        ]],
+        'contact' => ['label' => __('Liên hệ và mạng xã hội', 'cb-company-core'), 'fields' => [
+            ['contact_phone', 'text', __('Điện thoại', 'cb-company-core')], ['contact_email', 'text', __('Email', 'cb-company-core')],
+            ['company_address', 'textarea', __('Địa chỉ', 'cb-company-core')], ['social_links', 'repeater', __('Mạng xã hội', 'cb-company-core')],
+            ['floating_contact', 'checkbox', __('Hiện nút báo giá nổi', 'cb-company-core')],
+        ]],
+    ];
+}
+
+function cb_sanitize_design_settings($input) { return cb_sanitize_settings_group($input, cb_default_design_settings()); }
+function cb_sanitize_header_settings($input) { return cb_sanitize_settings_group($input, cb_default_header_settings()); }
+function cb_sanitize_footer_settings($input) { return cb_sanitize_settings_group($input, cb_default_footer_settings()); }
+
+function cb_sanitize_template_settings($input)
+{
+    $input = is_array($input) ? wp_unslash($input) : [];
+    $clean = [];
+    foreach (cb_default_template_settings() as $context => $defaults) {
+        $clean[$context] = cb_sanitize_settings_group($input[$context] ?? [], $defaults);
+    }
+    return $clean;
+}
+
+function cb_sanitize_special_pages($input)
+{
+    $clean = [];
+    foreach (array_keys(cb_languages()) as $lang) {
+        foreach (['home', 'about', 'contact'] as $role) {
+            $clean[$lang][$role] = absint($input[$lang][$role] ?? 0);
         }
     }
     return $clean;
@@ -231,95 +185,285 @@ function cb_sanitize_string_translations($input)
 {
     $clean = [];
     foreach ((array) $input as $key => $langs) {
-        $clean[sanitize_key($key)] = [
-            'en' => sanitize_text_field($langs['en'] ?? ''),
-            'zh' => sanitize_text_field($langs['zh'] ?? ''),
-        ];
+        $clean[sanitize_key($key)] = ['en' => sanitize_text_field(wp_unslash($langs['en'] ?? '')), 'zh' => sanitize_text_field(wp_unslash($langs['zh'] ?? ''))];
     }
     return $clean;
 }
 
-function cb_render_theme_options_page()
+function cb_default_form_settings() { return ['admin_email' => get_option('admin_email'), 'sender_name' => get_bloginfo('name'), 'subject_en' => 'New website inquiry', 'subject_zh' => '新的产品询价', 'auto_reply' => '1']; }
+function cb_default_seo_settings() { return ['title_suffix' => get_bloginfo('name'), 'default_description' => '', 'default_og_image' => '', 'enable_schema' => '1']; }
+function cb_default_performance_settings() { return ['lazy_images' => '1', 'disable_emojis' => '1', 'preload_logo' => '1', 'revision_limit' => '10']; }
+function cb_sanitize_form_settings($input) { return cb_sanitize_settings_group($input, cb_default_form_settings()); }
+function cb_sanitize_seo_settings($input) { return cb_sanitize_settings_group($input, cb_default_seo_settings()); }
+function cb_sanitize_performance_settings($input) { return cb_sanitize_settings_group($input, cb_default_performance_settings()); }
+
+function cb_admin_shell_start($title, $active_slug)
 {
-    if (!current_user_can('manage_options')) {
-        wp_die(esc_html__('You do not have permission to access this page.', 'cb-company-core'));
+    echo '<div class="wrap cb-admin-shell"><div class="cb-admin-layout"><aside class="cb-admin-sidebar">';
+    foreach (cb_admin_menu_items() as $slug => $item) {
+        echo '<a class="' . esc_attr($slug === $active_slug ? 'is-active' : '') . '" href="' . esc_url(admin_url('admin.php?page=' . $slug)) . '"><span class="dashicons ' . esc_attr($item[1]) . '" aria-hidden="true"></span>' . esc_html($item[0]) . '</a>';
     }
-    $schema = cb_theme_option_schema();
-    $active = sanitize_key($_GET['tab'] ?? 'brand');
-    if (!isset($schema[$active])) {
-        $active = 'brand';
-    }
-    $options = cb_get_options();
-    echo '<div class="wrap cb-admin-shell"><h1>Company Settings</h1><nav class="cb-admin-tabs">';
-    foreach ($schema as $tab => $group) {
-        $url = add_query_arg(['page' => 'cb-company-settings', 'tab' => $tab], admin_url('admin.php'));
-        echo '<a class="' . esc_attr($tab === $active ? 'is-active' : '') . '" href="' . esc_url($url) . '">' . esc_html($group['label']) . '</a>';
-    }
-    echo '</nav><form method="post" action="options.php" class="cb-admin-panel">';
-    settings_fields('cb_theme_options_group');
-    echo '<div class="cb-admin-grid">';
-    foreach ($schema[$active]['fields'] as $field) {
-        cb_render_theme_option_field($field, $options);
-    }
-    echo '</div>';
-    submit_button('Save ' . $schema[$active]['label']);
-    echo '</form></div>';
+    echo '</aside><main class="cb-admin-main"><h1 class="screen-reader-text">' . esc_html($title) . '</h1>';
 }
 
-function cb_render_theme_option_field($field, $options)
+function cb_admin_shell_end() { echo '</main></div></div>'; }
+
+function cb_render_settings_page($title, $slug, $option, $group, $schema, $defaults)
+{
+    $active = sanitize_key(wp_unslash($_GET['tab'] ?? array_key_first($schema)));
+    if (!isset($schema[$active])) {
+        $active = array_key_first($schema);
+    }
+    $values = cb_get_group_options($option, $defaults);
+    cb_admin_shell_start($title, $slug);
+    echo '<form method="post" action="options.php" class="cb-settings-form">';
+    settings_fields($group);
+    cb_render_save_bar($title, $option, $active);
+    echo '<div class="cb-admin-panel"><nav class="cb-admin-tabs">';
+    foreach ($schema as $key => $tab) {
+        echo '<a class="' . esc_attr($key === $active ? 'is-active' : '') . '" href="' . esc_url(admin_url('admin.php?page=' . $slug . '&tab=' . $key)) . '">' . esc_html($tab['label']) . '</a>';
+    }
+    echo '</nav><div class="cb-admin-grid">';
+    foreach ($schema[$active]['fields'] as $field) {
+        cb_render_settings_field($option, $field, $values, $defaults);
+    }
+    echo '</div></div></form>';
+    cb_render_danger_zone($option);
+    cb_admin_shell_end();
+}
+
+function cb_render_save_bar($title, $option = '', $tab = '')
+{
+    echo '<div class="cb-save-bar"><div><h1>' . esc_html($title) . '</h1><span class="cb-unsaved-status" aria-live="polite"></span></div><div class="cb-save-actions">';
+    if ($option) {
+        $url = wp_nonce_url(admin_url('admin-post.php?action=cb_reset_settings&option=' . rawurlencode($option) . '&tab=' . rawurlencode($tab)), 'cb_reset_settings');
+        echo '<a class="button cb-reset-link" href="' . esc_url($url) . '">' . esc_html__('Khôi phục tab này', 'cb-company-core') . '</a>';
+    }
+    echo '<button type="submit" class="button button-primary">' . esc_html__('Lưu thay đổi', 'cb-company-core') . '</button></div></div>';
+}
+
+function cb_render_settings_field($option, $field, $values, $defaults)
 {
     [$key, $type, $label] = $field;
     $description = $field[3] ?? '';
     $extra = $field[4] ?? [];
-    $defaults = cb_default_theme_options();
     if ($type === 'image_pair') {
-        cb_admin_image_field([
-            'id' => 'cb_' . $key . '_id',
-            'label' => $label,
-            'description' => $description,
-            'name_base' => 'cb_theme_options',
-            'id_key' => $key . '_id',
-            'url_key' => $key . '_url',
-            'id_value' => $options[$key . '_id'] ?? '',
-            'url_value' => $options[$key . '_url'] ?? '',
-        ]);
+        cb_admin_image_field(['id' => 'cb-' . $key, 'label' => $label, 'description' => $description, 'name_base' => $option, 'id_key' => $key . '_id', 'url_key' => $key . '_url', 'id_value' => $values[$key . '_id'] ?? 0, 'url_value' => $values[$key . '_url'] ?? '']);
         return;
     }
-    $args = [
-        'id' => 'cb_' . $key,
-        'name' => 'cb_theme_options[' . $key . ']',
-        'label' => $label,
-        'description' => $description,
-        'value' => $options[$key] ?? $defaults[$key] ?? '',
-        'default' => $defaults[$key] ?? '',
+    $args = ['id' => 'cb-' . $key, 'name' => $option . '[' . $key . ']', 'label' => $label, 'description' => $description, 'value' => $values[$key] ?? '', 'default' => $defaults[$key] ?? ''];
+    if ($type === 'color') cb_admin_color_field($args);
+    elseif ($type === 'textarea') cb_admin_textarea_field($args);
+    elseif ($type === 'select') cb_admin_select_field($args + ['choices' => $extra]);
+    elseif ($type === 'checkbox') cb_admin_checkbox_field($args);
+    elseif ($type === 'number') cb_admin_number_field($args + $extra);
+    elseif ($type === 'dimension') cb_admin_dimension_field($args);
+    elseif ($type === 'repeater') cb_admin_repeater_field($args);
+    else cb_admin_text_field($args);
+}
+
+function cb_render_danger_zone($option)
+{
+    $url = wp_nonce_url(admin_url('admin-post.php?action=cb_reset_settings&option=' . rawurlencode($option) . '&all=1'), 'cb_reset_settings');
+    echo '<div class="cb-danger-zone"><h2>' . esc_html__('Khu vực nguy hiểm', 'cb-company-core') . '</h2><p>' . esc_html__('Khôi phục toàn bộ nhóm cài đặt này về giá trị mặc định trong code.', 'cb-company-core') . '</p><a class="button button-secondary cb-reset-link" href="' . esc_url($url) . '">' . esc_html__('Khôi phục toàn bộ', 'cb-company-core') . '</a></div>';
+}
+
+function cb_render_dashboard_page()
+{
+    cb_admin_shell_start(__('Tổng quan', 'cb-company-core'), 'cb-company');
+    echo '<div class="cb-save-bar"><h1>' . esc_html__('Tổng quan CB Company', 'cb-company-core') . '</h1></div><div class="cb-dashboard-grid">';
+    $cards = [
+        ['cb-company-design', __('Thiết kế chung', 'cb-company-core'), __('Màu sắc, typography, bố cục, nút và thẻ nội dung.', 'cb-company-core')],
+        ['cb-company-templates', __('Mẫu trang', 'cb-company-core'), __('Thiết lập riêng cho archive, taxonomy và trang chi tiết.', 'cb-company-core')],
+        ['cb-company-page-builder', __('Trình dựng trang', 'cb-company-core'), __('Mở từng Page để dựng section và tùy chỉnh giao diện.', 'cb-company-core')],
     ];
-    if ($type === 'color') {
-        cb_admin_color_field($args);
-    } elseif ($type === 'textarea') {
-        cb_admin_textarea_field($args);
-    } elseif ($type === 'select') {
-        cb_admin_select_field($args + ['choices' => $extra]);
-    } elseif ($type === 'checkbox') {
-        cb_admin_checkbox_field($args);
-    } elseif ($type === 'number') {
-        cb_admin_number_field($args + $extra);
-    } elseif ($type === 'dimension') {
-        cb_admin_dimension_field($args);
-    } else {
-        cb_admin_text_field($args);
+    foreach ($cards as $card) {
+        echo '<article class="cb-dashboard-card"><h2>' . esc_html($card[1]) . '</h2><p>' . esc_html($card[2]) . '</p><a class="button" href="' . esc_url(admin_url('admin.php?page=' . $card[0])) . '">' . esc_html__('Mở module', 'cb-company-core') . '</a></article>';
     }
+    echo '</div>';
+    cb_admin_shell_end();
+}
+
+function cb_render_design_settings_page() { cb_render_settings_page(__('Thiết kế chung', 'cb-company-core'), 'cb-company-design', 'cb_design_settings', 'cb_design_settings_group', cb_design_settings_schema(), cb_default_design_settings()); }
+function cb_render_header_settings_page() { cb_render_settings_page(__('Header', 'cb-company-core'), 'cb-company-header', 'cb_header_settings', 'cb_header_settings_group', cb_header_settings_schema(), cb_default_header_settings()); }
+function cb_render_footer_settings_page() { cb_render_settings_page(__('Footer', 'cb-company-core'), 'cb-company-footer', 'cb_footer_settings', 'cb_footer_settings_group', cb_footer_settings_schema(), cb_default_footer_settings()); }
+
+function cb_template_context_groups()
+{
+    return [
+        'home' => [__('Trang chủ', 'cb-company-core'), ['home' => __('Trang chủ', 'cb-company-core')]],
+        'standard_page' => [__('Trang thường', 'cb-company-core'), ['standard_page' => __('Trang thường', 'cb-company-core')]],
+        'about' => [__('Giới thiệu', 'cb-company-core'), ['about_page' => __('Trang giới thiệu', 'cb-company-core')]],
+        'product' => [__('Sản phẩm', 'cb-company-core'), ['product_archive' => __('Danh sách sản phẩm', 'cb-company-core'), 'product_category' => __('Danh mục sản phẩm', 'cb-company-core'), 'product_single' => __('Chi tiết sản phẩm', 'cb-company-core')]],
+        'factory' => [__('Nhà máy', 'cb-company-core'), ['factory_archive' => __('Danh sách showcase', 'cb-company-core'), 'factory_single' => __('Chi tiết showcase', 'cb-company-core')]],
+        'case' => [__('Dự án', 'cb-company-core'), ['case_archive' => __('Danh sách dự án', 'cb-company-core'), 'case_single' => __('Chi tiết dự án', 'cb-company-core')]],
+        'video' => [__('Video', 'cb-company-core'), ['video_archive' => __('Danh sách video', 'cb-company-core'), 'video_single' => __('Chi tiết video', 'cb-company-core')]],
+        'news' => [__('Tin tức', 'cb-company-core'), ['news_archive' => __('Danh sách bài viết', 'cb-company-core'), 'news_category' => __('Danh mục bài viết', 'cb-company-core'), 'news_single' => __('Chi tiết bài viết', 'cb-company-core')]],
+        'contact' => [__('Liên hệ', 'cb-company-core'), ['contact_page' => __('Trang liên hệ', 'cb-company-core')]],
+        'search' => [__('Tìm kiếm', 'cb-company-core'), ['search' => __('Trang tìm kiếm', 'cb-company-core')]],
+        '404' => [__('404', 'cb-company-core'), ['404' => __('Trang 404', 'cb-company-core')]],
+    ];
+}
+
+function cb_template_field_tabs($context)
+{
+    $layout = [
+        ['layout', 'select', __('Kiểu bố cục', 'cb-company-core'), '', ['default' => __('Mặc định', 'cb-company-core'), 'full_width' => __('Toàn chiều rộng', 'cb-company-core'), 'sidebar' => __('Có sidebar', 'cb-company-core')]],
+        ['container_width', 'dimension', __('Chiều rộng nội dung', 'cb-company-core')],
+        ['show_breadcrumb', 'checkbox', __('Hiện breadcrumb', 'cb-company-core')],
+    ];
+    if ($context === 'product_single') {
+        $layout = array_merge($layout, [
+            ['product_layout', 'select', __('Vị trí gallery', 'cb-company-core'), '', ['gallery_left' => __('Gallery trái / nội dung phải', 'cb-company-core'), 'gallery_right' => __('Gallery phải / nội dung trái', 'cb-company-core')]],
+            ['sticky_summary', 'checkbox', __('Sticky product summary', 'cb-company-core')],
+            ['column_gap', 'dimension', __('Khoảng cách giữa hai cột', 'cb-company-core')],
+        ]);
+    }
+    $components = [['show_breadcrumb', 'checkbox', __('Hiện breadcrumb', 'cb-company-core')]];
+    if ($context === 'product_single') {
+        $components = [
+            ['show_short_description', 'checkbox', __('Hiện mô tả ngắn', 'cb-company-core')], ['show_quick_specs', 'checkbox', __('Hiện thông số nhanh', 'cb-company-core')],
+            ['show_catalog', 'checkbox', __('Hiện catalog PDF', 'cb-company-core')], ['show_video', 'checkbox', __('Hiện video', 'cb-company-core')],
+            ['show_related_products', 'checkbox', __('Hiện sản phẩm liên quan', 'cb-company-core')], ['show_inquiry', 'checkbox', __('Hiện form inquiry', 'cb-company-core')],
+            ['show_bottom_cta', 'checkbox', __('Hiện CTA cuối trang', 'cb-company-core')],
+        ];
+    }
+    return [
+        'layout' => [__('Bố cục', 'cb-company-core'), $layout],
+        'components' => [__('Thành phần', 'cb-company-core'), $components],
+        'colors' => [__('Màu và nền', 'cb-company-core'), [['background_color', 'color', __('Màu nền', 'cb-company-core')], ['text_color', 'color', __('Màu chữ', 'cb-company-core')]]],
+        'responsive' => [__('Responsive', 'cb-company-core'), [['columns_tablet', 'number', __('Số cột tablet', 'cb-company-core')], ['columns_mobile', 'number', __('Số cột mobile', 'cb-company-core')], ['mobile_gallery_first', 'checkbox', __('Gallery hiển thị trước trên mobile', 'cb-company-core')], ['mobile_sticky_cta', 'checkbox', __('Sticky CTA mobile', 'cb-company-core')]]],
+        'seo' => [__('SEO mặc định', 'cb-company-core'), [['seo_title', 'text', __('SEO title mặc định', 'cb-company-core')], ['seo_description', 'textarea', __('SEO description mặc định', 'cb-company-core')]]],
+    ];
+}
+
+function cb_render_template_settings_page()
+{
+    $groups = cb_template_context_groups();
+    $group_key = sanitize_key(wp_unslash($_GET['type'] ?? 'product'));
+    if (!isset($groups[$group_key])) $group_key = 'product';
+    $contexts = $groups[$group_key][1];
+    $context = sanitize_key(wp_unslash($_GET['context'] ?? array_key_first($contexts)));
+    if (!isset($contexts[$context])) $context = array_key_first($contexts);
+    $field_tabs = cb_template_field_tabs($context);
+    $tab = sanitize_key(wp_unslash($_GET['tab'] ?? 'layout'));
+    if (!isset($field_tabs[$tab])) $tab = 'layout';
+    $all = cb_get_group_options('cb_template_settings', cb_default_template_settings());
+    $values = $all[$context] ?? [];
+    $defaults = cb_default_template_settings()[$context] ?? [];
+    cb_admin_shell_start(__('Mẫu trang', 'cb-company-core'), 'cb-company-templates');
+    echo '<form method="post" action="options.php" class="cb-settings-form">'; settings_fields('cb_template_settings_group');
+    foreach ($all as $stored_context => $stored_values) {
+        if ($stored_context === $context) continue;
+        foreach ($stored_values as $key => $value) {
+            echo '<input type="hidden" name="cb_template_settings[' . esc_attr($stored_context) . '][' . esc_attr($key) . ']" value="' . esc_attr($value) . '">';
+        }
+    }
+    cb_render_save_bar(__('Mẫu trang', 'cb-company-core'));
+    echo '<div class="cb-admin-panel"><nav class="cb-admin-tabs">';
+    foreach ($groups as $key => $data) echo '<a class="' . esc_attr($key === $group_key ? 'is-active' : '') . '" href="' . esc_url(admin_url('admin.php?page=cb-company-templates&type=' . $key)) . '">' . esc_html($data[0]) . '</a>';
+    echo '</nav><nav class="cb-admin-tabs cb-sub-tabs">';
+    foreach ($contexts as $key => $label) echo '<a class="' . esc_attr($key === $context ? 'is-active' : '') . '" href="' . esc_url(admin_url('admin.php?page=cb-company-templates&type=' . $group_key . '&context=' . $key)) . '">' . esc_html($label) . '</a>';
+    echo '</nav><nav class="cb-admin-tabs cb-sub-tabs">';
+    foreach ($field_tabs as $key => $data) echo '<a class="' . esc_attr($key === $tab ? 'is-active' : '') . '" href="' . esc_url(admin_url('admin.php?page=cb-company-templates&type=' . $group_key . '&context=' . $context . '&tab=' . $key)) . '">' . esc_html($data[0]) . '</a>';
+    echo '</nav><div class="cb-admin-grid">';
+    foreach ($field_tabs[$tab][1] as $field) cb_render_settings_field('cb_template_settings[' . $context . ']', $field, $values, $defaults);
+    echo '</div></div></form>';
+    cb_admin_shell_end();
+}
+
+function cb_render_special_pages_page()
+{
+    $values = cb_get_group_options('cb_special_pages', ['en' => [], 'zh' => []]);
+    $pages = get_pages(['post_status' => ['publish', 'draft', 'private']]);
+    cb_admin_shell_start(__('Trang đặc biệt', 'cb-company-core'), 'cb-company-special-pages');
+    echo '<form method="post" action="options.php" class="cb-settings-form">'; settings_fields('cb_special_pages_group'); cb_render_save_bar(__('Trang đặc biệt', 'cb-company-core'));
+    echo '<div class="cb-admin-panel"><div class="cb-admin-grid">';
+    foreach (cb_languages() as $lang => $config) {
+        echo '<section><h2>' . esc_html($config['native']) . '</h2>';
+        foreach (['home' => __('Trang chủ', 'cb-company-core'), 'about' => __('Trang giới thiệu', 'cb-company-core'), 'contact' => __('Trang liên hệ', 'cb-company-core')] as $role => $label) {
+            echo '<div class="cb-admin-field"><label class="cb-admin-label">' . esc_html($label) . '</label><select name="cb_special_pages[' . esc_attr($lang) . '][' . esc_attr($role) . ']"><option value="0">' . esc_html__('Chưa gán', 'cb-company-core') . '</option>';
+            foreach ($pages as $page) {
+                $page_lang = get_post_meta($page->ID, '_cb_language', true) ?: 'en';
+                if ($page_lang === $lang) echo '<option value="' . esc_attr((string) $page->ID) . '" ' . selected($values[$lang][$role] ?? 0, $page->ID, false) . '>' . esc_html($page->post_title) . '</option>';
+            }
+            echo '</select></div>';
+        }
+        echo '</section>';
+    }
+    echo '</div></div></form>';
+    cb_admin_shell_end();
+}
+
+function cb_render_page_builder_index_page()
+{
+    $pages = get_pages(['post_status' => ['publish', 'draft', 'private']]);
+    cb_admin_shell_start(__('Trình dựng trang', 'cb-company-core'), 'cb-company-page-builder');
+    echo '<div class="cb-save-bar"><h1>' . esc_html__('Trình dựng trang', 'cb-company-core') . '</h1><a class="button button-primary" href="' . esc_url(admin_url('post-new.php?post_type=page')) . '">' . esc_html__('Thêm Page', 'cb-company-core') . '</a></div><div class="cb-admin-panel"><table class="widefat striped"><thead><tr><th>' . esc_html__('Trang', 'cb-company-core') . '</th><th>' . esc_html__('Ngôn ngữ', 'cb-company-core') . '</th><th>' . esc_html__('Chế độ', 'cb-company-core') . '</th><th></th></tr></thead><tbody>';
+    foreach ($pages as $page) echo '<tr><td><strong>' . esc_html($page->post_title) . '</strong></td><td>' . esc_html(strtoupper(get_post_meta($page->ID, '_cb_language', true) ?: 'en')) . '</td><td>' . esc_html(get_post_meta($page->ID, '_cb_page_render_mode', true) ?: 'editor') . '</td><td><a class="button" href="' . esc_url(get_edit_post_link($page->ID)) . '">' . esc_html__('Mở trình dựng', 'cb-company-core') . '</a></td></tr>';
+    echo '</tbody></table></div>';
+    cb_admin_shell_end();
 }
 
 function cb_render_string_translations_page()
 {
     $strings = wp_parse_args((array) get_option('cb_string_translations', []), cb_default_string_translations());
-    echo '<div class="wrap cb-admin-shell"><h1>String Translations</h1><form method="post" action="options.php" class="cb-admin-panel">';
-    settings_fields('cb_string_translations_group');
-    echo '<table class="widefat striped"><thead><tr><th>Key</th><th>English</th><th>Chinese</th></tr></thead><tbody>';
-    foreach ($strings as $key => $langs) {
-        echo '<tr><td><code>' . esc_html($key) . '</code></td><td><input class="regular-text" name="cb_string_translations[' . esc_attr($key) . '][en]" value="' . esc_attr($langs['en'] ?? '') . '"></td><td><input class="regular-text" name="cb_string_translations[' . esc_attr($key) . '][zh]" value="' . esc_attr($langs['zh'] ?? '') . '"></td></tr>';
-    }
-    echo '</tbody></table>';
-    submit_button();
-    echo '</form></div>';
+    cb_admin_shell_start(__('Chuỗi giao diện', 'cb-company-core'), 'cb-company-strings');
+    echo '<form method="post" action="options.php" class="cb-settings-form">'; settings_fields('cb_string_translations_group'); cb_render_save_bar(__('Chuỗi giao diện', 'cb-company-core'));
+    echo '<div class="cb-admin-panel"><table class="widefat striped"><thead><tr><th>' . esc_html__('Khóa', 'cb-company-core') . '</th><th>English</th><th>中文</th></tr></thead><tbody>';
+    foreach ($strings as $key => $langs) echo '<tr><td><code>' . esc_html($key) . '</code></td><td><input class="regular-text" name="cb_string_translations[' . esc_attr($key) . '][en]" value="' . esc_attr($langs['en'] ?? '') . '"></td><td><input class="regular-text" name="cb_string_translations[' . esc_attr($key) . '][zh]" value="' . esc_attr($langs['zh'] ?? '') . '"></td></tr>';
+    echo '</tbody></table></div></form>';
+    cb_admin_shell_end();
 }
+
+function cb_render_multilingual_settings_page()
+{
+    cb_admin_shell_start(__('Đa ngôn ngữ', 'cb-company-core'), 'cb-company-multilingual');
+    echo '<div class="cb-save-bar"><h1>' . esc_html__('Đa ngôn ngữ nội dung', 'cb-company-core') . '</h1></div><div class="cb-admin-panel"><div class="cb-admin-grid"><div><h2>English</h2><p><code>en</code> · <code>en_US</code> · <code>lang=en</code></p></div><div><h2>中文</h2><p><code>zh</code> · <code>zh_CN</code> · <code>lang=zh-CN</code></p></div><p class="cb-wide">' . esc_html__('Ngôn ngữ quản trị do từng tài khoản chọn trong Hồ sơ người dùng và không thay đổi ngôn ngữ nội dung frontend.', 'cb-company-core') . '</p></div></div>';
+    cb_admin_shell_end();
+}
+
+function cb_render_simple_settings_page($title, $slug, $option, $group, $defaults, $fields)
+{
+    cb_render_settings_page($title, $slug, $option, $group, ['settings' => ['label' => __('Cài đặt', 'cb-company-core'), 'fields' => $fields]], $defaults);
+}
+function cb_render_form_settings_page() { cb_render_simple_settings_page(__('Biểu mẫu và email', 'cb-company-core'), 'cb-company-forms', 'cb_form_settings', 'cb_form_settings_group', cb_default_form_settings(), [['admin_email', 'text', __('Email nhận yêu cầu', 'cb-company-core')], ['sender_name', 'text', __('Tên người gửi', 'cb-company-core')], ['subject_en', 'text', __('Tiêu đề email English', 'cb-company-core')], ['subject_zh', 'text', __('Tiêu đề email 中文', 'cb-company-core')], ['auto_reply', 'checkbox', __('Gửi email phản hồi tự động', 'cb-company-core')]]); }
+function cb_render_seo_settings_page() { cb_render_simple_settings_page(__('SEO', 'cb-company-core'), 'cb-company-seo', 'cb_seo_settings', 'cb_seo_settings_group', cb_default_seo_settings(), [['title_suffix', 'text', __('Hậu tố tiêu đề', 'cb-company-core')], ['default_description', 'textarea', __('Mô tả mặc định', 'cb-company-core')], ['default_og_image', 'text', __('Open Graph image mặc định', 'cb-company-core')], ['enable_schema', 'checkbox', __('Bật schema', 'cb-company-core')]]); }
+function cb_render_performance_settings_page() { cb_render_simple_settings_page(__('Hiệu năng', 'cb-company-core'), 'cb-company-performance', 'cb_performance_settings', 'cb_performance_settings_group', cb_default_performance_settings(), [['lazy_images', 'checkbox', __('Lazy load hình ảnh', 'cb-company-core')], ['disable_emojis', 'checkbox', __('Tắt tài nguyên emoji WordPress', 'cb-company-core')], ['preload_logo', 'checkbox', __('Preload logo', 'cb-company-core')], ['revision_limit', 'number', __('Số revision tối đa', 'cb-company-core')]]); }
+
+function cb_render_tools_page()
+{
+    cb_admin_shell_start(__('Công cụ', 'cb-company-core'), 'cb-company-tools');
+    echo '<div class="cb-save-bar"><h1>' . esc_html__('Công cụ', 'cb-company-core') . '</h1></div><div class="cb-dashboard-grid">';
+    $csv_url = wp_nonce_url(admin_url('admin-post.php?action=cb_export_inquiries_csv'), 'cb_export_inquiries');
+    echo '<article class="cb-dashboard-card"><h2>' . esc_html__('Xuất yêu cầu CSV', 'cb-company-core') . '</h2><p>' . esc_html__('CSV có UTF-8 BOM để Excel đọc đúng tiếng Việt và tiếng Trung.', 'cb-company-core') . '</p><a class="button" href="' . esc_url($csv_url) . '">' . esc_html__('Tải CSV', 'cb-company-core') . '</a></article>';
+    echo '<article class="cb-dashboard-card"><h2>' . esc_html__('Phiên bản dữ liệu', 'cb-company-core') . '</h2><p><code>' . esc_html((string) get_option('cb_core_db_version', '0')) . '</code></p></article>';
+    echo '<article class="cb-dashboard-card"><h2>' . esc_html__('Backup trang chủ cũ', 'cb-company-core') . '</h2><p>' . (get_option('cb_homepage_sections_backup_110', null) !== null ? esc_html__('Đã tạo backup.', 'cb-company-core') : esc_html__('Chưa có dữ liệu cần backup.', 'cb-company-core')) . '</p></article></div>';
+    cb_admin_shell_end();
+}
+
+function cb_handle_reset_settings()
+{
+    if (!current_user_can('manage_options')) wp_die(esc_html__('Bạn không có quyền thực hiện thao tác này.', 'cb-company-core'), 403);
+    check_admin_referer('cb_reset_settings');
+    $option = sanitize_key(wp_unslash($_GET['option'] ?? ''));
+    $defaults_map = ['cb_design_settings' => cb_default_design_settings(), 'cb_header_settings' => cb_default_header_settings(), 'cb_footer_settings' => cb_default_footer_settings(), 'cb_template_settings' => cb_default_template_settings(), 'cb_form_settings' => cb_default_form_settings(), 'cb_seo_settings' => cb_default_seo_settings(), 'cb_performance_settings' => cb_default_performance_settings()];
+    if (!isset($defaults_map[$option])) wp_die(esc_html__('Nhóm cài đặt không hợp lệ.', 'cb-company-core'), 400);
+    $defaults = $defaults_map[$option];
+    $tab = sanitize_key(wp_unslash($_GET['tab'] ?? ''));
+    if (empty($_GET['all']) && $tab && in_array($option, ['cb_design_settings', 'cb_header_settings', 'cb_footer_settings'], true)) {
+        $schemas = ['cb_design_settings' => cb_design_settings_schema(), 'cb_header_settings' => cb_header_settings_schema(), 'cb_footer_settings' => cb_footer_settings_schema()];
+        $current = cb_get_group_options($option, $defaults);
+        foreach (($schemas[$option][$tab]['fields'] ?? []) as $field) {
+            $key = $field[0];
+            if ($field[1] === 'image_pair') {
+                $current[$key . '_id'] = $defaults[$key . '_id'] ?? 0; $current[$key . '_url'] = $defaults[$key . '_url'] ?? '';
+            } else $current[$key] = $defaults[$key] ?? '';
+        }
+        update_option($option, $current);
+    } else update_option($option, $defaults);
+    wp_safe_redirect(wp_get_referer() ?: admin_url('admin.php?page=cb-company'));
+    exit;
+}
+
+function cb_render_theme_options_page() { cb_render_design_settings_page(); }

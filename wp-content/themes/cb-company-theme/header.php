@@ -9,22 +9,23 @@ $header_classes = [
 ];
 $container_class = cb_theme_option_enabled('header_full_width', '0') ? 'cb-header-fluid' : 'cb-container';
 ?><!doctype html>
-<html <?php language_attributes(); ?>>
+<html <?php function_exists('cb_html_language_attributes') ? cb_html_language_attributes() : language_attributes(); ?>>
 <head>
     <meta charset="<?php bloginfo('charset'); ?>">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <?php if (cb_theme_option('favicon_url')) : ?>
-        <link rel="icon" href="<?php echo esc_url(cb_theme_option('favicon_url')); ?>">
-    <?php endif; ?>
+    <?php if (cb_theme_option('favicon_url')) : ?><link rel="icon" href="<?php echo esc_url(cb_theme_option('favicon_url')); ?>"><?php endif; ?>
     <?php wp_head(); ?>
 </head>
 <body <?php body_class(); ?>>
 <?php wp_body_open(); ?>
+<?php if (!cb_theme_page_ui_enabled('hide_header')) : ?>
 <header class="<?php echo esc_attr(implode(' ', array_filter($header_classes))); ?>">
     <div class="<?php echo esc_attr($container_class); ?> cb-header-inner">
         <?php cb_theme_logo('header'); ?>
-        <button class="cb-menu-toggle" type="button" aria-expanded="false" aria-controls="cb-primary-menu" aria-label="<?php echo esc_attr__('Toggle menu', 'cb-company-theme'); ?>">☰</button>
-        <nav id="cb-primary-menu" class="cb-main-nav cb-mobile-<?php echo esc_attr(cb_theme_option('mobile_menu_style', 'offcanvas')); ?>" aria-label="Primary navigation">
+        <button class="cb-menu-toggle" type="button" aria-expanded="false" aria-controls="cb-primary-menu" aria-label="<?php echo esc_attr__('Toggle menu', 'cb-company-theme'); ?>">
+            <svg aria-hidden="true" viewBox="0 0 24 24"><path d="M4 7h16M4 12h16M4 17h16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+        </button>
+        <nav id="cb-primary-menu" class="cb-main-nav cb-mobile-<?php echo esc_attr(cb_theme_option('mobile_menu_style', 'offcanvas')); ?>" aria-label="<?php echo esc_attr__('Primary navigation', 'cb-company-theme'); ?>">
             <?php
             $location = 'primary_' . cb_theme_lang();
             if (has_nav_menu($location)) {
@@ -36,22 +37,20 @@ $container_class = cb_theme_option_enabled('header_full_width', '0') ? 'cb-heade
                 echo '<li><a href="' . esc_url(home_url('/' . cb_theme_lang() . '/products/')) . '">' . esc_html(cb_theme_t('products')) . '</a></li>';
                 echo '<li><a href="#capabilities">' . esc_html(cb_theme_t('capabilities')) . '</a></li>';
                 echo '<li><a href="' . esc_url(home_url('/' . cb_theme_lang() . '/news/')) . '">' . esc_html(cb_theme_t('news')) . '</a></li>';
-                echo '<li><a href="#inquiry">' . esc_html(cb_theme_t('contact_us')) . '</a></li>';
-                echo '</ul>';
+                echo '<li><a href="#inquiry">' . esc_html(cb_theme_t('contact_us')) . '</a></li></ul>';
             }
             ?>
         </nav>
         <div class="cb-header-actions">
             <?php if (cb_theme_option_enabled('show_search')) : ?>
-                <a class="cb-header-icon" href="<?php echo esc_url(home_url('/?s=')); ?>" aria-label="<?php echo esc_attr__('Search', 'cb-company-theme'); ?>">⌕</a>
+                <a class="cb-header-icon" href="<?php echo esc_url(home_url('/?s=')); ?>" aria-label="<?php echo esc_attr__('Search', 'cb-company-theme'); ?>">
+                    <svg aria-hidden="true" viewBox="0 0 24 24"><circle cx="11" cy="11" r="6" fill="none" stroke="currentColor" stroke-width="2"/><path d="m16 16 4 4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+                </a>
             <?php endif; ?>
-            <?php if (function_exists('cb_language_switcher') && cb_theme_option_enabled('show_language_switcher')) {
-                cb_language_switcher();
-            } ?>
-            <?php if (cb_theme_option_enabled('show_header_cta')) : ?>
-                <a class="<?php echo esc_attr(cb_theme_button_classes('primary')); ?>" href="<?php echo esc_url(cb_theme_option('header_cta_url', '#inquiry')); ?>"><?php echo esc_html(cb_theme_option('header_cta_text', cb_theme_t('get_quote'))); ?></a>
-            <?php endif; ?>
+            <?php if (function_exists('cb_language_switcher') && cb_theme_option_enabled('show_language_switcher')) cb_language_switcher(); ?>
+            <?php if (cb_theme_option_enabled('show_header_cta')) : ?><a class="<?php echo esc_attr(cb_theme_button_classes('primary')); ?>" href="<?php echo esc_url(cb_theme_option('header_cta_url', '#inquiry')); ?>"><?php echo esc_html(cb_theme_option('header_cta_text', cb_theme_t('get_quote'))); ?></a><?php endif; ?>
         </div>
     </div>
 </header>
+<?php endif; ?>
 <main id="content">

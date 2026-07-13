@@ -1,0 +1,16 @@
+name: Quality
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  utf8-and-php:
+    name: UTF-8 validation and PHP syntax
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: UTF-8, BOM and mojibake validation
+        run: python3 scripts/check-utf8.py
+      - name: PHP syntax check
+        run: find wp-content -type f -name "*.php" -print0 | xargs -0 -n1 php -l

@@ -1,0 +1,15 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: CB Company Core 1.1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Domain: cb-company-core\n"
+
+msgid "Homepage"
+msgstr ""
+
+msgid "Select image"
+msgstr ""
+
+msgid "Save changes"
+msgstr ""
