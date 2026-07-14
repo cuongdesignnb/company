@@ -2,7 +2,7 @@
 /**
  * Plugin Name: CB Company Core
  * Description: Dữ liệu doanh nghiệp, đa ngôn ngữ, biểu mẫu, SEO và trình dựng trang.
- * Version: 1.1.0
+ * Version: 1.2.0
  * Author: CB
  * Text Domain: cb-company-core
  * Domain Path: /languages
@@ -13,7 +13,8 @@ if (!defined('ABSPATH')) {
 }
 
 define('CB_CORE_FILE', __FILE__);
-define('CB_CORE_VERSION', '1.1.0');
+define('CB_CORE_VERSION', '1.2.0');
+define('CB_CORE_DB_VERSION', '1.1.0');
 define('CB_CORE_PATH', plugin_dir_path(__FILE__));
 define('CB_CORE_URL', plugin_dir_url(__FILE__));
 
@@ -28,6 +29,7 @@ require_once CB_CORE_PATH . 'includes/page-builder/registry.php';
 require_once CB_CORE_PATH . 'includes/page-builder/storage.php';
 require_once CB_CORE_PATH . 'includes/page-builder/migration.php';
 require_once CB_CORE_PATH . 'includes/admin/settings-page.php';
+require_once CB_CORE_PATH . 'includes/admin/rest.php';
 require_once CB_CORE_PATH . 'includes/admin/homepage-builder.php';
 require_once CB_CORE_PATH . 'includes/inquiry/inquiry-form.php';
 require_once CB_CORE_PATH . 'includes/seo/meta-tags.php';
@@ -63,6 +65,7 @@ add_action('save_post', 'cb_save_common_meta_boxes');
 add_action('save_post_page', 'cb_save_page_builder_meta');
 add_action('admin_menu', 'cb_register_settings_pages');
 add_action('admin_init', 'cb_register_settings');
+add_action('rest_api_init', 'cb_register_admin_rest_routes');
 add_action('admin_enqueue_scripts', 'cb_admin_enqueue_assets');
 add_action('admin_post_cb_export_page_json', 'cb_export_page_json');
 add_action('admin_post_cb_export_inquiries_csv', 'cb_export_inquiries_csv');

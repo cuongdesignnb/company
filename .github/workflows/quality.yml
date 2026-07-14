@@ -14,3 +14,5 @@ jobs:
         run: python3 scripts/check-utf8.py
       - name: PHP syntax check
         run: find wp-content -type f -name "*.php" -print0 | xargs -0 -n1 php -l
+      - name: JavaScript syntax check
+        run: find wp-content -type f -name "*.js" -print0 | xargs -0 -n1 node --check

@@ -5,6 +5,7 @@
   let isDirty = false;
 
   function initColorPicker(context) {
+    if (!$.fn.wpColorPicker) return;
     $(context).find('.cb-color-field').each(function () {
       if (!$(this).hasClass('wp-color-picker')) {
         $(this).wpColorPicker();
@@ -13,6 +14,7 @@
   }
 
   function initSortables(context) {
+    if (!$.fn.sortable) return;
     $(context).find('.cb-sections-list').sortable({
       handle: '.cb-drag-handle',
       items: '> .cb-section-card',
@@ -33,6 +35,7 @@
   }
 
   function openMedia(field) {
+    if (!window.wp || !wp.media) return;
     const frame = wp.media({
       title: field.data('frame-title') || i18n.selectImage,
       multiple: false,

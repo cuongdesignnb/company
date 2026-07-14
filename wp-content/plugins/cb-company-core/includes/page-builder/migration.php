@@ -5,7 +5,7 @@ if (!defined('ABSPATH')) {
 
 function cb_core_maybe_migrate()
 {
-    if (version_compare((string) get_option('cb_core_db_version', '0'), CB_CORE_VERSION, '<')) {
+    if (version_compare((string) get_option('cb_core_db_version', '0'), CB_CORE_DB_VERSION, '<')) {
         cb_core_run_migration_110();
     }
 }
@@ -65,7 +65,7 @@ function cb_core_run_migration_110()
         update_post_meta($zh_home_id, '_cb_page_render_mode', 'builder');
     }
     update_option('cb_string_translations', cb_repair_frontend_translations(get_option('cb_string_translations', [])));
-    update_option('cb_core_db_version', '1.1.0');
+    update_option('cb_core_db_version', CB_CORE_DB_VERSION);
 }
 
 function cb_find_or_create_special_page($title, $slug, $lang)

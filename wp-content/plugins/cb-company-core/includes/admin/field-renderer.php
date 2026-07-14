@@ -128,23 +128,63 @@ function cb_render_repeater_row($name, $index, $item)
 function cb_admin_enqueue_assets($hook)
 {
     $screen = function_exists('get_current_screen') ? get_current_screen() : null;
-    $is_cb_page = str_contains((string) $hook, 'cb-company');
-    $is_edit_screen = $screen && in_array($screen->post_type, ['page', 'post', 'product', 'factory_showcase', 'case_study', 'video', 'inquiry'], true);
+    $page = sanitize_key(wp_unslash($_GET['page'] ?? ''));
+    $cb_pages = array_keys(cb_admin_menu_items());
+    $is_cb_page = in_array($page, $cb_pages, true);
+    $editable_types = ['page', 'post', 'product', 'factory_showcase', 'case_study', 'video', 'inquiry'];
+    $is_edit_screen = $screen && $screen->base === 'post' && in_array($screen->post_type, $editable_types, true);
     if (!$is_cb_page && !$is_edit_screen) {
         return;
     }
-    wp_enqueue_media();
-    wp_enqueue_style('wp-color-picker');
-    wp_enqueue_script('wp-color-picker');
-    wp_enqueue_script('jquery-ui-sortable');
     wp_enqueue_style('cb-company-admin', CB_CORE_URL . 'assets/admin/admin.css', [], CB_CORE_VERSION);
-    wp_enqueue_script('cb-company-admin', CB_CORE_URL . 'assets/admin/admin.js', ['jquery', 'wp-color-picker', 'jquery-ui-sortable'], CB_CORE_VERSION, true);
-    wp_localize_script('cb-company-admin', 'cbCompanyAdmin', ['i18n' => [
+    wp_enqueue_script('cb-company-admin-core', CB_CORE_URL . 'assets/admin/tabs.js', [], CB_CORE_VERSION, true);
+
+    if ($is_cb_page) {
+        wp_enqueue_script('cb-company-admin-settings', CB_CORE_URL . 'assets/admin/settings.js', ['cb-company-admin-core'], CB_CORE_VERSION, true);
+    }
+    if (in_array($page, ['cb-company-design', 'cb-company-header', 'cb-company-footer', 'cb-company-templates'], true) || ($is_edit_screen && $screen->post_type === 'page')) {
+        wp_enqueue_style('wp-color-picker');
+        wp_enqueue_script('wp-color-picker');
+    }
+    if (in_array($page, ['cb-company-design', 'cb-company-footer'], true)) {
+        wp_enqueue_script('cb-company-admin-media', CB_CORE_URL . 'assets/admin/media.js', [], CB_CORE_VERSION, true);
+    }
+    if ($page === 'cb-company-footer') {
+        wp_enqueue_script('cb-company-admin-repeater', CB_CORE_URL . 'assets/admin/repeater.js', [], CB_CORE_VERSION, true);
+    }
+    if ($is_edit_screen) {
+        $has_structured_media = $screen->post_type !== 'inquiry';
+        if ($has_structured_media) {
+            wp_enqueue_media();
+            wp_enqueue_script('jquery-ui-sortable');
+        }
+        wp_enqueue_script('cb-company-admin', CB_CORE_URL . 'assets/admin/admin.js', ['jquery'], CB_CORE_VERSION, true);
+    }
+    wp_localize_script('cb-company-admin-core', 'cbCompanyAdmin', [
+        'restUrl' => esc_url_raw(rest_url('cb-company/v1/')),
+        'mediaRestUrl' => esc_url_raw(rest_url('wp/v2/media')),
+        'nonce' => wp_create_nonce('wp_rest'),
+        'version' => CB_CORE_VERSION,
+        'page' => $page,
+        'i18n' => [
         'addSection' => __('Thêm khu vực', 'cb-company-core'), 'duplicate' => __('Nhân bản', 'cb-company-core'),
         'remove' => __('Xóa', 'cb-company-core'), 'removeConfirm' => __('Bạn chắc chắn muốn xóa khu vực này?', 'cb-company-core'),
         'collapse' => __('Thu gọn', 'cb-company-core'), 'expand' => __('Mở rộng', 'cb-company-core'),
         'selectImage' => __('Chọn hình ảnh', 'cb-company-core'), 'removeImage' => __('Xóa hình ảnh', 'cb-company-core'),
         'unsavedChanges' => __('Bạn có thay đổi chưa được lưu.', 'cb-company-core'),
         'resetConfirm' => __('Bạn chắc chắn muốn khôi phục cài đặt?', 'cb-company-core'),
+        'loading' => __('Đang tải dữ liệu...', 'cb-company-core'),
+        'loadError' => __('Không thể tải khu vực này.', 'cb-company-core'),
+        'saving' => __('Đang lưu...', 'cb-company-core'),
+        'saved' => __('Đã lưu thay đổi.', 'cb-company-core'),
+        'saveError' => __('Không thể lưu thay đổi.', 'cb-company-core'),
+        'searching' => __('Đang tìm Page...', 'cb-company-core'),
+        'noResults' => __('Không tìm thấy Page phù hợp.', 'cb-company-core'),
+        'unassigned' => __('Chưa gán', 'cb-company-core'),
+        'chooseImage' => __('Chọn ảnh này', 'cb-company-core'),
+        'uploadImage' => __('Tải ảnh mới', 'cb-company-core'),
+        'searchImages' => __('Tìm hình ảnh...', 'cb-company-core'),
+        'noImages' => __('Không tìm thấy hình ảnh.', 'cb-company-core'),
+        'close' => __('Đóng', 'cb-company-core'),
     ]]);
 }

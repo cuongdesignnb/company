@@ -215,17 +215,24 @@ function cb_render_settings_page($title, $slug, $option, $group, $schema, $defau
         $active = array_key_first($schema);
     }
     $values = cb_get_group_options($option, $defaults);
+    $module = str_replace('cb-company-', '', $slug);
     cb_admin_shell_start($title, $slug);
-    echo '<form method="post" action="options.php" class="cb-settings-form">';
+    echo '<form method="post" action="options.php" class="cb-settings-form" data-cb-settings-form data-cb-module="' . esc_attr($module) . '" data-cb-option="' . esc_attr($option) . '">';
     settings_fields($group);
     cb_render_save_bar($title, $option, $active);
-    echo '<div class="cb-admin-panel"><nav class="cb-admin-tabs">';
+    echo '<div class="cb-admin-panel" data-cb-tabs-root data-cb-module="' . esc_attr($module) . '"><nav class="cb-admin-tabs" role="tablist">';
     foreach ($schema as $key => $tab) {
-        echo '<a class="' . esc_attr($key === $active ? 'is-active' : '') . '" href="' . esc_url(admin_url('admin.php?page=' . $slug . '&tab=' . $key)) . '">' . esc_html($tab['label']) . '</a>';
+        $panel_id = 'cb-panel-' . $slug . '-' . $key;
+        echo '<a class="cb-admin-tab ' . esc_attr($key === $active ? 'is-active' : '') . '" href="' . esc_url(admin_url('admin.php?page=' . $slug . '&tab=' . $key)) . '" role="tab" aria-selected="' . esc_attr($key === $active ? 'true' : 'false') . '" aria-controls="' . esc_attr($panel_id) . '" tabindex="' . esc_attr($key === $active ? '0' : '-1') . '" data-cb-tab="' . esc_attr($key) . '">' . esc_html($tab['label']) . '</a>';
     }
-    echo '</nav><div class="cb-admin-grid">';
-    foreach ($schema[$active]['fields'] as $field) {
-        cb_render_settings_field($option, $field, $values, $defaults);
+    echo '</nav><div class="cb-tab-panels">';
+    foreach ($schema as $key => $tab) {
+        $is_active = $key === $active;
+        echo '<section id="cb-panel-' . esc_attr($slug . '-' . $key) . '" class="cb-tab-panel' . esc_attr($is_active ? ' is-active' : '') . '" role="tabpanel" data-cb-panel="' . esc_attr($key) . '"' . ($is_active ? '' : ' hidden') . '><div class="cb-admin-grid">';
+        foreach ($tab['fields'] as $field) {
+            cb_render_settings_field($option, $field, $values, $defaults);
+        }
+        echo '</div></section>';
     }
     echo '</div></div></form>';
     cb_render_danger_zone($option);
@@ -337,37 +344,105 @@ function cb_template_field_tabs($context)
     ];
 }
 
-function cb_render_template_settings_page()
+function cb_normalize_template_route($type = '', $context = '', $tab = '')
 {
     $groups = cb_template_context_groups();
-    $group_key = sanitize_key(wp_unslash($_GET['type'] ?? 'product'));
-    if (!isset($groups[$group_key])) $group_key = 'product';
-    $contexts = $groups[$group_key][1];
-    $context = sanitize_key(wp_unslash($_GET['context'] ?? array_key_first($contexts)));
-    if (!isset($contexts[$context])) $context = array_key_first($contexts);
-    $field_tabs = cb_template_field_tabs($context);
-    $tab = sanitize_key(wp_unslash($_GET['tab'] ?? 'layout'));
-    if (!isset($field_tabs[$tab])) $tab = 'layout';
+    $type = sanitize_key($type ?: 'product');
+    if (!isset($groups[$type])) {
+        $type = 'product';
+    }
+    $contexts = $groups[$type][1];
+    $context = sanitize_key($context ?: array_key_first($contexts));
+    if (!isset($contexts[$context])) {
+        $context = array_key_first($contexts);
+    }
+    $tabs = cb_template_field_tabs($context);
+    $tab = sanitize_key($tab ?: 'layout');
+    if (!isset($tabs[$tab])) {
+        $tab = array_key_first($tabs);
+    }
+    return ['type' => $type, 'context' => $context, 'tab' => $tab];
+}
+
+function cb_template_route_url($route)
+{
+    return admin_url('admin.php?page=cb-company-templates&type=' . $route['type'] . '&context=' . $route['context'] . '&tab=' . $route['tab']);
+}
+
+function cb_render_template_type_tabs($route)
+{
+    echo '<nav class="cb-admin-tabs" aria-label="' . esc_attr__('Loại trang', 'cb-company-core') . '">';
+    foreach (cb_template_context_groups() as $type => $data) {
+        $context = array_key_first($data[1]);
+        $target = ['type' => $type, 'context' => $context, 'tab' => 'layout'];
+        echo '<a class="cb-template-route ' . esc_attr($type === $route['type'] ? 'is-active' : '') . '" href="' . esc_url(cb_template_route_url($target)) . '" data-cb-template-route data-type="' . esc_attr($type) . '" data-context="' . esc_attr($context) . '" data-tab="layout">' . esc_html($data[0]) . '</a>';
+    }
+    echo '</nav>';
+}
+
+function cb_render_template_context_tabs($route)
+{
+    $contexts = cb_template_context_groups()[$route['type']][1];
+    echo '<nav class="cb-admin-tabs cb-sub-tabs" aria-label="' . esc_attr__('Ngữ cảnh template', 'cb-company-core') . '">';
+    foreach ($contexts as $context => $label) {
+        $target = ['type' => $route['type'], 'context' => $context, 'tab' => 'layout'];
+        echo '<a class="cb-template-route ' . esc_attr($context === $route['context'] ? 'is-active' : '') . '" href="' . esc_url(cb_template_route_url($target)) . '" data-cb-template-route data-type="' . esc_attr($route['type']) . '" data-context="' . esc_attr($context) . '" data-tab="layout">' . esc_html($label) . '</a>';
+    }
+    echo '</nav>';
+}
+
+function cb_render_template_field_tabs($route)
+{
+    echo '<nav class="cb-admin-tabs cb-sub-tabs" aria-label="' . esc_attr__('Nhóm thiết lập', 'cb-company-core') . '">';
+    foreach (cb_template_field_tabs($route['context']) as $tab => $data) {
+        $target = ['type' => $route['type'], 'context' => $route['context'], 'tab' => $tab];
+        echo '<a class="cb-template-route ' . esc_attr($tab === $route['tab'] ? 'is-active' : '') . '" href="' . esc_url(cb_template_route_url($target)) . '" data-cb-template-route data-type="' . esc_attr($route['type']) . '" data-context="' . esc_attr($route['context']) . '" data-tab="' . esc_attr($tab) . '">' . esc_html($data[0]) . '</a>';
+    }
+    echo '</nav>';
+}
+
+function cb_render_template_panel_fragment($context, $tab)
+{
+    $tabs = cb_template_field_tabs($context);
+    if (!isset($tabs[$tab])) {
+        $tab = array_key_first($tabs);
+    }
     $all = cb_get_group_options('cb_template_settings', cb_default_template_settings());
     $values = $all[$context] ?? [];
     $defaults = cb_default_template_settings()[$context] ?? [];
+    echo '<section class="cb-template-panel is-active" data-cb-template-panel data-context="' . esc_attr($context) . '" data-tab="' . esc_attr($tab) . '"><div class="cb-admin-grid">';
+    foreach ($tabs[$tab][1] as $field) {
+        cb_render_settings_field('cb_template_settings[' . $context . ']', $field, $values, $defaults);
+    }
+    echo '</div></section>';
+}
+
+function cb_render_template_settings_page()
+{
+    $route = cb_normalize_template_route(
+        wp_unslash($_GET['type'] ?? ''),
+        wp_unslash($_GET['context'] ?? ''),
+        wp_unslash($_GET['tab'] ?? '')
+    );
+    $all = cb_get_group_options('cb_template_settings', cb_default_template_settings());
     cb_admin_shell_start(__('Mẫu trang', 'cb-company-core'), 'cb-company-templates');
-    echo '<form method="post" action="options.php" class="cb-settings-form">'; settings_fields('cb_template_settings_group');
+    echo '<form method="post" action="options.php" class="cb-settings-form" data-cb-settings-form data-cb-module="templates" data-cb-option="cb_template_settings" data-cb-save-scope="active-panel">';
+    settings_fields('cb_template_settings_group');
     foreach ($all as $stored_context => $stored_values) {
-        if ($stored_context === $context) continue;
         foreach ($stored_values as $key => $value) {
-            echo '<input type="hidden" name="cb_template_settings[' . esc_attr($stored_context) . '][' . esc_attr($key) . ']" value="' . esc_attr($value) . '">';
+            if (!is_scalar($value)) {
+                continue;
+            }
+            echo '<input type="hidden" name="cb_template_settings[' . esc_attr($stored_context) . '][' . esc_attr($key) . ']" value="' . esc_attr((string) $value) . '">';
         }
     }
     cb_render_save_bar(__('Mẫu trang', 'cb-company-core'));
-    echo '<div class="cb-admin-panel"><nav class="cb-admin-tabs">';
-    foreach ($groups as $key => $data) echo '<a class="' . esc_attr($key === $group_key ? 'is-active' : '') . '" href="' . esc_url(admin_url('admin.php?page=cb-company-templates&type=' . $key)) . '">' . esc_html($data[0]) . '</a>';
-    echo '</nav><nav class="cb-admin-tabs cb-sub-tabs">';
-    foreach ($contexts as $key => $label) echo '<a class="' . esc_attr($key === $context ? 'is-active' : '') . '" href="' . esc_url(admin_url('admin.php?page=cb-company-templates&type=' . $group_key . '&context=' . $key)) . '">' . esc_html($label) . '</a>';
-    echo '</nav><nav class="cb-admin-tabs cb-sub-tabs">';
-    foreach ($field_tabs as $key => $data) echo '<a class="' . esc_attr($key === $tab ? 'is-active' : '') . '" href="' . esc_url(admin_url('admin.php?page=cb-company-templates&type=' . $group_key . '&context=' . $context . '&tab=' . $key)) . '">' . esc_html($data[0]) . '</a>';
-    echo '</nav><div class="cb-admin-grid">';
-    foreach ($field_tabs[$tab][1] as $field) cb_render_settings_field('cb_template_settings[' . $context . ']', $field, $values, $defaults);
+    echo '<div class="cb-admin-panel cb-template-app" data-cb-template-app data-type="' . esc_attr($route['type']) . '" data-context="' . esc_attr($route['context']) . '" data-tab="' . esc_attr($route['tab']) . '">';
+    echo '<div data-cb-template-type-nav>'; cb_render_template_type_tabs($route); echo '</div>';
+    echo '<div data-cb-template-context-nav>'; cb_render_template_context_tabs($route); echo '</div>';
+    echo '<div data-cb-template-tab-nav>'; cb_render_template_field_tabs($route); echo '</div>';
+    echo '<div class="cb-template-panel-host" data-cb-template-panel-host>';
+    cb_render_template_panel_fragment($route['context'], $route['tab']);
     echo '</div></div></form>';
     cb_admin_shell_end();
 }
@@ -375,19 +450,22 @@ function cb_render_template_settings_page()
 function cb_render_special_pages_page()
 {
     $values = cb_get_group_options('cb_special_pages', ['en' => [], 'zh' => []]);
-    $pages = get_pages(['post_status' => ['publish', 'draft', 'private']]);
     cb_admin_shell_start(__('Trang đặc biệt', 'cb-company-core'), 'cb-company-special-pages');
-    echo '<form method="post" action="options.php" class="cb-settings-form">'; settings_fields('cb_special_pages_group'); cb_render_save_bar(__('Trang đặc biệt', 'cb-company-core'));
+    echo '<form method="post" action="options.php" class="cb-settings-form" data-cb-settings-form data-cb-module="special-pages" data-cb-option="cb_special_pages">'; settings_fields('cb_special_pages_group'); cb_render_save_bar(__('Trang đặc biệt', 'cb-company-core'));
     echo '<div class="cb-admin-panel"><div class="cb-admin-grid">';
     foreach (cb_languages() as $lang => $config) {
         echo '<section><h2>' . esc_html($config['native']) . '</h2>';
         foreach (['home' => __('Trang chủ', 'cb-company-core'), 'about' => __('Trang giới thiệu', 'cb-company-core'), 'contact' => __('Trang liên hệ', 'cb-company-core')] as $role => $label) {
-            echo '<div class="cb-admin-field"><label class="cb-admin-label">' . esc_html($label) . '</label><select name="cb_special_pages[' . esc_attr($lang) . '][' . esc_attr($role) . ']"><option value="0">' . esc_html__('Chưa gán', 'cb-company-core') . '</option>';
-            foreach ($pages as $page) {
-                $page_lang = get_post_meta($page->ID, '_cb_language', true) ?: 'en';
-                if ($page_lang === $lang) echo '<option value="' . esc_attr((string) $page->ID) . '" ' . selected($values[$lang][$role] ?? 0, $page->ID, false) . '>' . esc_html($page->post_title) . '</option>';
+            $selected_id = absint($values[$lang][$role] ?? 0);
+            $selected_title = $selected_id ? get_the_title($selected_id) : '';
+            $select_id = 'cb-special-' . $lang . '-' . $role;
+            echo '<div class="cb-admin-field cb-page-search-field"><label class="cb-admin-label" for="' . esc_attr($select_id) . '">' . esc_html($label) . '</label><div class="cb-admin-control">';
+            echo '<input type="search" class="regular-text cb-page-search" placeholder="' . esc_attr__('Nhập tên trang để tìm kiếm...', 'cb-company-core') . '" data-language="' . esc_attr($lang) . '" data-target="' . esc_attr($select_id) . '">';
+            echo '<select id="' . esc_attr($select_id) . '" name="cb_special_pages[' . esc_attr($lang) . '][' . esc_attr($role) . ']"><option value="0">' . esc_html__('Chưa gán', 'cb-company-core') . '</option>';
+            if ($selected_id) {
+                echo '<option value="' . esc_attr((string) $selected_id) . '" selected>' . esc_html($selected_title) . '</option>';
             }
-            echo '</select></div>';
+            echo '</select><p class="cb-admin-description">' . esc_html__('Tối đa 20 kết quả theo đúng ngôn ngữ nội dung.', 'cb-company-core') . '</p></div></div>';
         }
         echo '</section>';
     }
@@ -397,11 +475,39 @@ function cb_render_special_pages_page()
 
 function cb_render_page_builder_index_page()
 {
-    $pages = get_pages(['post_status' => ['publish', 'draft', 'private']]);
+    $paged = max(1, absint($_GET['paged'] ?? 1));
+    $search = sanitize_text_field(wp_unslash($_GET['s'] ?? ''));
+    $language = sanitize_key(wp_unslash($_GET['language'] ?? ''));
+    $status = sanitize_key(wp_unslash($_GET['status'] ?? ''));
+    $allowed_statuses = ['publish', 'draft', 'private'];
+    $args = [
+        'post_type' => 'page',
+        'post_status' => in_array($status, $allowed_statuses, true) ? [$status] : $allowed_statuses,
+        'posts_per_page' => 20,
+        'paged' => $paged,
+        'orderby' => 'modified',
+        'order' => 'DESC',
+        's' => $search,
+        'no_found_rows' => false,
+    ];
+    if (isset(cb_languages()[$language])) {
+        $args['meta_query'] = [['key' => '_cb_language', 'value' => $language]];
+    }
+    $query = new WP_Query($args);
     cb_admin_shell_start(__('Trình dựng trang', 'cb-company-core'), 'cb-company-page-builder');
-    echo '<div class="cb-save-bar"><h1>' . esc_html__('Trình dựng trang', 'cb-company-core') . '</h1><a class="button button-primary" href="' . esc_url(admin_url('post-new.php?post_type=page')) . '">' . esc_html__('Thêm Page', 'cb-company-core') . '</a></div><div class="cb-admin-panel"><table class="widefat striped"><thead><tr><th>' . esc_html__('Trang', 'cb-company-core') . '</th><th>' . esc_html__('Ngôn ngữ', 'cb-company-core') . '</th><th>' . esc_html__('Chế độ', 'cb-company-core') . '</th><th></th></tr></thead><tbody>';
-    foreach ($pages as $page) echo '<tr><td><strong>' . esc_html($page->post_title) . '</strong></td><td>' . esc_html(strtoupper(get_post_meta($page->ID, '_cb_language', true) ?: 'en')) . '</td><td>' . esc_html(get_post_meta($page->ID, '_cb_page_render_mode', true) ?: 'editor') . '</td><td><a class="button" href="' . esc_url(get_edit_post_link($page->ID)) . '">' . esc_html__('Mở trình dựng', 'cb-company-core') . '</a></td></tr>';
-    echo '</tbody></table></div>';
+    echo '<div class="cb-save-bar"><h1>' . esc_html__('Trình dựng trang', 'cb-company-core') . '</h1><a class="button button-primary" href="' . esc_url(admin_url('post-new.php?post_type=page')) . '">' . esc_html__('Thêm Page', 'cb-company-core') . '</a></div><div class="cb-admin-panel">';
+    echo '<form method="get" class="cb-page-builder-filter"><input type="hidden" name="page" value="cb-company-page-builder"><input type="search" name="s" value="' . esc_attr($search) . '" placeholder="' . esc_attr__('Tìm theo tên Page', 'cb-company-core') . '"><select name="language"><option value="">' . esc_html__('Tất cả ngôn ngữ', 'cb-company-core') . '</option>';
+    foreach (cb_languages() as $code => $config) echo '<option value="' . esc_attr($code) . '" ' . selected($language, $code, false) . '>' . esc_html($config['native']) . '</option>';
+    echo '</select><select name="status"><option value="">' . esc_html__('Tất cả trạng thái', 'cb-company-core') . '</option>';
+    foreach (['publish' => __('Đã xuất bản', 'cb-company-core'), 'draft' => __('Bản nháp', 'cb-company-core'), 'private' => __('Riêng tư', 'cb-company-core')] as $key => $label) echo '<option value="' . esc_attr($key) . '" ' . selected($status, $key, false) . '>' . esc_html($label) . '</option>';
+    echo '</select><button class="button" type="submit">' . esc_html__('Lọc', 'cb-company-core') . '</button></form>';
+    echo '<table class="widefat striped"><thead><tr><th>' . esc_html__('Trang', 'cb-company-core') . '</th><th>' . esc_html__('Ngôn ngữ', 'cb-company-core') . '</th><th>' . esc_html__('Chế độ', 'cb-company-core') . '</th><th></th></tr></thead><tbody>';
+    if (!$query->posts) echo '<tr><td colspan="4">' . esc_html__('Không tìm thấy Page phù hợp.', 'cb-company-core') . '</td></tr>';
+    foreach ($query->posts as $page) echo '<tr><td><strong>' . esc_html($page->post_title) . '</strong></td><td>' . esc_html(strtoupper(get_post_meta($page->ID, '_cb_language', true) ?: 'en')) . '</td><td>' . esc_html(get_post_meta($page->ID, '_cb_page_render_mode', true) ?: 'editor') . '</td><td><a class="button" href="' . esc_url(get_edit_post_link($page->ID)) . '">' . esc_html__('Mở trình dựng', 'cb-company-core') . '</a></td></tr>';
+    echo '</tbody></table>';
+    $pagination = paginate_links(['base' => add_query_arg('paged', '%#%'), 'format' => '', 'current' => $paged, 'total' => max(1, (int) $query->max_num_pages), 'type' => 'list']);
+    if ($pagination) echo '<nav class="cb-admin-pagination" aria-label="' . esc_attr__('Phân trang', 'cb-company-core') . '">' . wp_kses_post($pagination) . '</nav>';
+    echo '</div>';
     cb_admin_shell_end();
 }
 
@@ -409,7 +515,7 @@ function cb_render_string_translations_page()
 {
     $strings = wp_parse_args((array) get_option('cb_string_translations', []), cb_default_string_translations());
     cb_admin_shell_start(__('Chuỗi giao diện', 'cb-company-core'), 'cb-company-strings');
-    echo '<form method="post" action="options.php" class="cb-settings-form">'; settings_fields('cb_string_translations_group'); cb_render_save_bar(__('Chuỗi giao diện', 'cb-company-core'));
+    echo '<form method="post" action="options.php" class="cb-settings-form" data-cb-settings-form data-cb-module="strings" data-cb-option="cb_string_translations">'; settings_fields('cb_string_translations_group'); cb_render_save_bar(__('Chuỗi giao diện', 'cb-company-core'));
     echo '<div class="cb-admin-panel"><table class="widefat striped"><thead><tr><th>' . esc_html__('Khóa', 'cb-company-core') . '</th><th>English</th><th>中文</th></tr></thead><tbody>';
     foreach ($strings as $key => $langs) echo '<tr><td><code>' . esc_html($key) . '</code></td><td><input class="regular-text" name="cb_string_translations[' . esc_attr($key) . '][en]" value="' . esc_attr($langs['en'] ?? '') . '"></td><td><input class="regular-text" name="cb_string_translations[' . esc_attr($key) . '][zh]" value="' . esc_attr($langs['zh'] ?? '') . '"></td></tr>';
     echo '</tbody></table></div></form>';
