@@ -208,6 +208,8 @@ function cb_render_builder_field($index, $key, $field, $section)
         cb_render_section_repeater($section['type'], $name, is_array($value) ? $value : cb_legacy_lines_to_repeater($value));
         echo '</div>';
         return;
+    } elseif ($field['type'] === 'color') {
+        echo '<input class="cb-color-field" type="text" name="' . esc_attr($name) . '" value="' . esc_attr($value) . '" data-default-color="">';
     } else {
         $input_type = $field['type'] === 'url' ? 'text' : $field['type'];
         $inputmode = $field['type'] === 'url' ? ' inputmode="url"' : '';
@@ -266,6 +268,8 @@ function cb_render_plain_input($base, $key, $type, $label, $value, $hero_group =
     echo '<label' . $wide . $group_attr . '>' . esc_html($label);
     if ($type === 'textarea') {
         echo '<textarea rows="3" name="' . esc_attr($base . '[' . $key . ']') . '">' . esc_textarea($value) . '</textarea>';
+    } elseif ($type === 'color') {
+        echo '<input class="cb-color-field" type="text" name="' . esc_attr($base . '[' . $key . ']') . '" value="' . esc_attr($value) . '" data-default-color="">';
     } else {
         $input_type = $type === 'url' ? 'text' : $type;
         $inputmode = $type === 'url' ? ' inputmode="url"' : '';

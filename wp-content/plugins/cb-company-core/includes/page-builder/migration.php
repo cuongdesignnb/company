@@ -12,6 +12,10 @@ function cb_core_maybe_migrate()
     }
     if (version_compare($version, '1.3.0', '<')) {
         cb_core_run_migration_130();
+        $version = '1.3.0';
+    }
+    if (version_compare($version, '1.3.1', '<')) {
+        cb_core_run_migration_131();
     }
 }
 
@@ -91,6 +95,69 @@ function cb_core_run_migration_130()
         update_post_meta($post_id, '_cb_page_sections', cb_sanitize_page_sections($migrated));
     }
     update_option('cb_core_db_version', '1.3.0');
+}
+
+function cb_core_run_migration_131()
+{
+    $image_manifest = (array) get_option('cb_demo_image_manifest', []);
+    $page_ids = get_posts([
+        'post_type' => 'page',
+        'post_status' => 'any',
+        'posts_per_page' => -1,
+        'fields' => 'ids',
+        'meta_key' => '_cb_page_sections',
+        'no_found_rows' => true,
+    ]);
+
+    foreach ($page_ids as $post_id) {
+        $sections = get_post_meta($post_id, '_cb_page_sections', true);
+        if (!is_array($sections)) {
+            continue;
+        }
+        $old_hash = md5(serialize($sections));
+        $repaired = cb_repair_section_color_defaults($sections);
+        if ($repaired !== $sections) {
+            $backup_key = 'cb_page_sections_backup_131_' . absint($post_id);
+            if (get_option($backup_key, null) === null) {
+                update_option($backup_key, $sections, false);
+            }
+            update_post_meta($post_id, '_cb_page_sections', $repaired);
+        }
+
+        if (empty($image_manifest['pages'][$post_id])) {
+            continue;
+        }
+        $snapshot = &$image_manifest['pages'][$post_id];
+        $was_applied = !empty($snapshot['applied_hash']) && hash_equals((string) $snapshot['applied_hash'], $old_hash);
+        $snapshot['before'] = cb_repair_section_color_defaults((array) ($snapshot['before'] ?? []));
+        if ($was_applied) {
+            $snapshot['applied_hash'] = md5(serialize($repaired));
+        }
+        unset($snapshot);
+    }
+
+    if ($image_manifest) {
+        update_option('cb_demo_image_manifest', $image_manifest, false);
+    }
+    update_option('cb_core_db_version', '1.3.1');
+}
+
+function cb_repair_section_color_defaults($sections)
+{
+    $sections = (array) $sections;
+    foreach ($sections as &$section) {
+        if (!is_array($section)) {
+            continue;
+        }
+        $background = strtolower((string) ($section['background_color'] ?? ''));
+        $text = strtolower((string) ($section['text_color'] ?? ''));
+        if ($background === '#000000' && $text === '#000000') {
+            $section['background_color'] = '';
+            $section['text_color'] = '';
+        }
+    }
+    unset($section);
+    return $sections;
 }
 
 function cb_migrate_section_130($section)
