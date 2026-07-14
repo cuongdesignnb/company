@@ -542,17 +542,18 @@ function cb_render_performance_settings_page() { cb_render_simple_settings_page(
 function cb_render_tools_page()
 {
     $demo = cb_demo_content_status();
+    $demo_images = cb_demo_image_status();
     cb_admin_shell_start(__('Công cụ', 'cb-company-core'), 'cb-company-tools');
     echo '<div class="cb-save-bar"><h1>' . esc_html__('Công cụ', 'cb-company-core') . '</h1></div><div class="cb-dashboard-grid">';
     $csv_url = wp_nonce_url(admin_url('admin-post.php?action=cb_export_inquiries_csv'), 'cb_export_inquiries');
     echo '<article class="cb-dashboard-card"><h2>' . esc_html__('Xuất yêu cầu CSV', 'cb-company-core') . '</h2><p>' . esc_html__('CSV có UTF-8 BOM để Excel đọc đúng tiếng Việt và tiếng Trung.', 'cb-company-core') . '</p><a class="button" href="' . esc_url($csv_url) . '">' . esc_html__('Tải CSV', 'cb-company-core') . '</a></article>';
     echo '<article class="cb-dashboard-card"><h2>' . esc_html__('Phiên bản dữ liệu', 'cb-company-core') . '</h2><p><code>' . esc_html((string) get_option('cb_core_db_version', '0')) . '</code></p></article>';
     echo '<article class="cb-dashboard-card"><h2>' . esc_html__('Backup trang chủ cũ', 'cb-company-core') . '</h2><p>' . (get_option('cb_homepage_sections_backup_110', null) !== null ? esc_html__('Đã tạo backup.', 'cb-company-core') : esc_html__('Chưa có dữ liệu cần backup.', 'cb-company-core')) . '</p></article></div>';
-    echo '<div class="cb-admin-panel cb-demo-tools"><h2>' . esc_html__('Dữ liệu mẫu', 'cb-company-core') . '</h2><p>' . esc_html__('Dữ liệu Aurelia chỉ được tạo khi bạn chủ động cài đặt. Công cụ không ghi đè Page hoặc sản phẩm hiện có.', 'cb-company-core') . '</p><p><strong>' . esc_html__('Trạng thái:', 'cb-company-core') . '</strong> ' . ($demo['installed'] ? esc_html(sprintf(__('Đã cài, %d nội dung demo.', 'cb-company-core'), $demo['post_count'])) : esc_html__('Chưa cài dữ liệu mẫu.', 'cb-company-core')) . '</p><div class="cb-demo-actions">';
-    foreach (['install' => __('Cài dữ liệu mẫu', 'cb-company-core'), 'delete' => __('Xóa dữ liệu mẫu', 'cb-company-core'), 'restore' => __('Khôi phục dữ liệu mẫu', 'cb-company-core'), 'check' => __('Kiểm tra dữ liệu mẫu', 'cb-company-core')] as $operation => $label) {
+    echo '<div class="cb-admin-panel cb-demo-tools"><h2>' . esc_html__('Dữ liệu mẫu', 'cb-company-core') . '</h2><p>' . esc_html__('Bộ hình ảnh mẫu được nhập vào Media Library và chỉ điền vào vị trí đang trống hoặc còn dùng ảnh demo cũ.', 'cb-company-core') . '</p><p><strong>' . esc_html__('Nội dung:', 'cb-company-core') . '</strong> ' . ($demo['installed'] ? esc_html(sprintf(__('Đã cài, %d nội dung demo.', 'cb-company-core'), $demo['post_count'])) : esc_html__('Chưa cài dữ liệu mẫu.', 'cb-company-core')) . ' <strong>' . esc_html__('Hình ảnh:', 'cb-company-core') . '</strong> ' . esc_html(sprintf(__('%d ảnh trong Media Library.', 'cb-company-core'), $demo_images['attachment_count'])) . '</p><div class="cb-demo-actions">';
+    foreach (['install_images' => __('Cài bộ hình ảnh mẫu', 'cb-company-core'), 'delete_images' => __('Xóa bộ hình ảnh mẫu', 'cb-company-core'), 'install' => __('Cài dữ liệu mẫu', 'cb-company-core'), 'delete' => __('Xóa dữ liệu mẫu', 'cb-company-core'), 'restore' => __('Khôi phục dữ liệu mẫu', 'cb-company-core'), 'check' => __('Kiểm tra dữ liệu mẫu', 'cb-company-core')] as $operation => $label) {
         echo '<form method="post" action="' . esc_url(admin_url('admin-post.php')) . '"><input type="hidden" name="action" value="cb_demo_content"><input type="hidden" name="operation" value="' . esc_attr($operation) . '">';
         wp_nonce_field('cb_demo_content');
-        echo '<button type="submit" class="button' . ($operation === 'install' ? ' button-primary' : '') . '">' . esc_html($label) . '</button></form>';
+        echo '<button type="submit" class="button' . ($operation === 'install_images' ? ' button-primary' : '') . '">' . esc_html($label) . '</button></form>';
     }
     echo '</div></div>';
     cb_admin_shell_end();
