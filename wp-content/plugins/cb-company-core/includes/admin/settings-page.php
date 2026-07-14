@@ -12,6 +12,7 @@ function cb_admin_menu_items()
         'cb-company-footer' => [__('Footer', 'cb-company-core'), 'dashicons-align-full-width'],
         'cb-company-templates' => [__('Mẫu trang', 'cb-company-core'), 'dashicons-layout'],
         'cb-company-special-pages' => [__('Trang đặc biệt', 'cb-company-core'), 'dashicons-admin-page'],
+        'cb-company-content' => [__('Nội dung trang', 'cb-company-core'), 'dashicons-edit-page'],
         'cb-company-page-builder' => [__('Trình dựng trang', 'cb-company-core'), 'dashicons-screenoptions'],
         'cb-company-strings' => [__('Chuỗi giao diện', 'cb-company-core'), 'dashicons-translation'],
         'cb-company-multilingual' => [__('Đa ngôn ngữ', 'cb-company-core'), 'dashicons-admin-site-alt3'],
@@ -29,6 +30,7 @@ function cb_register_settings_pages()
         'cb-company' => 'cb_render_dashboard_page', 'cb-company-design' => 'cb_render_design_settings_page',
         'cb-company-header' => 'cb_render_header_settings_page', 'cb-company-footer' => 'cb_render_footer_settings_page',
         'cb-company-templates' => 'cb_render_template_settings_page', 'cb-company-special-pages' => 'cb_render_special_pages_page',
+        'cb-company-content' => 'cb_render_content_pages_page',
         'cb-company-page-builder' => 'cb_render_page_builder_index_page', 'cb-company-strings' => 'cb_render_string_translations_page',
         'cb-company-multilingual' => 'cb_render_multilingual_settings_page', 'cb-company-forms' => 'cb_render_form_settings_page',
         'cb-company-seo' => 'cb_render_seo_settings_page', 'cb-company-performance' => 'cb_render_performance_settings_page',
@@ -249,16 +251,16 @@ function cb_render_save_bar($title, $option = '', $tab = '')
     echo '<button type="submit" class="button button-primary">' . esc_html__('Lưu thay đổi', 'cb-company-core') . '</button></div></div>';
 }
 
-function cb_render_settings_field($option, $field, $values, $defaults)
+function cb_render_settings_field($option, $field, $values, $defaults, $id_prefix = 'cb')
 {
     [$key, $type, $label] = $field;
     $description = $field[3] ?? '';
     $extra = $field[4] ?? [];
     if ($type === 'image_pair') {
-        cb_admin_image_field(['id' => 'cb-' . $key, 'label' => $label, 'description' => $description, 'name_base' => $option, 'id_key' => $key . '_id', 'url_key' => $key . '_url', 'id_value' => $values[$key . '_id'] ?? 0, 'url_value' => $values[$key . '_url'] ?? '']);
+        cb_admin_image_field(['id' => $id_prefix . '-' . $key, 'label' => $label, 'description' => $description, 'name_base' => $option, 'id_key' => $key . '_id', 'url_key' => $key . '_url', 'id_value' => $values[$key . '_id'] ?? 0, 'url_value' => $values[$key . '_url'] ?? '']);
         return;
     }
-    $args = ['id' => 'cb-' . $key, 'name' => $option . '[' . $key . ']', 'label' => $label, 'description' => $description, 'value' => $values[$key] ?? '', 'default' => $defaults[$key] ?? ''];
+    $args = ['id' => $id_prefix . '-' . $key, 'name' => $option . '[' . $key . ']', 'label' => $label, 'description' => $description, 'value' => $values[$key] ?? '', 'default' => $defaults[$key] ?? '', 'choices' => $type === 'select' ? $extra : []];
     if ($type === 'color') cb_admin_color_field($args);
     elseif ($type === 'textarea') cb_admin_textarea_field($args);
     elseif ($type === 'select') cb_admin_select_field($args + ['choices' => $extra]);
@@ -317,7 +319,6 @@ function cb_template_field_tabs($context)
     $layout = [
         ['layout', 'select', __('Kiểu bố cục', 'cb-company-core'), '', ['default' => __('Mặc định', 'cb-company-core'), 'full_width' => __('Toàn chiều rộng', 'cb-company-core'), 'sidebar' => __('Có sidebar', 'cb-company-core')]],
         ['container_width', 'dimension', __('Chiều rộng nội dung', 'cb-company-core')],
-        ['show_breadcrumb', 'checkbox', __('Hiện breadcrumb', 'cb-company-core')],
     ];
     if ($context === 'product_single') {
         $layout = array_merge($layout, [
@@ -328,12 +329,12 @@ function cb_template_field_tabs($context)
     }
     $components = [['show_breadcrumb', 'checkbox', __('Hiện breadcrumb', 'cb-company-core')]];
     if ($context === 'product_single') {
-        $components = [
+        $components = array_merge($components, [
             ['show_short_description', 'checkbox', __('Hiện mô tả ngắn', 'cb-company-core')], ['show_quick_specs', 'checkbox', __('Hiện thông số nhanh', 'cb-company-core')],
             ['show_catalog', 'checkbox', __('Hiện catalog PDF', 'cb-company-core')], ['show_video', 'checkbox', __('Hiện video', 'cb-company-core')],
             ['show_related_products', 'checkbox', __('Hiện sản phẩm liên quan', 'cb-company-core')], ['show_inquiry', 'checkbox', __('Hiện form inquiry', 'cb-company-core')],
             ['show_bottom_cta', 'checkbox', __('Hiện CTA cuối trang', 'cb-company-core')],
-        ];
+        ]);
     }
     return [
         'layout' => [__('Bố cục', 'cb-company-core'), $layout],
@@ -412,7 +413,7 @@ function cb_render_template_panel_fragment($context, $tab)
     $defaults = cb_default_template_settings()[$context] ?? [];
     echo '<section class="cb-template-panel is-active" data-cb-template-panel data-context="' . esc_attr($context) . '" data-tab="' . esc_attr($tab) . '"><div class="cb-admin-grid">';
     foreach ($tabs[$tab][1] as $field) {
-        cb_render_settings_field('cb_template_settings[' . $context . ']', $field, $values, $defaults);
+        cb_render_settings_field('cb_template_settings[' . $context . ']', $field, $values, $defaults, 'cb-template-' . $context . '-' . $tab);
     }
     echo '</div></section>';
 }
@@ -438,6 +439,7 @@ function cb_render_template_settings_page()
     }
     cb_render_save_bar(__('Mẫu trang', 'cb-company-core'));
     echo '<div class="cb-admin-panel cb-template-app" data-cb-template-app data-type="' . esc_attr($route['type']) . '" data-context="' . esc_attr($route['context']) . '" data-tab="' . esc_attr($route['tab']) . '">';
+    echo '<div class="cb-template-content-notice"><div><strong>' . esc_html__('Đây là thiết lập mặc định giao diện.', 'cb-company-core') . '</strong><p>' . esc_html__('Mẫu trang chỉ quản lý bố cục và thành phần mặc định. Text, hình ảnh và section được chỉnh trong Nội dung trang.', 'cb-company-core') . '</p></div><div><a class="button button-primary" href="' . esc_url(cb_content_module_url('home', 'en')) . '">' . esc_html__('Sửa nội dung Trang chủ English', 'cb-company-core') . '</a> <a class="button" href="' . esc_url(cb_content_module_url('home', 'zh')) . '">' . esc_html__('Sửa nội dung Trang chủ 中文', 'cb-company-core') . '</a></div></div>';
     echo '<div data-cb-template-type-nav>'; cb_render_template_type_tabs($route); echo '</div>';
     echo '<div data-cb-template-context-nav>'; cb_render_template_context_tabs($route); echo '</div>';
     echo '<div data-cb-template-tab-nav>'; cb_render_template_field_tabs($route); echo '</div>';
@@ -539,12 +541,20 @@ function cb_render_performance_settings_page() { cb_render_simple_settings_page(
 
 function cb_render_tools_page()
 {
+    $demo = cb_demo_content_status();
     cb_admin_shell_start(__('Công cụ', 'cb-company-core'), 'cb-company-tools');
     echo '<div class="cb-save-bar"><h1>' . esc_html__('Công cụ', 'cb-company-core') . '</h1></div><div class="cb-dashboard-grid">';
     $csv_url = wp_nonce_url(admin_url('admin-post.php?action=cb_export_inquiries_csv'), 'cb_export_inquiries');
     echo '<article class="cb-dashboard-card"><h2>' . esc_html__('Xuất yêu cầu CSV', 'cb-company-core') . '</h2><p>' . esc_html__('CSV có UTF-8 BOM để Excel đọc đúng tiếng Việt và tiếng Trung.', 'cb-company-core') . '</p><a class="button" href="' . esc_url($csv_url) . '">' . esc_html__('Tải CSV', 'cb-company-core') . '</a></article>';
     echo '<article class="cb-dashboard-card"><h2>' . esc_html__('Phiên bản dữ liệu', 'cb-company-core') . '</h2><p><code>' . esc_html((string) get_option('cb_core_db_version', '0')) . '</code></p></article>';
     echo '<article class="cb-dashboard-card"><h2>' . esc_html__('Backup trang chủ cũ', 'cb-company-core') . '</h2><p>' . (get_option('cb_homepage_sections_backup_110', null) !== null ? esc_html__('Đã tạo backup.', 'cb-company-core') : esc_html__('Chưa có dữ liệu cần backup.', 'cb-company-core')) . '</p></article></div>';
+    echo '<div class="cb-admin-panel cb-demo-tools"><h2>' . esc_html__('Dữ liệu mẫu', 'cb-company-core') . '</h2><p>' . esc_html__('Dữ liệu Aurelia chỉ được tạo khi bạn chủ động cài đặt. Công cụ không ghi đè Page hoặc sản phẩm hiện có.', 'cb-company-core') . '</p><p><strong>' . esc_html__('Trạng thái:', 'cb-company-core') . '</strong> ' . ($demo['installed'] ? esc_html(sprintf(__('Đã cài, %d nội dung demo.', 'cb-company-core'), $demo['post_count'])) : esc_html__('Chưa cài dữ liệu mẫu.', 'cb-company-core')) . '</p><div class="cb-demo-actions">';
+    foreach (['install' => __('Cài dữ liệu mẫu', 'cb-company-core'), 'delete' => __('Xóa dữ liệu mẫu', 'cb-company-core'), 'restore' => __('Khôi phục dữ liệu mẫu', 'cb-company-core'), 'check' => __('Kiểm tra dữ liệu mẫu', 'cb-company-core')] as $operation => $label) {
+        echo '<form method="post" action="' . esc_url(admin_url('admin-post.php')) . '"><input type="hidden" name="action" value="cb_demo_content"><input type="hidden" name="operation" value="' . esc_attr($operation) . '">';
+        wp_nonce_field('cb_demo_content');
+        echo '<button type="submit" class="button' . ($operation === 'install' ? ' button-primary' : '') . '">' . esc_html($label) . '</button></form>';
+    }
+    echo '</div></div>';
     cb_admin_shell_end();
 }
 

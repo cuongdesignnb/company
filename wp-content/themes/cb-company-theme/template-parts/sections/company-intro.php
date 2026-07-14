@@ -4,10 +4,9 @@
         <div>
             <?php cb_theme_section_header($section); ?>
             <div class="cb-stats-row">
-                <?php $stats = cb_theme_items($section); ?>
-                <?php for ($i = 0; $i < count($stats); $i += 2) : ?>
-                    <div><strong><?php echo esc_html($stats[$i]['label'] ?? ''); ?></strong><span><?php echo esc_html($stats[$i]['value'] ?? ''); ?></span></div>
-                <?php endfor; ?>
+                <?php foreach (cb_theme_items($section) as $stat) : ?>
+                    <div><strong><?php echo esc_html(($stat['number'] ?? $stat['label'] ?? '') . ($stat['suffix'] ?? '')); ?></strong><span><?php echo esc_html(isset($stat['number']) ? ($stat['label'] ?? '') : ($stat['value'] ?? '')); ?></span></div>
+                <?php endforeach; ?>
             </div>
         </div>
     </div>

@@ -35,10 +35,13 @@ function cb_theme_logo($context = 'header')
     if ($logo_url) {
         echo '<img class="cb-logo-image" src="' . esc_url($logo_url) . '" alt="' . esc_attr(cb_theme_option('logo_text', get_bloginfo('name'))) . '">';
     } else {
-        echo '<span class="cb-logo-mark">' . esc_html(cb_theme_option('brand_mark_text', 'A')) . '</span>';
+        $mark = cb_theme_option('brand_mark_text', '');
+        if ($mark) {
+            echo '<span class="cb-logo-mark">' . esc_html($mark) . '</span>';
+        }
     }
     if (cb_theme_option_enabled('show_logo_text')) {
-        echo '<span class="cb-logo-text"><strong>' . esc_html(cb_theme_option('logo_text', 'AURELIA')) . '</strong><small>' . esc_html(cb_theme_option('logo_subtext', 'MANUFACTURING')) . '</small></span>';
+        echo '<span class="cb-logo-text"><strong>' . esc_html(cb_theme_option('logo_text', get_bloginfo('name'))) . '</strong><small>' . esc_html(cb_theme_option('logo_subtext', '')) . '</small></span>';
     }
     echo '</a>';
 }
@@ -56,7 +59,7 @@ function cb_theme_post_url($post_id)
 function cb_theme_image($url, $alt = '', $class = '', $width = 640, $height = 420)
 {
     if (!$url) {
-        $url = get_template_directory_uri() . '/assets/images/aurelia-reference.png';
+        return '';
     }
     return '<img class="' . esc_attr($class) . '" src="' . esc_url($url) . '" alt="' . esc_attr($alt) . '" loading="lazy" width="' . esc_attr((string) $width) . '" height="' . esc_attr((string) $height) . '">';
 }
@@ -69,6 +72,7 @@ function cb_theme_items($section)
             $item['label'] = $item['label'] ?? ($item['title'] ?? '');
             $item['value'] = $item['value'] ?? ($item['description'] ?? '');
             $item['image'] = $item['image'] ?? ($item['image_url'] ?? '');
+            $item['url'] = $item['url'] ?? ($item['link'] ?? '');
             return $item;
         }, $section['items']);
     }
@@ -183,15 +187,6 @@ function cb_theme_section_attrs($section, $type, $extra_class = '')
         $styles[] = 'background-size:cover';
         $styles[] = 'background-position:center';
     }
-    if ($type === 'hero_slider') {
-        $hero_image = $section['image_url'] ?? ($section['image'] ?? '');
-        if (!empty($section['hero_slides'][0]['image_url'])) {
-            $hero_image = $section['hero_slides'][0]['image_url'];
-        }
-        if ($hero_image) {
-            $styles[] = '--hero-image:url(' . esc_url($hero_image) . ')';
-        }
-    }
     $id = !empty($section['section_id']) ? ' id="' . esc_attr(sanitize_title($section['section_id'])) . '"' : '';
     $style = $styles ? ' style="' . esc_attr(implode(';', $styles)) . '"' : '';
     return $id . ' class="' . esc_attr(implode(' ', array_filter($classes))) . '"' . $style;
@@ -199,9 +194,10 @@ function cb_theme_section_attrs($section, $type, $extra_class = '')
 
 function cb_theme_button_classes($variant = 'primary')
 {
+    $variant_class = $variant === 'primary' ? 'cb-btn-primary' : ($variant === 'soft' ? 'cb-btn-soft' : 'cb-btn-outline');
     return implode(' ', array_filter([
         'cb-btn',
-        $variant === 'primary' ? 'cb-btn-primary' : 'cb-btn-outline',
+        $variant_class,
         'cb-btn-' . sanitize_html_class(cb_theme_option('button_style', 'pill')),
         'cb-hover-' . sanitize_html_class(cb_theme_option('button_hover_effect', 'lift')),
     ]));

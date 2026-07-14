@@ -13,10 +13,28 @@ function cb_admin_field_wrap($args, $control)
     if ($desc) {
         echo '<p class="cb-admin-description">' . esc_html($desc) . '</p>';
     }
-    if ($default !== null && $default !== '') {
-        echo '<p class="cb-admin-default">' . esc_html__('Mặc định:', 'cb-company-core') . ' <code>' . esc_html(is_array($default) ? wp_json_encode($default, JSON_UNESCAPED_UNICODE) : (string) $default) . '</code></p>';
+    $friendly_default = cb_admin_friendly_default($args, $default);
+    if ($friendly_default !== '') {
+        echo '<p class="cb-admin-default">' . esc_html__('Kế thừa:', 'cb-company-core') . ' <strong>' . esc_html($friendly_default) . '</strong></p>';
     }
     echo '<div class="cb-field-error" aria-live="polite"></div></div></div>';
+}
+
+function cb_admin_friendly_default($args, $default)
+{
+    if ($default === null || $default === '' || is_array($default)) {
+        return '';
+    }
+    if (($args['type'] ?? '') === 'checkbox') {
+        return (string) $default === '1' ? __('Đang bật', 'cb-company-core') : __('Đang tắt', 'cb-company-core');
+    }
+    if (isset($args['choices'][(string) $default])) {
+        return (string) $args['choices'][(string) $default];
+    }
+    if ((string) $default === 'default') {
+        return __('Bố cục mặc định', 'cb-company-core');
+    }
+    return (string) $default;
 }
 
 function cb_admin_text_field($args)
@@ -106,9 +124,9 @@ function cb_admin_repeater_field($args)
         cb_render_repeater_row($args['name'], $index, $item);
     }
     echo '</div><button type="button" class="button cb-add-repeater-item"><span class="dashicons dashicons-plus-alt2" aria-hidden="true"></span> ' . esc_html__('Thêm mục', 'cb-company-core') . '</button>';
-    echo '<script type="text/html" class="cb-repeater-template">';
+    echo '<template class="cb-repeater-template">';
     cb_render_repeater_row($args['name'], '__item__', []);
-    echo '</script></div>';
+    echo '</template></div>';
     cb_admin_field_wrap($args + ['type' => 'repeater'], ob_get_clean());
 }
 
@@ -142,7 +160,7 @@ function cb_admin_enqueue_assets($hook)
     if ($is_cb_page) {
         wp_enqueue_script('cb-company-admin-settings', CB_CORE_URL . 'assets/admin/settings.js', ['cb-company-admin-core'], CB_CORE_VERSION, true);
     }
-    if (in_array($page, ['cb-company-design', 'cb-company-header', 'cb-company-footer', 'cb-company-templates'], true) || ($is_edit_screen && $screen->post_type === 'page')) {
+    if (in_array($page, ['cb-company-design', 'cb-company-header', 'cb-company-footer', 'cb-company-templates', 'cb-company-content'], true) || ($is_edit_screen && $screen->post_type === 'page')) {
         wp_enqueue_style('wp-color-picker');
         wp_enqueue_script('wp-color-picker');
     }
@@ -152,13 +170,16 @@ function cb_admin_enqueue_assets($hook)
     if ($page === 'cb-company-footer') {
         wp_enqueue_script('cb-company-admin-repeater', CB_CORE_URL . 'assets/admin/repeater.js', [], CB_CORE_VERSION, true);
     }
-    if ($is_edit_screen) {
+    if ($is_edit_screen || $page === 'cb-company-content') {
         $has_structured_media = $screen->post_type !== 'inquiry';
         if ($has_structured_media) {
             wp_enqueue_media();
             wp_enqueue_script('jquery-ui-sortable');
         }
         wp_enqueue_script('cb-company-admin', CB_CORE_URL . 'assets/admin/admin.js', ['jquery'], CB_CORE_VERSION, true);
+    }
+    if ($page === 'cb-company-content') {
+        wp_enqueue_script('cb-company-content', CB_CORE_URL . 'assets/admin/content.js', ['cb-company-admin'], CB_CORE_VERSION, true);
     }
     wp_localize_script('cb-company-admin-core', 'cbCompanyAdmin', [
         'restUrl' => esc_url_raw(rest_url('cb-company/v1/')),
@@ -186,5 +207,10 @@ function cb_admin_enqueue_assets($hook)
         'searchImages' => __('Tìm hình ảnh...', 'cb-company-core'),
         'noImages' => __('Không tìm thấy hình ảnh.', 'cb-company-core'),
         'close' => __('Đóng', 'cb-company-core'),
+        'imageSelected' => __('Đã chọn ảnh desktop', 'cb-company-core'),
+        'imageMissing' => __('Chưa chọn ảnh desktop', 'cb-company-core'),
+        'revisionLabel' => __('Khôi phục revision', 'cb-company-core'),
+        'restoreConfirm' => __('Khôi phục revision này? Nội dung hiện tại sẽ được lưu thành một revision mới.', 'cb-company-core'),
+        'restoreError' => __('Không thể khôi phục revision.', 'cb-company-core'),
     ]]);
 }

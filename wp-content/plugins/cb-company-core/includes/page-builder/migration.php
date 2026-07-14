@@ -5,8 +5,13 @@ if (!defined('ABSPATH')) {
 
 function cb_core_maybe_migrate()
 {
-    if (version_compare((string) get_option('cb_core_db_version', '0'), CB_CORE_DB_VERSION, '<')) {
+    $version = (string) get_option('cb_core_db_version', '0');
+    if (version_compare($version, '1.1.0', '<')) {
         cb_core_run_migration_110();
+        $version = '1.1.0';
+    }
+    if (version_compare($version, '1.3.0', '<')) {
+        cb_core_run_migration_130();
     }
 }
 
@@ -59,13 +64,98 @@ function cb_core_run_migration_110()
             update_post_meta($home_id, '_cb_page_render_mode', 'builder');
         }
     }
-    $zh_home_id = absint($special['zh']['home'] ?? 0);
-    if ($zh_home_id && !get_post_meta($zh_home_id, '_cb_page_sections', true)) {
-        update_post_meta($zh_home_id, '_cb_page_sections', cb_sanitize_page_sections(cb_default_chinese_home_sections()));
-        update_post_meta($zh_home_id, '_cb_page_render_mode', 'builder');
-    }
     update_option('cb_string_translations', cb_repair_frontend_translations(get_option('cb_string_translations', [])));
-    update_option('cb_core_db_version', CB_CORE_DB_VERSION);
+    update_option('cb_core_db_version', '1.1.0');
+}
+
+function cb_core_run_migration_130()
+{
+    $page_ids = get_posts([
+        'post_type' => 'page',
+        'post_status' => 'any',
+        'posts_per_page' => -1,
+        'fields' => 'ids',
+        'meta_key' => '_cb_page_sections',
+        'no_found_rows' => true,
+    ]);
+    foreach ($page_ids as $post_id) {
+        $sections = get_post_meta($post_id, '_cb_page_sections', true);
+        if (!is_array($sections)) {
+            continue;
+        }
+        $backup_key = 'cb_page_sections_backup_130_' . absint($post_id);
+        if (get_option($backup_key, null) === null) {
+            update_option($backup_key, $sections, false);
+        }
+        $migrated = array_map('cb_migrate_section_130', $sections);
+        update_post_meta($post_id, '_cb_page_sections', cb_sanitize_page_sections($migrated));
+    }
+    update_option('cb_core_db_version', '1.3.0');
+}
+
+function cb_migrate_section_130($section)
+{
+    $section = (array) $section;
+    $type = $section['type'] ?? '';
+    if ($type !== 'hero_slider') {
+        if (isset(cb_section_item_schemas()[$type]) && !empty($section['items'])) {
+            $section['items'] = cb_migrate_section_items_130($type, $section['items']);
+        }
+        return $section;
+    }
+    if (!empty($section['slides'])) {
+        return $section;
+    }
+    $legacy_slide = [];
+    if (!empty($section['hero_slides'][0]) && is_array($section['hero_slides'][0])) {
+        $legacy_slide = $section['hero_slides'][0];
+    } elseif (!empty($section['items'][0]) && is_array($section['items'][0])) {
+        $legacy_slide = $section['items'][0];
+    }
+    $slide = cb_hero_slide_defaults();
+    $slide['admin_label'] = sanitize_text_field($legacy_slide['admin_label'] ?? '');
+    $slide['title'] = $legacy_slide['title'] ?? ($section['title'] ?? '');
+    $slide['eyebrow'] = $legacy_slide['eyebrow'] ?? ($section['eyebrow'] ?? '');
+    $slide['description'] = $legacy_slide['description'] ?? ($section['description'] ?? '');
+    $slide['primary_button_text'] = $legacy_slide['primary_button_text'] ?? ($legacy_slide['button_1_text'] ?? ($section['button_text'] ?? ''));
+    $slide['primary_button_url'] = $legacy_slide['primary_button_url'] ?? ($legacy_slide['button_1_url'] ?? ($legacy_slide['url'] ?? ($section['button_url'] ?? '')));
+    $slide['image_id'] = absint($legacy_slide['image_id'] ?? ($section['image_id'] ?? 0));
+    $slide['image_url'] = $legacy_slide['image_url'] ?? ($section['image_url'] ?? ($section['image'] ?? ''));
+    $section['slides'] = [$slide];
+    unset($section['hero_slides'], $section['items']);
+    return $section;
+}
+
+function cb_migrate_section_items_130($type, $items)
+{
+    $mapped = [];
+    foreach ((array) $items as $index => $item) {
+        $item = (array) $item;
+        $title = $item['title'] ?? ($item['label'] ?? '');
+        $description = $item['description'] ?? ($item['value'] ?? '');
+        $image_id = absint($item['image_id'] ?? 0);
+        $image_url = $item['image_url'] ?? ($item['image'] ?? '');
+        $url = $item['url'] ?? '';
+        if ($type === 'company_intro') {
+            preg_match('/^([\d,.]+)\s*(.*)$/u', (string) $title, $matches);
+            $mapped[] = ['number' => $matches[1] ?? $title, 'suffix' => $matches[2] ?? '', 'label' => $description, 'icon' => $item['icon'] ?? ''];
+        } elseif ($type === 'why_choose_us') {
+            $mapped[] = ['enable' => $item['enable'] ?? '1', 'icon' => $item['icon'] ?? '', 'title' => $title, 'description' => $description, 'url' => $url];
+        } elseif (in_array($type, ['factory_capability', 'case_studies'], true)) {
+            $mapped[] = ['enable' => $item['enable'] ?? '1', 'title' => $title, 'description' => $description, 'image_id' => $image_id, 'image_url' => $image_url, 'url' => $url];
+        } elseif ($type === 'oem_odm_process') {
+            $mapped[] = ['step_number' => $item['step_number'] ?? (string) ($index + 1), 'icon' => $item['icon'] ?? '', 'title' => $title, 'description' => $description];
+        } elseif ($type === 'certificates') {
+            $mapped[] = ['enable' => $item['enable'] ?? '1', 'title' => $title, 'description' => $description, 'image_id' => $image_id, 'image_url' => $image_url];
+        } elseif ($type === 'inquiry_cta') {
+            $mapped[] = ['text' => $item['text'] ?? $title, 'url' => $url, 'style' => $item['style'] ?? 'primary'];
+        } elseif ($type === 'contact_info') {
+            $mapped[] = ['icon' => $item['icon'] ?? '', 'label' => $title, 'value' => $description, 'url' => $url];
+        } elseif ($type === 'gallery') {
+            $mapped[] = ['enable' => $item['enable'] ?? '1', 'image_id' => $image_id, 'image_url' => $image_url, 'image_alt' => $item['image_alt'] ?? $title, 'caption' => $item['caption'] ?? $description];
+        }
+    }
+    return $mapped;
 }
 
 function cb_find_or_create_special_page($title, $slug, $lang)
@@ -86,52 +176,6 @@ function cb_find_or_create_special_page($title, $slug, $lang)
     return absint($id);
 }
 
-function cb_default_chinese_home_sections()
-{
-    return [
-        [
-            'enable' => 1,
-            'type' => 'hero_slider',
-            'layout_style' => 'full_width',
-            'title' => '专业厨房电器制造商',
-            'subtitle' => '支持 OEM/ODM 定制服务',
-            'description' => '严格的质量控制和准时交付',
-            'items' => [
-                [
-                    'title' => '专业厨房电器制造商',
-                    'description' => '支持 OEM/ODM 定制服务',
-                    'image_id' => 0,
-                    'image_url' => '',
-                    'url' => '/zh/contact-zh/',
-                ],
-            ],
-        ],
-        [
-            'enable' => 1,
-            'type' => 'company_intro',
-            'layout_style' => 'split',
-            'title' => '质量驱动，创新引领',
-            'description' => '我们为全球品牌提供研发、制造和出口服务。',
-        ],
-        [
-            'enable' => 1,
-            'type' => 'featured_products',
-            'layout_style' => 'grid',
-            'title' => '精选产品',
-            'description' => '高品质厨房电器，支持灵活定制。',
-            'product_limit' => 6,
-        ],
-        [
-            'enable' => 1,
-            'type' => 'inquiry_cta',
-            'layout_style' => 'centered',
-            'title' => '联系我们获取产品报价',
-            'button_text' => '联系我们',
-            'button_url' => '/zh/contact-zh/',
-        ],
-    ];
-}
-
 function cb_repair_frontend_translations($stored)
 {
     $stored = is_array($stored) ? $stored : [];
@@ -146,7 +190,8 @@ function cb_repair_frontend_translations($stored)
 
 function cb_text_has_mojibake($value)
 {
-    $patterns = array_map(static fn($hex) => pack('H*', $hex), ['c383', 'c382', 'c3a2e282ac', 'c3afc2bbc2bf', 'c3a4c2b8', 'c3a9c2a6', 'c3a5c2a6']);
+    $patterns = array_map(static fn($hex) => pack('H*', $hex), ['c383', 'c382', 'c3a2e282ac', 'c3afc2bbc2bf']);
+    $patterns[] = "\u{FFFD}";
     foreach ($patterns as $pattern) {
         if (str_contains((string) $value, $pattern)) {
             return true;

@@ -8,8 +8,8 @@ function cb_default_design_settings()
     return [
         'logo_id' => '', 'logo_url' => '', 'mobile_logo_id' => '', 'mobile_logo_url' => '',
         'footer_logo_id' => '', 'footer_logo_url' => '', 'favicon_id' => '', 'favicon_url' => '',
-        'logo_text' => 'AURELIA', 'logo_subtext' => 'MANUFACTURING', 'brand_mark_text' => 'A',
-        'brand_description' => 'Precision kitchen appliance manufacturing.', 'show_logo_text' => '1',
+        'logo_text' => '', 'logo_subtext' => '', 'brand_mark_text' => '',
+        'brand_description' => '', 'show_logo_text' => '0',
         'primary_color' => '#ef6b6f', 'primary_dark_color' => '#d94c51', 'primary_light_color' => '#fff1f1',
         'secondary_color' => '#16191f', 'accent_color' => '#f8dfe1', 'heading_color' => '#17191f',
         'body_color' => '#5d6470', 'muted_color' => '#7b838f', 'border_color' => '#eef0f4',
@@ -40,8 +40,8 @@ function cb_default_header_settings()
         'header_height' => '72px', 'header_sticky' => '1', 'header_blur' => '1',
         'header_shadow' => '1', 'header_full_width' => '0', 'header_bg_color' => '#ffffff',
         'header_text_color' => '#17191f', 'show_search' => '1',
-        'show_language_switcher' => '1', 'show_header_cta' => '1',
-        'header_cta_text' => 'Get a Quote', 'header_cta_url' => '#inquiry',
+        'show_language_switcher' => '1', 'show_header_cta' => '0',
+        'header_cta_text' => '', 'header_cta_url' => '',
         'mobile_header_style' => 'offcanvas', 'mobile_menu_style' => 'offcanvas',
         'mobile_show_cta' => '0', 'mobile_show_language' => '1', 'mobile_hero_compact' => '1',
     ];
@@ -52,17 +52,11 @@ function cb_default_footer_settings()
     return [
         'footer_layout' => 'four_columns', 'footer_bg_color' => '#17191f',
         'footer_text_color' => '#cfd3dc', 'footer_heading_color' => '#ffffff',
-        'show_footer_logo' => '1', 'show_footer_products' => '1', 'show_footer_links' => '1',
-        'show_footer_contact' => '1', 'show_footer_social' => '1', 'show_footer_subscribe' => '0',
-        'contact_phone' => '+86 188 0000 8888', 'contact_email' => 'sales@example.com',
-        'company_address' => '88 Industrial Road, Guangzhou, China',
-        'footer_description' => 'Manufacturer of reliable kitchen appliances for OEM and ODM brands worldwide.',
-        'copyright_text' => 'Copyright (c) 2026 Aurelia Manufacturing. All rights reserved.',
-        'social_links' => [
-            ['title' => 'LinkedIn', 'description' => '', 'image_id' => 0, 'image_url' => '', 'url' => 'https://linkedin.com'],
-            ['title' => 'YouTube', 'description' => '', 'image_id' => 0, 'image_url' => '', 'url' => 'https://youtube.com'],
-        ],
-        'floating_contact' => '1',
+        'show_footer_logo' => '0', 'show_footer_products' => '0', 'show_footer_links' => '0',
+        'show_footer_contact' => '0', 'show_footer_social' => '0', 'show_footer_subscribe' => '0',
+        'contact_phone' => '', 'contact_email' => '', 'company_address' => '',
+        'footer_description' => '', 'copyright_text' => '', 'social_links' => [],
+        'floating_contact' => '0',
     ];
 }
 
@@ -146,6 +140,10 @@ function cb_default_string_translations()
         'submit' => ['en' => 'Submit', 'zh' => '提交'],
         'all_products' => ['en' => 'All Products', 'zh' => '所有产品'],
         'related_products' => ['en' => 'Related Products', 'zh' => '相关产品'],
+        'previous_slide' => ['en' => 'Previous slide', 'zh' => '上一张'],
+        'next_slide' => ['en' => 'Next slide', 'zh' => '下一张'],
+        'go_to_slide' => ['en' => 'Go to slide', 'zh' => '转到幻灯片'],
+        'carousel' => ['en' => 'Carousel', 'zh' => '轮播图'],
     ];
 }
 

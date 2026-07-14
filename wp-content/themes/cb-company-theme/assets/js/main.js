@@ -1,4 +1,5 @@
 (function () {
+  'use strict';
   const toggle = document.querySelector('.cb-menu-toggle');
   const menu = document.querySelector('.cb-main-nav');
   if (toggle && menu) {
