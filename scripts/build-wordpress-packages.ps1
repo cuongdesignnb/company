@@ -10,6 +10,8 @@ if (-not $ProjectDir) {
 }
 
 Set-Location $ProjectDir
+Add-Type -AssemblyName System.IO.Compression
+Add-Type -AssemblyName System.IO.Compression.FileSystem
 
 $projectRoot = [System.IO.Path]::GetFullPath($ProjectDir).TrimEnd('\')
 $distDir = Join-Path $projectRoot "dist"
@@ -33,6 +35,13 @@ $packages = [ordered]@{
     "cb-company-core" = "wp-content\plugins\cb-company-core"
     "cb-webp-converter" = "wp-content\plugins\cb-webp-converter"
     "cb-site-transfer" = "wp-content\plugins\cb-site-transfer"
+}
+
+$requiredEntries = @{
+    "cb-company-theme" = "style.css"
+    "cb-company-core" = "cb-company-core.php"
+    "cb-webp-converter" = "cb-webp-converter.php"
+    "cb-site-transfer" = "cb-site-transfer.php"
 }
 
 $excludedDirectories = @(
@@ -82,10 +91,53 @@ foreach ($package in $packages.GetEnumerator()) {
     }
 
     $destination = Join-Path $distDir ($package.Key + ".zip")
-    Compress-Archive -Path $stagingPackage -DestinationPath $destination -CompressionLevel Optimal -Force
+    if (Test-Path $destination) {
+        Remove-Item -LiteralPath $destination -Force
+    }
+
+    $archive = [System.IO.Compression.ZipFile]::Open(
+        $destination,
+        [System.IO.Compression.ZipArchiveMode]::Create
+    )
+    try {
+        Get-ChildItem -LiteralPath $stagingPackage -File -Recurse -Force | ForEach-Object {
+            $relative = $_.FullName.Substring($stagingPackage.Length).TrimStart([char[]]"\/")
+            $entryName = $package.Key + "/" + ($relative -replace "\\", "/")
+            [System.IO.Compression.ZipFileExtensions]::CreateEntryFromFile(
+                $archive,
+                $_.FullName,
+                $entryName,
+                [System.IO.Compression.CompressionLevel]::Optimal
+            ) | Out-Null
+        }
+    }
+    finally {
+        $archive.Dispose()
+    }
 
     if (-not (Test-Path $destination) -or (Get-Item $destination).Length -lt 1024) {
         throw "Build package that bai: $destination"
+    }
+
+    $verificationArchive = [System.IO.Compression.ZipFile]::OpenRead($destination)
+    try {
+        $entryNames = @($verificationArchive.Entries | ForEach-Object { $_.FullName })
+        $requiredEntry = $package.Key + "/" + $requiredEntries[$package.Key]
+        if ($entryNames -notcontains $requiredEntry) {
+            throw "Package thieu file khoi tao: $requiredEntry"
+        }
+        if ($entryNames | Where-Object { $_.Contains("\") }) {
+            throw "Package chua ZIP entry dung dau gach nguoc Windows: $destination"
+        }
+        if ($entryNames | Where-Object { -not $_.StartsWith($package.Key + "/", [System.StringComparison]::Ordinal) }) {
+            throw "Package co file nam ngoai thu muc goc: $destination"
+        }
+        if ($entryNames | Where-Object { $_.StartsWith($package.Key + "/" + $package.Key + "/", [System.StringComparison]::Ordinal) }) {
+            throw "Package bi long hai thu muc trung ten: $destination"
+        }
+    }
+    finally {
+        $verificationArchive.Dispose()
     }
 }
 
