@@ -7,6 +7,6 @@
                 <a class="<?php echo esc_attr(cb_theme_button_classes('primary')); ?>" href="<?php echo esc_url($section['button_url']); ?>"><?php echo esc_html($section['button_text']); ?></a>
             <?php endif; ?>
         </div></div>
-        <?php echo do_shortcode('[cb_inquiry_form]'); ?>
+        <?php if (($section['layout_style'] ?? '') !== 'compact_band') : ?><?php echo do_shortcode('[cb_inquiry_form]'); ?><?php endif; ?>
     </div>
 </section>

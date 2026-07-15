@@ -50,7 +50,7 @@ function cb_default_header_settings()
 function cb_default_footer_settings()
 {
     return [
-        'footer_layout' => 'four_columns', 'footer_bg_color' => '#17191f',
+        'footer_layout' => 'four_columns', 'footer_bg_color' => '#17191f', 'footer_background_image' => '',
         'footer_text_color' => '#cfd3dc', 'footer_heading_color' => '#ffffff',
         'show_footer_logo' => '0', 'show_footer_products' => '0', 'show_footer_links' => '0',
         'show_footer_contact' => '0', 'show_footer_social' => '0', 'show_footer_subscribe' => '0',
@@ -136,7 +136,9 @@ function cb_default_string_translations()
         'phone' => ['en' => 'Phone / WhatsApp', 'zh' => '电话 / WhatsApp'],
         'country' => ['en' => 'Country', 'zh' => '国家'],
         'quantity' => ['en' => 'Quantity', 'zh' => '数量'],
+        'interested_product' => ['en' => 'Interested Product', 'zh' => '感兴趣的产品'],
         'message' => ['en' => 'Message', 'zh' => '留言'],
+        'inquiry_consent' => ['en' => 'I agree to be contacted about this inquiry.', 'zh' => '我同意就此询价与我联系。'],
         'submit' => ['en' => 'Submit', 'zh' => '提交'],
         'all_products' => ['en' => 'All Products', 'zh' => '所有产品'],
         'related_products' => ['en' => 'Related Products', 'zh' => '相关产品'],

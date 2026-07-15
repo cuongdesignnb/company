@@ -79,6 +79,17 @@ function cb_theme_items($section)
     return function_exists('cb_parse_lines') ? cb_parse_lines($section['items'] ?? '') : [];
 }
 
+function cb_theme_product_terms($limit = 0)
+{
+    $terms = get_terms([
+        'taxonomy' => 'product_category',
+        'hide_empty' => false,
+        'number' => absint($limit),
+        'meta_query' => [['key' => '_cb_language', 'value' => cb_theme_lang()]],
+    ]);
+    return is_wp_error($terms) ? [] : $terms;
+}
+
 function cb_theme_section_header($section)
 {
     if (!empty($section['eyebrow'])) {

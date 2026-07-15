@@ -102,13 +102,14 @@ cap thu muc `cb-site-transfer`.
 1. Mo **CB Company > Nhap / Xuat website > Export**.
 2. Giu tat **Inquiry** tru khi thuc su can chuyen du lieu ca nhan.
 3. Bam **Tao goi trien khai**.
-4. Tai file `company-site.cbsite.zip`.
+4. Tai file `company-site.cbsite.zip`, hoac dung package da build tai
+   `dist/aurelia-company-1.4.0-20260715.cbsite.zip`.
 5. Giu lai checksum SHA-256 va mot ban package goc.
 
 ## 7. Import vao production
 
 1. Mo **CB Company > Nhap / Xuat website > Import**.
-2. Upload `company-site.cbsite.zip`.
+2. Upload `aurelia-company-1.4.0-20260715.cbsite.zip`.
 3. Kiem tra Source URL, Target URL, version, dung luong, conflict va dependency.
 4. Chon **Tao moi va cap nhat** cho lan trien khai thong thuong.
 5. Chay **Dry run** truoc.
@@ -146,3 +147,19 @@ Neu import tao ket qua sai:
 
 Plugin chi giu toi da ba snapshot gan nhat. Backup aaPanel van la lop khoi phuc
 cuoi cung va khong nen xoa ngay sau khi trien khai.
+
+## 10. Thong tin package Aurelia 1.4.0
+
+Package da duoc validate boi CB Site Transfer:
+
+- File: `dist/aurelia-company-1.4.0-20260715.cbsite.zip`
+- SHA-256: `684037589f4bba9ee7a08736539b75df13e6279162dfff56f33a22db5ee591f7`
+- Core yeu cau: `1.4.0`
+- Theme yeu cau: `1.4.0`
+- Du lieu: 41 posts/pages, 9 terms va 22 attachments
+- Package khong chua Inquiry, tai khoan admin, password database hoac secret
+
+Sau import, kiem tra them cac section `company_stats`, `company_timeline` va
+`showroom_gallery` trong Page Builder. Home EN va ZH phai co 10 section, Product
+archive phai co sidebar va 3 cot tren desktop. Thanh lien he phai hien theo cot
+dung tren desktop va thanh ngang tren mobile.

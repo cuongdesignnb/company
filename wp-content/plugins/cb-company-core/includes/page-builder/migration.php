@@ -16,7 +16,131 @@ function cb_core_maybe_migrate()
     }
     if (version_compare($version, '1.3.1', '<')) {
         cb_core_run_migration_131();
+        $version = '1.3.1';
     }
+    if (version_compare($version, '1.4.0', '<')) {
+        cb_core_run_migration_140();
+    }
+}
+
+function cb_core_run_migration_140()
+{
+    $special = cb_get_group_options('cb_special_pages', ['en' => [], 'zh' => []]);
+    $backup = get_option('cb_catalog_layout_backup_140', null);
+    if (!is_array($backup)) {
+        $backup = [
+            'created_at' => current_time('mysql'),
+            'special_pages' => $special,
+            'design_settings' => cb_get_group_options('cb_design_settings', cb_default_design_settings()),
+            'header_settings' => cb_get_group_options('cb_header_settings', cb_default_header_settings()),
+            'footer_settings' => cb_get_group_options('cb_footer_settings', cb_default_footer_settings()),
+            'template_settings' => cb_get_group_options('cb_template_settings', cb_default_template_settings()),
+            'pages' => [],
+        ];
+        foreach (['en', 'zh'] as $language) {
+            foreach (['home', 'about', 'contact'] as $role) {
+                $post_id = absint($special[$language][$role] ?? 0);
+                if (!$post_id) {
+                    continue;
+                }
+                $backup['pages'][$post_id] = [
+                    'sections' => get_post_meta($post_id, '_cb_page_sections', true),
+                    'page_ui' => get_post_meta($post_id, '_cb_page_ui', true),
+                    'render_mode' => get_post_meta($post_id, '_cb_page_render_mode', true),
+                ];
+            }
+        }
+        update_option('cb_catalog_layout_backup_140', $backup, false);
+    }
+
+    $images = function_exists('cb_install_demo_images') ? cb_install_demo_images(false) : [];
+    if (function_exists('cb_install_catalog_content')) {
+        cb_install_catalog_content($images);
+    }
+    foreach (['en', 'zh'] as $language) {
+        foreach (['home', 'about', 'contact'] as $role) {
+            $post_id = absint($special[$language][$role] ?? 0);
+            if (!$post_id) {
+                continue;
+            }
+            $sections = $role === 'home'
+                ? cb_catalog_homepage_sections($language, $images)
+                : cb_catalog_special_page_sections($role, $language, $images);
+            update_post_meta($post_id, '_cb_page_sections', cb_sanitize_page_sections($sections));
+            update_post_meta($post_id, '_cb_page_render_mode', 'builder');
+            update_post_meta($post_id, '_cb_catalog_layout_version', '1.4.0');
+        }
+    }
+
+    $design = cb_get_group_options('cb_design_settings', cb_default_design_settings());
+    $design = array_merge($design, [
+        'primary_color' => '#ef3f45', 'primary_dark_color' => '#d92e35', 'primary_light_color' => '#fff2f2',
+        'section_soft_bg' => '#f5f7f8', 'border_color' => '#e7eaee', 'container_width' => '1220px',
+        'section_padding_y' => '84px', 'section_padding_y_mobile' => '56px', 'grid_gap' => '24px',
+        'border_radius_sm' => '4px', 'border_radius_md' => '6px', 'border_radius_lg' => '8px',
+        'card_radius' => '6px', 'card_shadow' => 'none', 'card_border' => '0', 'card_hover_effect' => 'image_zoom',
+        'button_radius' => '4px', 'button_style' => 'square', 'button_shadow' => '0',
+        'desktop_product_columns' => '3', 'tablet_product_columns' => '2', 'mobile_product_columns' => '1',
+    ]);
+    update_option('cb_design_settings', cb_sanitize_design_settings($design));
+
+    $header = cb_get_group_options('cb_header_settings', cb_default_header_settings());
+    update_option('cb_header_settings', cb_sanitize_header_settings(array_merge($header, [
+        'header_layout' => 'logo_left_menu_center_cta_right', 'header_height' => '76px', 'header_sticky' => '1',
+        'header_blur' => '0', 'header_shadow' => '0', 'header_full_width' => '0', 'show_search' => '1',
+        'show_language_switcher' => '1', 'show_header_cta' => '0',
+    ])));
+    $templates = cb_get_group_options('cb_template_settings', cb_default_template_settings());
+    foreach (['product_archive', 'product_category'] as $context) {
+        $templates[$context] = array_merge($templates[$context] ?? [], ['columns_desktop' => '3', 'columns_tablet' => '2', 'columns_mobile' => '1', 'sidebar' => 'left']);
+    }
+    $templates['product_single'] = array_merge($templates['product_single'] ?? [], ['mobile_sticky_cta' => '1', 'show_related_products' => '1', 'show_inquiry' => '1']);
+    update_option('cb_template_settings', cb_sanitize_template_settings($templates));
+    $footer = cb_get_group_options('cb_footer_settings', cb_default_footer_settings());
+    $footer_image = cb_catalog_image($images, 'hero_assembly');
+    update_option('cb_footer_settings', cb_sanitize_footer_settings(array_merge($footer, [
+        'footer_layout' => 'four_columns', 'footer_background_image' => $footer_image['url'],
+        'show_footer_logo' => '1', 'show_footer_products' => '1', 'show_footer_links' => '1',
+        'show_footer_contact' => '1', 'show_footer_social' => '1', 'floating_contact' => '1',
+        'footer_description' => 'OEM/ODM kitchen appliance manufacturing for ambitious global brands.',
+        'contact_email' => 'info@aureliamanufacturing.com', 'contact_phone' => '+86 000 0000 0000',
+        'company_address' => 'Manufacturing base in China.',
+        'copyright_text' => '© ' . gmdate('Y') . ' Aurelia Manufacturing. All rights reserved.',
+    ])));
+    update_option('cb_catalog_layout_140_applied', current_time('mysql'), false);
+    update_option('cb_core_db_version', '1.4.0');
+}
+
+function cb_restore_catalog_layout_140()
+{
+    $backup = get_option('cb_catalog_layout_backup_140', []);
+    if (!is_array($backup) || empty($backup['pages'])) {
+        return false;
+    }
+    foreach ((array) $backup['pages'] as $post_id => $page) {
+        update_post_meta(absint($post_id), '_cb_page_sections', (array) ($page['sections'] ?? []));
+        update_post_meta(absint($post_id), '_cb_page_ui', (array) ($page['page_ui'] ?? []));
+        update_post_meta(absint($post_id), '_cb_page_render_mode', $page['render_mode'] ?: 'editor');
+        delete_post_meta(absint($post_id), '_cb_catalog_layout_version');
+    }
+    foreach (['special_pages' => 'cb_special_pages', 'design_settings' => 'cb_design_settings', 'header_settings' => 'cb_header_settings', 'footer_settings' => 'cb_footer_settings', 'template_settings' => 'cb_template_settings'] as $key => $option) {
+        if (isset($backup[$key])) {
+            update_option($option, $backup[$key]);
+        }
+    }
+    delete_option('cb_catalog_layout_140_applied');
+    return true;
+}
+
+function cb_handle_restore_catalog_layout()
+{
+    if (!current_user_can('manage_options')) {
+        wp_die(esc_html__('Bạn không có quyền thực hiện thao tác này.', 'cb-company-core'), 403);
+    }
+    check_admin_referer('cb_restore_catalog_layout');
+    cb_restore_catalog_layout_140();
+    wp_safe_redirect(add_query_arg(['page' => 'cb-company-tools', 'catalog_restored' => '1'], admin_url('admin.php')));
+    exit;
 }
 
 function cb_core_run_migration_110()

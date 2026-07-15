@@ -6,6 +6,7 @@ $special_pages = function_exists('cb_get_group_options')
     : [];
 $front_id = absint($special_pages[$language]['home'] ?? 0) ?: get_queried_object_id();
 $mode = cb_theme_page_render_mode($front_id);
+echo '<h1 class="cb-sr-only">' . esc_html(get_the_title($front_id) ?: get_bloginfo('name')) . '</h1>';
 if (in_array($mode, ['editor', 'editor_and_builder'], true)) {
     $content = get_post_field('post_content', $front_id);
     if (trim((string) $content) !== '') {

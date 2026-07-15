@@ -142,6 +142,7 @@ function cb_footer_settings_schema()
         'layout' => ['label' => __('Bố cục', 'cb-company-core'), 'fields' => [
             ['footer_layout', 'select', __('Bố cục footer', 'cb-company-core'), '', ['four_columns' => __('Bốn cột', 'cb-company-core'), 'three_columns' => __('Ba cột', 'cb-company-core'), 'centered' => __('Căn giữa', 'cb-company-core'), 'minimal' => __('Tối giản', 'cb-company-core')]],
             ['footer_bg_color', 'color', __('Màu nền', 'cb-company-core')], ['footer_text_color', 'color', __('Màu nội dung', 'cb-company-core')],
+            ['footer_background_image', 'text', __('URL ảnh nền footer', 'cb-company-core')],
             ['footer_heading_color', 'color', __('Màu tiêu đề', 'cb-company-core')], ['footer_description', 'textarea', __('Mô tả footer', 'cb-company-core')],
             ['copyright_text', 'text', __('Bản quyền', 'cb-company-core')],
         ]],
@@ -548,6 +549,12 @@ function cb_render_tools_page()
     $csv_url = wp_nonce_url(admin_url('admin-post.php?action=cb_export_inquiries_csv'), 'cb_export_inquiries');
     echo '<article class="cb-dashboard-card"><h2>' . esc_html__('Xuất yêu cầu CSV', 'cb-company-core') . '</h2><p>' . esc_html__('CSV có UTF-8 BOM để Excel đọc đúng tiếng Việt và tiếng Trung.', 'cb-company-core') . '</p><a class="button" href="' . esc_url($csv_url) . '">' . esc_html__('Tải CSV', 'cb-company-core') . '</a></article>';
     echo '<article class="cb-dashboard-card"><h2>' . esc_html__('Phiên bản dữ liệu', 'cb-company-core') . '</h2><p><code>' . esc_html((string) get_option('cb_core_db_version', '0')) . '</code></p></article>';
+    if (get_option('cb_catalog_layout_backup_140')) {
+        echo '<article class="cb-dashboard-card"><h2>' . esc_html__('Bố cục catalogue Aurelia', 'cb-company-core') . '</h2><p>' . esc_html__('Có bản sao lưu Home EN/ZH và thiết lập giao diện trước lần nâng cấp 1.4.0.', 'cb-company-core') . '</p><form method="post" action="' . esc_url(admin_url('admin-post.php')) . '"><input type="hidden" name="action" value="cb_restore_catalog_layout">';
+        wp_nonce_field('cb_restore_catalog_layout');
+        submit_button(__('Khôi phục bố cục trước nâng cấp', 'cb-company-core'), 'secondary', 'submit', false);
+        echo '</form></article>';
+    }
     echo '<article class="cb-dashboard-card"><h2>' . esc_html__('Backup trang chủ cũ', 'cb-company-core') . '</h2><p>' . (get_option('cb_homepage_sections_backup_110', null) !== null ? esc_html__('Đã tạo backup.', 'cb-company-core') : esc_html__('Chưa có dữ liệu cần backup.', 'cb-company-core')) . '</p></article></div>';
     echo '<div class="cb-admin-panel cb-demo-tools"><h2>' . esc_html__('Dữ liệu mẫu', 'cb-company-core') . '</h2><p>' . esc_html__('Bộ hình ảnh mẫu được nhập vào Media Library và chỉ điền vào vị trí đang trống hoặc còn dùng ảnh demo cũ.', 'cb-company-core') . '</p><p><strong>' . esc_html__('Nội dung:', 'cb-company-core') . '</strong> ' . ($demo['installed'] ? esc_html(sprintf(__('Đã cài, %d nội dung demo.', 'cb-company-core'), $demo['post_count'])) : esc_html__('Chưa cài dữ liệu mẫu.', 'cb-company-core')) . ' <strong>' . esc_html__('Hình ảnh:', 'cb-company-core') . '</strong> ' . esc_html(sprintf(__('%d ảnh trong Media Library.', 'cb-company-core'), $demo_images['attachment_count'])) . '</p><div class="cb-demo-actions">';
     foreach (['install_images' => __('Cài bộ hình ảnh mẫu', 'cb-company-core'), 'delete_images' => __('Xóa bộ hình ảnh mẫu', 'cb-company-core'), 'install' => __('Cài dữ liệu mẫu', 'cb-company-core'), 'delete' => __('Xóa dữ liệu mẫu', 'cb-company-core'), 'restore' => __('Khôi phục dữ liệu mẫu', 'cb-company-core'), 'check' => __('Kiểm tra dữ liệu mẫu', 'cb-company-core')] as $operation => $label) {

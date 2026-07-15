@@ -21,6 +21,76 @@ function cb_demo_image_definitions()
             'title' => 'Kitchen appliance production line',
             'alt' => 'Workers assembling kitchen appliances on a modern production line',
         ],
+        'hero_campus' => [
+            'file' => 'hero-campus.webp',
+            'title' => 'Aurelia manufacturing campus',
+            'alt' => 'Kitchen appliances displayed in front of a modern manufacturing campus',
+        ],
+        'hero_assembly' => [
+            'file' => 'hero-assembly.webp',
+            'title' => 'Aurelia appliance assembly hall',
+            'alt' => 'Modern kitchen appliance assembly hall with organized production lines',
+        ],
+        'hero_showroom' => [
+            'file' => 'hero-showroom.webp',
+            'title' => 'Aurelia appliance showroom',
+            'alt' => 'Premium kitchen appliance showroom inside a manufacturing headquarters',
+        ],
+        'factory_closeup' => [
+            'file' => 'factory-assembly-closeup.webp',
+            'title' => 'Appliance assembly team',
+            'alt' => 'Technicians assembling stainless steel kitchen appliances',
+        ],
+        'factory_detail' => [
+            'file' => 'factory-assembly-detail.webp',
+            'title' => 'Appliance assembly detail',
+            'alt' => 'Detailed view of a modern appliance production line',
+        ],
+        'quality_lab' => [
+            'file' => 'quality-lab.webp',
+            'title' => 'Appliance quality laboratory',
+            'alt' => 'Quality engineer testing an espresso machine in a laboratory',
+        ],
+        'quality_detail' => [
+            'file' => 'quality-testing-detail.webp',
+            'title' => 'Quality testing detail',
+            'alt' => 'Detailed appliance performance testing equipment',
+        ],
+        'warehouse' => [
+            'file' => 'warehouse-logistics.webp',
+            'title' => 'Global fulfillment warehouse',
+            'alt' => 'Organized kitchen appliance warehouse and logistics operation',
+        ],
+        'warehouse_detail' => [
+            'file' => 'warehouse-scanning-detail.webp',
+            'title' => 'Warehouse scanning operation',
+            'alt' => 'Logistics worker scanning appliance shipments',
+        ],
+        'showroom_detail' => [
+            'file' => 'showroom-gallery-detail.webp',
+            'title' => 'Showroom product display',
+            'alt' => 'Detailed kitchen appliance showroom display',
+        ],
+        'case_hospitality' => [
+            'file' => 'case-hospitality.webp',
+            'title' => 'Hospitality appliance program',
+            'alt' => 'Coordinated countertop appliances in a contemporary hotel breakfast bar',
+        ],
+        'case_hospitality_detail' => [
+            'file' => 'case-hospitality-detail.webp',
+            'title' => 'Hospitality appliance detail',
+            'alt' => 'Coffee and breakfast appliances used in a hospitality setting',
+        ],
+        'news_rd' => [
+            'file' => 'news-rd-team.webp',
+            'title' => 'Aurelia product development team',
+            'alt' => 'Engineering team reviewing a countertop blender prototype',
+        ],
+        'news_detail' => [
+            'file' => 'news-prototype-detail.webp',
+            'title' => 'Blender prototype review',
+            'alt' => 'Detailed review of a new kitchen appliance prototype',
+        ],
         'air_fryer' => [
             'file' => 'product-air-fryer.webp',
             'title' => 'Air fryer product',
@@ -398,6 +468,314 @@ function cb_demo_homepage_sections($images = [])
         ],
         ['enable' => '1', 'type' => 'featured_products', 'layout_style' => 'grid', 'title' => 'Featured Products', 'limit' => '6'],
     ];
+}
+
+function cb_catalog_image(array $images, $key)
+{
+    return wp_parse_args((array) ($images[$key] ?? []), ['id' => 0, 'url' => '']);
+}
+
+function cb_catalog_homepage_sections($language, array $images)
+{
+    $is_zh = $language === 'zh';
+    $copy = $is_zh ? [
+        'stats' => [
+            ['number' => '14', 'suffix' => '+', 'label' => '年制造经验', 'icon' => 'calendar', 'needs_review' => '1'],
+            ['number' => '50,000', 'suffix' => ' m²', 'label' => '现代化厂区', 'icon' => 'factory', 'needs_review' => '1'],
+            ['number' => '70', 'suffix' => '+', 'label' => '出口国家和地区', 'icon' => 'global', 'needs_review' => '1'],
+            ['number' => '600', 'suffix' => '+', 'label' => '专业团队成员', 'icon' => 'team', 'needs_review' => '1'],
+        ],
+        'intro_eyebrow' => '关于 AURELIA',
+        'intro_title' => '以可靠制造，支持品牌长期成长。',
+        'intro_description' => 'Aurelia 集产品研发、工程验证、规模生产和全球交付于一体，为国际厨房电器品牌提供灵活的 OEM/ODM 合作。我们以清晰的流程、可追溯的质量控制和稳定的交期，将产品概念转化为可持续销售的系列。',
+        'timeline_title' => '持续建设的制造能力',
+        'timeline_description' => '围绕产品开发、质量体系、规模生产和全球交付持续完善制造能力。',
+        'timeline' => [
+            ['year' => '2010', 'title' => '制造基础', 'description' => '建立小家电制造与供应链团队。', 'needs_review' => '1'],
+            ['year' => '2014', 'title' => 'OEM 项目扩展', 'description' => '形成从结构设计到量产导入的协作流程。', 'needs_review' => '1'],
+            ['year' => '2018', 'title' => '产能升级', 'description' => '扩建自动化装配和可靠性测试能力。', 'needs_review' => '1'],
+            ['year' => '2022', 'title' => '全球质量体系', 'description' => '加强实验室验证与供应商追溯管理。', 'needs_review' => '1'],
+            ['year' => '2026', 'title' => '智能制造计划', 'description' => '推进数字化生产和多品类平台开发。', 'needs_review' => '1'],
+        ],
+        'gallery_eyebrow' => '制造现场',
+        'gallery_title' => '从工程验证到全球交付',
+        'gallery_description' => '查看支持稳定质量和灵活定制的生产、测试、展示与物流环境。',
+        'why_eyebrow' => '我们的优势',
+        'why_title' => '为品牌项目而设计的制造体系',
+        'why_description' => '跨职能团队在每个关键节点保持可见、可控和可追溯。',
+        'advantages' => [
+            ['enable' => '1', 'icon' => 'shield', 'title' => '质量保证', 'description' => '从来料检验到最终性能测试的全过程控制。'],
+            ['enable' => '1', 'icon' => 'equipment', 'title' => '先进设备', 'description' => '标准化装配、测试和包装设施支持稳定量产。'],
+            ['enable' => '1', 'icon' => 'research', 'title' => '研发协同', 'description' => '工程团队支持结构、性能和合规优化。'],
+            ['enable' => '1', 'icon' => 'custom', 'title' => 'OEM/ODM 定制', 'description' => '根据市场定位灵活配置外观、功能和包装。'],
+            ['enable' => '1', 'icon' => 'delivery', 'title' => '准时交付', 'description' => '透明的计划管理和关键节点跟进。'],
+            ['enable' => '1', 'icon' => 'support', 'title' => '全球支持', 'description' => '为国际项目提供快速响应和持续服务。'],
+        ],
+        'products_eyebrow' => '产品系列',
+        'products_title' => '面向全球市场的厨房电器',
+        'products_description' => '成熟平台与灵活配置相结合，支持品牌快速构建产品组合。',
+        'cases_eyebrow' => '项目案例',
+        'cases_title' => '从产品需求到市场落地',
+        'news_eyebrow' => '最新动态',
+        'news_title' => '研发、制造与行业洞察',
+        'cta_title' => '准备启动您的下一个产品项目？',
+        'cta_description' => '告诉我们目标市场、功能方向和预计数量，我们的团队将提供下一步建议。',
+        'cta_button' => '提交产品需求',
+    ] : [
+        'stats' => [
+            ['number' => '14', 'suffix' => '+', 'label' => 'Years of Manufacturing', 'icon' => 'calendar', 'needs_review' => '1'],
+            ['number' => '50,000', 'suffix' => ' m²', 'label' => 'Modern Factory Area', 'icon' => 'factory', 'needs_review' => '1'],
+            ['number' => '70', 'suffix' => '+', 'label' => 'Countries and Markets', 'icon' => 'global', 'needs_review' => '1'],
+            ['number' => '600', 'suffix' => '+', 'label' => 'Skilled Team Members', 'icon' => 'team', 'needs_review' => '1'],
+        ],
+        'intro_eyebrow' => 'ABOUT AURELIA',
+        'intro_title' => 'Reliable manufacturing for brands built to grow.',
+        'intro_description' => 'Aurelia brings product development, engineering validation, scalable production and global fulfillment together for international kitchen appliance brands. Clear processes, traceable quality control and dependable lead times turn product ideas into commercially ready ranges.',
+        'timeline_title' => 'Manufacturing capability built over time',
+        'timeline_description' => 'A focused progression across product development, quality systems, scalable production and global fulfillment.',
+        'timeline' => [
+            ['year' => '2010', 'title' => 'Manufacturing foundation', 'description' => 'Kitchen appliance production and supply-chain teams established.', 'needs_review' => '1'],
+            ['year' => '2014', 'title' => 'OEM program growth', 'description' => 'An integrated process connected industrial design with production launch.', 'needs_review' => '1'],
+            ['year' => '2018', 'title' => 'Capacity expansion', 'description' => 'Automated assembly and reliability testing capabilities expanded.', 'needs_review' => '1'],
+            ['year' => '2022', 'title' => 'Global quality systems', 'description' => 'Laboratory validation and supplier traceability were strengthened.', 'needs_review' => '1'],
+            ['year' => '2026', 'title' => 'Smart manufacturing program', 'description' => 'Digital production and multi-category platform development advanced.', 'needs_review' => '1'],
+        ],
+        'gallery_eyebrow' => 'INSIDE AURELIA',
+        'gallery_title' => 'From engineering validation to global fulfillment',
+        'gallery_description' => 'Explore the production, testing, showroom and logistics environments behind consistent quality and flexible customization.',
+        'why_eyebrow' => 'OUR ADVANTAGE',
+        'why_title' => 'A manufacturing system designed for brand programs',
+        'why_description' => 'Cross-functional teams keep every critical stage visible, controlled and traceable.',
+        'advantages' => [
+            ['enable' => '1', 'icon' => 'shield', 'title' => 'Quality Assurance', 'description' => 'Process control from incoming materials to final performance testing.'],
+            ['enable' => '1', 'icon' => 'equipment', 'title' => 'Advanced Equipment', 'description' => 'Standardized assembly, testing and packaging support stable output.'],
+            ['enable' => '1', 'icon' => 'research', 'title' => 'R&D Collaboration', 'description' => 'Engineering support for structure, performance and compliance.'],
+            ['enable' => '1', 'icon' => 'custom', 'title' => 'OEM/ODM Flexibility', 'description' => 'Appearance, function and packaging configured for each market.'],
+            ['enable' => '1', 'icon' => 'delivery', 'title' => 'On-time Delivery', 'description' => 'Transparent planning and milestone management across each order.'],
+            ['enable' => '1', 'icon' => 'support', 'title' => 'Global Support', 'description' => 'Responsive communication for international product programs.'],
+        ],
+        'products_eyebrow' => 'PRODUCT RANGE',
+        'products_title' => 'Kitchen appliances engineered for global markets',
+        'products_description' => 'Mature platforms and flexible configurations help brands build coherent product ranges faster.',
+        'cases_eyebrow' => 'CASE STUDIES',
+        'cases_title' => 'From product brief to market-ready program',
+        'news_eyebrow' => 'LATEST NEWS',
+        'news_title' => 'Product development, manufacturing and market insight',
+        'cta_title' => 'Ready to start your next product program?',
+        'cta_description' => 'Share your target market, feature direction and estimated volume. Our team will recommend the next practical step.',
+        'cta_button' => 'Send Your Product Brief',
+    ];
+
+    $gallery_items = [];
+    foreach (['hero_assembly', 'factory_closeup', 'quality_lab', 'warehouse', 'hero_showroom'] as $key) {
+        $image = cb_catalog_image($images, $key);
+        $definition = cb_demo_image_definitions()[$key] ?? [];
+        $gallery_items[] = ['enable' => '1', 'image_id' => $image['id'], 'image_url' => $image['url'], 'image_alt' => $definition['alt'] ?? '', 'title' => '', 'description' => ''];
+    }
+    $cases = $is_zh ? [
+        ['title' => '酒店早餐电器项目', 'description' => '统一设计语言的咖啡、加热与早餐电器组合。', 'image' => 'case_hospitality'],
+        ['title' => '产线扩容项目', 'description' => '为新品上市建立可扩展的装配和质量流程。', 'image' => 'factory_closeup'],
+        ['title' => '全球交付项目', 'description' => '从包装验证到多市场物流计划的一体化支持。', 'image' => 'warehouse'],
+    ] : [
+        ['title' => 'Hospitality breakfast program', 'description' => 'A coordinated family of coffee, heating and breakfast appliances.', 'image' => 'case_hospitality'],
+        ['title' => 'Production scale-up program', 'description' => 'A scalable assembly and quality plan for a multi-product launch.', 'image' => 'factory_closeup'],
+        ['title' => 'Global fulfillment program', 'description' => 'Integrated support from packaging validation to multi-market logistics.', 'image' => 'warehouse'],
+    ];
+    $case_items = array_map(static function ($item) use ($images) {
+        $image = cb_catalog_image($images, $item['image']);
+        return ['enable' => '1', 'title' => $item['title'], 'description' => $item['description'], 'image_id' => $image['id'], 'image_url' => $image['url'], 'url' => ''];
+    }, $cases);
+    $hero_slides = [];
+    foreach (['hero_campus', 'hero_assembly', 'hero_showroom'] as $key) {
+        $image = cb_catalog_image($images, $key);
+        $definition = cb_demo_image_definitions()[$key];
+        $hero_slides[] = array_merge(cb_hero_slide_defaults(), ['image_id' => $image['id'], 'image_url' => $image['url'], 'image_alt' => $definition['alt'], 'admin_label' => $definition['title']]);
+    }
+    $factory = cb_catalog_image($images, 'factory_closeup');
+    $secondary = cb_catalog_image($images, 'quality_detail');
+    $tertiary = cb_catalog_image($images, 'showroom_detail');
+    $contact_url = home_url('/' . $language . '/' . ($is_zh ? 'contact-zh' : 'contact-us') . '/');
+
+    return [
+        array_merge(cb_default_builder_section('hero_slider'), cb_hero_section_defaults(), ['layout_style' => 'image_only_catalog', 'min_height_desktop' => '620px', 'min_height_mobile' => '380px', 'content_width' => '0px', 'autoplay_delay' => '6500', 'slides' => $hero_slides]),
+        array_merge(cb_default_builder_section('company_stats'), ['layout_style' => 'minimal_matrix', 'items' => $copy['stats']]),
+        array_merge(cb_default_builder_section('company_intro'), ['layout_style' => 'story_collage', 'eyebrow' => $copy['intro_eyebrow'], 'title' => $copy['intro_title'], 'description' => $copy['intro_description'], 'image_id' => $factory['id'], 'image_url' => $factory['url'], 'secondary_image_id' => $secondary['id'], 'secondary_image_url' => $secondary['url'], 'tertiary_image_id' => $tertiary['id'], 'tertiary_image_url' => $tertiary['url']]),
+        array_merge(cb_default_builder_section('company_timeline'), ['layout_style' => 'full_width', 'title' => $copy['timeline_title'], 'description' => $copy['timeline_description'], 'items' => $copy['timeline']]),
+        array_merge(cb_default_builder_section('showroom_gallery'), ['layout_style' => 'immersive', 'eyebrow' => $copy['gallery_eyebrow'], 'title' => $copy['gallery_title'], 'description' => $copy['gallery_description'], 'items' => $gallery_items]),
+        array_merge(cb_default_builder_section('why_choose_us'), ['layout_style' => 'minimal_matrix', 'eyebrow' => $copy['why_eyebrow'], 'title' => $copy['why_title'], 'description' => $copy['why_description'], 'items' => $copy['advantages']]),
+        array_merge(cb_default_builder_section('featured_products'), ['layout_style' => 'technical_catalog', 'eyebrow' => $copy['products_eyebrow'], 'title' => $copy['products_title'], 'description' => $copy['products_description'], 'limit' => '6', 'columns_desktop' => '3', 'columns_tablet' => '2', 'columns_mobile' => '1']),
+        array_merge(cb_default_builder_section('case_studies'), ['layout_style' => 'editorial_grid', 'eyebrow' => $copy['cases_eyebrow'], 'title' => $copy['cases_title'], 'items' => $case_items]),
+        array_merge(cb_default_builder_section('news_section'), ['layout_style' => 'spotlight', 'eyebrow' => $copy['news_eyebrow'], 'title' => $copy['news_title'], 'limit' => '3']),
+        array_merge(cb_default_builder_section('inquiry_cta'), ['layout_style' => 'compact_band', 'title' => $copy['cta_title'], 'description' => $copy['cta_description'], 'items' => [['text' => $copy['cta_button'], 'url' => $contact_url, 'style' => 'primary']]]),
+    ];
+}
+
+function cb_catalog_special_page_sections($role, $language, array $images)
+{
+    $home = cb_catalog_homepage_sections($language, $images);
+    if ($role === 'about') {
+        return array_values(array_filter($home, static fn($section) => in_array($section['type'], ['company_stats', 'company_intro', 'company_timeline', 'showroom_gallery', 'why_choose_us'], true)));
+    }
+    $is_zh = $language === 'zh';
+    return [
+        array_merge(cb_default_builder_section('contact_info'), [
+            'layout_style' => 'split',
+            'eyebrow' => $is_zh ? '联系我们' : 'CONTACT AURELIA',
+            'title' => $is_zh ? '与我们的产品团队沟通' : 'Talk with our product team',
+            'description' => $is_zh ? '分享产品方向、目标市场和预计采购量，我们将在一个工作日内回复。' : 'Share your product direction, target market and estimated volume. We will respond within one business day.',
+            'items' => $is_zh ? [
+                ['icon' => 'email', 'label' => '电子邮箱', 'value' => 'info@aureliamanufacturing.com', 'url' => 'mailto:info@aureliamanufacturing.com'],
+                ['icon' => 'phone', 'label' => '电话', 'value' => '+86 000 0000 0000', 'url' => 'tel:+8600000000000'],
+                ['icon' => 'location', 'label' => '地址', 'value' => '中国制造基地', 'url' => ''],
+            ] : [
+                ['icon' => 'email', 'label' => 'Email', 'value' => 'info@aureliamanufacturing.com', 'url' => 'mailto:info@aureliamanufacturing.com'],
+                ['icon' => 'phone', 'label' => 'Phone', 'value' => '+86 000 0000 0000', 'url' => 'tel:+8600000000000'],
+                ['icon' => 'location', 'label' => 'Manufacturing Base', 'value' => 'China', 'url' => ''],
+            ],
+        ]),
+        array_merge(cb_default_builder_section('inquiry_cta'), ['layout_style' => 'default', 'title' => $is_zh ? '提交产品需求' : 'Send us your product brief', 'description' => $is_zh ? '填写以下信息，我们的团队会尽快联系您。' : 'Complete the form and our team will follow up with the right next step.']),
+    ];
+}
+
+function cb_catalog_upsert_post($post_type, $seed_key, $language, array $data, array $image = [])
+{
+    $existing = get_posts([
+        'post_type' => $post_type,
+        'post_status' => 'any',
+        'posts_per_page' => 1,
+        'fields' => 'ids',
+        'meta_key' => '_cb_catalog_seed_key',
+        'meta_value' => $seed_key . '-' . $language,
+    ]);
+    if (!$existing && !empty($data['post_title'])) {
+        $by_title = get_posts([
+            'post_type' => $post_type,
+            'post_status' => 'any',
+            'posts_per_page' => 1,
+            'fields' => 'ids',
+            'title' => $data['post_title'],
+            'meta_query' => [['key' => '_cb_language', 'value' => $language]],
+        ]);
+        if ($by_title) {
+            $existing = [absint($by_title[0])];
+        }
+    }
+    $post_id = absint($existing[0] ?? 0);
+    if (!$post_id) {
+        $post_id = wp_insert_post(array_merge([
+            'post_type' => $post_type,
+            'post_status' => 'publish',
+            'post_excerpt' => '',
+            'post_content' => '',
+        ], $data));
+        if (!$post_id || is_wp_error($post_id)) {
+            return 0;
+        }
+    } else {
+        $update = ['ID' => $post_id];
+        foreach (['post_excerpt', 'post_content'] as $field) {
+            $current_value = (string) get_post_field($field, $post_id);
+            $is_public_demo_notice = $field === 'post_content' && (str_contains($current_value, 'demonstration copy') || str_contains($current_value, '演示文案'));
+            if ((empty($current_value) || $is_public_demo_notice) && !empty($data[$field])) {
+                $update[$field] = $data[$field];
+            }
+        }
+        if (count($update) > 1) {
+            wp_update_post($update);
+        }
+    }
+    update_post_meta($post_id, '_cb_language', $language);
+    update_post_meta($post_id, '_cb_catalog_seed_key', $seed_key . '-' . $language);
+    update_post_meta($post_id, '_cb_translation_group', 'aurelia-catalog-' . $seed_key);
+    update_post_meta($post_id, '_cb_is_demo_content', '1');
+    update_post_meta($post_id, '_cb_needs_content_review', '1');
+    if (!empty($image['id']) && !get_post_thumbnail_id($post_id)) {
+        set_post_thumbnail($post_id, absint($image['id']));
+    }
+    return $post_id;
+}
+
+function cb_install_catalog_content(array $images)
+{
+    $product_definitions = [
+        ['air-fryer', 'Air Fryer 5.5L', '5.5升空气炸锅', 'AF-8001', 'Small Kitchen Appliances', '小型厨房电器', 'air_fryer', '1700W'],
+        ['espresso-machine', 'Espresso Machine', '意式咖啡机', 'CM-3002', 'Coffee Machines', '咖啡机', 'espresso', '1450W'],
+        ['stand-mixer', 'Stand Mixer 6.5L', '6.5升厨师机', 'SM-6003', 'Food Preparation', '食物处理', 'stand_mixer', '1500W'],
+        ['blender', 'Blender 1.8L', '1.8升搅拌机', 'BL-1804', 'Food Preparation', '食物处理', 'blender', '1200W'],
+        ['multi-cooker', 'Multi Cooker 5L', '5升多功能锅', 'MC-5005', 'Cooking Appliances', '烹饪电器', 'multi_cooker', '1000W'],
+        ['electric-kettle', 'Electric Kettle 1.7L', '1.7升电水壶', 'EK-1706', 'Small Kitchen Appliances', '小型厨房电器', 'kettle', '1850-2200W'],
+    ];
+    foreach ($product_definitions as $product) {
+        foreach (['en', 'zh'] as $language) {
+            $is_zh = $language === 'zh';
+            $title = $is_zh ? $product[2] : $product[1];
+            $category_name = $is_zh ? $product[5] : $product[4];
+            $description = $is_zh
+                ? '面向品牌项目开发的成熟产品平台，支持外观、功能、包装和认证配置。'
+                : 'A mature product platform for brand programs, with configurable appearance, functions, packaging and compliance.';
+            $image = cb_catalog_image($images, $product[6]);
+            $post_id = cb_catalog_upsert_post('product', 'product-' . $product[0], $language, [
+                'post_title' => $title,
+                'post_excerpt' => $description,
+                'post_content' => '<h2>' . ($is_zh ? '为品牌项目而设计' : 'Engineered for brand programs') . '</h2><p>' . $description . '</p><h2>' . ($is_zh ? '制造与质量' : 'Manufacturing and quality') . '</h2><p>' . ($is_zh ? '每个项目均可根据目标市场建立材料、性能和包装验证计划。' : 'Each program can be supported by a validation plan covering materials, performance and packaging for the target market.') . '</p>',
+            ], $image);
+            if (!$post_id) {
+                continue;
+            }
+            foreach ([
+                '_cb_featured' => '1', '_cb_model' => $product[3], '_cb_brand' => 'Aurelia OEM/ODM',
+                '_cb_voltage' => '220-240V / 110-120V', '_cb_power' => $product[7],
+                '_cb_certification' => 'CE / CB / RoHS', '_cb_moq' => '500 units', '_cb_lead_time' => '35-45 days',
+                '_cb_short_description' => $description, '_cb_inquiry_enabled' => '1',
+                '_cb_specs' => ($is_zh ? "型号|{$product[3]}\n电压|220-240V / 110-120V\n功率|{$product[7]}\n定制|颜色、标识、包装" : "Model|{$product[3]}\nVoltage|220-240V / 110-120V\nPower|{$product[7]}\nCustomization|Color, logo and packaging"),
+            ] as $key => $value) {
+                update_post_meta($post_id, $key, $value);
+            }
+            update_post_meta($post_id, '_cb_gallery', [['title' => $title, 'description' => '', 'image_id' => $image['id'], 'image_url' => $image['url'], 'url' => '']]);
+            $term = term_exists($category_name, 'product_category');
+            if (!$term) {
+                $term = wp_insert_term($category_name, 'product_category');
+            }
+            if (!is_wp_error($term)) {
+                $term_id = absint(is_array($term) ? $term['term_id'] : $term);
+                update_term_meta($term_id, '_cb_language', $language);
+                update_term_meta($term_id, '_cb_is_demo_content', '1');
+                wp_set_object_terms($post_id, [$term_id], 'product_category');
+            }
+        }
+    }
+
+    $entries = [
+        'factory_showcase' => [
+            ['assembly', 'Automated Assembly', '自动化装配', 'Flexible production cells support stable output across multiple appliance platforms.', '柔性生产单元支持多个产品平台的稳定量产。', 'factory_closeup'],
+            ['quality', 'Quality and Reliability Laboratory', '质量与可靠性实验室', 'Performance, endurance and safety checks are planned around each target market.', '根据目标市场规划性能、耐久和安全验证。', 'quality_lab'],
+            ['logistics', 'Warehouse and Global Fulfillment', '仓储与全球交付', 'Organized inventory and shipment controls support dependable international delivery.', '规范的库存与出货控制支持稳定的国际交付。', 'warehouse'],
+        ],
+        'case_study' => [
+            ['hospitality', 'Hospitality Breakfast Appliance Program', '酒店早餐电器项目', 'A coordinated appliance family developed for a hospitality service environment.', '为酒店服务场景开发的统一电器产品组合。', 'case_hospitality'],
+            ['scale-up', 'Multi-product Production Scale-up', '多产品量产扩容项目', 'Assembly, testing and packaging workflows aligned for a coordinated market launch.', '为协同上市建立装配、测试和包装流程。', 'hero_assembly'],
+            ['fulfillment', 'Multi-market Fulfillment Program', '多市场交付项目', 'Packaging validation and shipment planning prepared for multiple destinations.', '面向多个目的地完成包装验证和出货规划。', 'warehouse'],
+        ],
+        'post' => [
+            ['rd-process', 'How Aurelia Develops a New Appliance Platform', 'Aurelia 如何开发新的电器平台', 'A practical look at product definition, engineering review and validation planning.', '了解产品定义、工程评审和验证规划的实际流程。', 'news_rd'],
+            ['quality-plan', 'Building a Reliable Quality Plan for OEM Projects', '如何为 OEM 项目建立可靠的质量计划', 'Quality planning begins before tooling and follows the product through production.', '质量规划始于开模之前，并贯穿整个生产过程。', 'quality_lab'],
+            ['delivery-readiness', 'Preparing Kitchen Appliances for Global Delivery', '厨房电器全球交付准备', 'Packaging, documentation and shipment controls that reduce launch risk.', '通过包装、文件和出货控制降低上市风险。', 'warehouse'],
+        ],
+    ];
+    foreach ($entries as $post_type => $rows) {
+        foreach ($rows as $row) {
+            foreach (['en', 'zh'] as $language) {
+                $is_zh = $language === 'zh';
+                $title = $is_zh ? $row[2] : $row[1];
+                $excerpt = $is_zh ? $row[4] : $row[3];
+                cb_catalog_upsert_post($post_type, $post_type . '-' . $row[0], $language, [
+                    'post_title' => $title,
+                    'post_excerpt' => $excerpt,
+                    'post_content' => '<h2>' . ($is_zh ? '项目概述' : 'Program overview') . '</h2><p>' . $excerpt . '</p><p>' . ($is_zh ? '跨职能团队以清晰的工程评审、质量验证和交付计划支持项目推进。' : 'Cross-functional teams support each program with clear engineering reviews, quality validation and delivery planning.') . '</p>',
+                ], cb_catalog_image($images, $row[5]));
+            }
+        }
+    }
 }
 
 function cb_install_demo_content()

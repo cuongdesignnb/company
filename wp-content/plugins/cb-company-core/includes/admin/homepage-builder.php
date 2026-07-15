@@ -113,7 +113,7 @@ function cb_render_hero_builder_fields($index, $section)
     cb_render_hero_slide($base, '__slide__', cb_hero_slide_defaults());
     echo '</template></div>';
     $fields = [
-        ['layout_style', 'select', __('Kiểu bố cục', 'cb-company-core'), 'design', ['default' => __('Bố cục mặc định', 'cb-company-core'), 'full_width' => __('Toàn chiều rộng', 'cb-company-core'), 'centered' => __('Căn giữa', 'cb-company-core')]],
+        ['layout_style', 'select', __('Kiểu bố cục', 'cb-company-core'), 'design', ['default' => __('Bố cục mặc định', 'cb-company-core'), 'full_width' => __('Toàn chiều rộng', 'cb-company-core'), 'image_only_catalog' => __('Catalogue chỉ có ảnh', 'cb-company-core'), 'centered' => __('Căn giữa', 'cb-company-core')]],
         ['background_color', 'color', __('Màu nền dự phòng', 'cb-company-core'), 'design'],
         ['min_height_desktop', 'text', __('Chiều cao tối thiểu desktop', 'cb-company-core'), 'design'],
         ['content_width', 'text', __('Chiều rộng nội dung', 'cb-company-core'), 'design'],

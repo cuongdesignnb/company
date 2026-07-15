@@ -1,6 +1,7 @@
 <?php get_header(); ?>
 <?php while (have_posts()) : the_post(); ?>
     <?php $post_id = get_the_ID(); $mode = cb_theme_page_render_mode($post_id); $show_banner = cb_theme_page_ui_enabled('show_banner'); ?>
+    <?php if (!$show_banner && $mode === 'builder') : ?><h1 class="cb-sr-only"><?php the_title(); ?></h1><?php endif; ?>
     <?php if ($show_banner) : ?>
         <section class="cb-page-hero cb-custom-page-hero<?php echo cb_theme_page_ui_enabled('hide_banner_mobile') ? ' cb-hide-mobile' : ''; ?>"<?php echo cb_theme_page_banner_style($post_id); ?>>
             <div class="cb-container">

@@ -3,10 +3,12 @@ $footer_classes = [
     'cb-site-footer',
     'cb-footer-layout-' . sanitize_html_class(cb_theme_option('footer_layout', 'four_columns')),
 ];
+$footer_image = cb_theme_option('footer_background_image');
+$footer_style = $footer_image ? '--cb-footer-image:url(' . esc_url($footer_image) . ')' : '';
 ?>
 </main>
 <?php if (!cb_theme_page_ui_enabled('hide_footer')) : ?>
-<footer class="<?php echo esc_attr(implode(' ', $footer_classes)); ?>">
+<footer class="<?php echo esc_attr(implode(' ', $footer_classes)); ?>"<?php if ($footer_style) : ?> style="<?php echo esc_attr($footer_style); ?>"<?php endif; ?>>
     <div class="cb-container cb-footer-grid">
         <?php if (cb_theme_option_enabled('show_footer_logo')) : ?>
             <section>
@@ -18,7 +20,7 @@ $footer_classes = [
             <section>
                 <h3><?php echo esc_html(cb_theme_t('products')); ?></h3>
                 <ul>
-                    <?php foreach (get_terms(['taxonomy' => 'product_category', 'hide_empty' => false, 'number' => 5]) as $term) : ?>
+                    <?php foreach (cb_theme_product_terms(5) as $term) : ?>
                         <li><a href="<?php echo esc_url(get_term_link($term)); ?>"><?php echo esc_html($term->name); ?></a></li>
                     <?php endforeach; ?>
                 </ul>
@@ -26,7 +28,7 @@ $footer_classes = [
         <?php endif; ?>
         <?php if (cb_theme_option_enabled('show_footer_links')) : ?>
             <section>
-                <h3>Quick Links</h3>
+                <h3><?php echo esc_html(cb_theme_lang() === 'zh' ? '快捷链接' : 'Quick Links'); ?></h3>
                 <?php
                 $footer_location = 'footer_' . cb_theme_lang();
                 if (has_nav_menu($footer_location)) {
@@ -56,7 +58,11 @@ $footer_classes = [
 </footer>
 <?php endif; ?>
 <?php if (cb_theme_option_enabled('floating_contact')) : ?>
-    <a class="cb-floating-quote" href="#inquiry"><?php echo esc_html(cb_theme_t('get_quote')); ?></a>
+    <nav class="cb-contact-rail" aria-label="<?php echo esc_attr(cb_theme_t('contact_us')); ?>">
+        <?php if (cb_theme_option('contact_phone')) : ?><a href="tel:<?php echo esc_attr(preg_replace('/[^\d+]/', '', cb_theme_option('contact_phone'))); ?>" aria-label="<?php echo esc_attr(cb_theme_option('contact_phone')); ?>"><svg aria-hidden="true" viewBox="0 0 24 24"><path d="M6.7 3.5 9.2 3l2 4.8-2.1 1.4a14 14 0 0 0 5.7 5.7l1.4-2.1 4.8 2-.5 2.5c-.3 1.6-1.7 2.8-3.4 2.7A14 14 0 0 1 4 6.9c-.1-1.7 1.1-3.1 2.7-3.4Z" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg><span><?php echo esc_html(cb_theme_lang() === 'zh' ? '电话' : 'Call'); ?></span></a><?php endif; ?>
+        <?php if (cb_theme_option('contact_email')) : ?><a href="mailto:<?php echo esc_attr(cb_theme_option('contact_email')); ?>" aria-label="<?php echo esc_attr(cb_theme_option('contact_email')); ?>"><svg aria-hidden="true" viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="14" rx="2" fill="none" stroke="currentColor" stroke-width="1.7"/><path d="m4 7 8 6 8-6" fill="none" stroke="currentColor" stroke-width="1.7"/></svg><span>Email</span></a><?php endif; ?>
+        <a class="is-primary" href="#inquiry"><svg aria-hidden="true" viewBox="0 0 24 24"><path d="M5 4h14v12H8l-3 3V4Z" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/></svg><span><?php echo esc_html(cb_theme_t('get_quote')); ?></span></a>
+    </nav>
 <?php endif; ?>
 <?php wp_footer(); ?>
 </body>

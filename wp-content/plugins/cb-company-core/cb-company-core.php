@@ -2,7 +2,7 @@
 /**
  * Plugin Name: CB Company Core
  * Description: Dữ liệu doanh nghiệp, đa ngôn ngữ, biểu mẫu, SEO và trình dựng trang.
- * Version: 1.3.1
+ * Version: 1.4.0
  * Author: CB
  * Text Domain: cb-company-core
  * Domain Path: /languages
@@ -13,8 +13,8 @@ if (!defined('ABSPATH')) {
 }
 
 define('CB_CORE_FILE', __FILE__);
-define('CB_CORE_VERSION', '1.3.1');
-define('CB_CORE_DB_VERSION', '1.3.1');
+define('CB_CORE_VERSION', '1.4.0');
+define('CB_CORE_DB_VERSION', '1.4.0');
 define('CB_CORE_PATH', plugin_dir_path(__FILE__));
 define('CB_CORE_URL', plugin_dir_url(__FILE__));
 
@@ -71,6 +71,7 @@ add_action('admin_post_cb_export_page_json', 'cb_export_page_json');
 add_action('admin_post_cb_export_inquiries_csv', 'cb_export_inquiries_csv');
 add_action('admin_post_cb_reset_settings', 'cb_handle_reset_settings');
 add_action('admin_post_cb_demo_content', 'cb_handle_demo_content_action');
+add_action('admin_post_cb_restore_catalog_layout', 'cb_handle_restore_catalog_layout');
 
 add_shortcode('cb_inquiry_form', 'cb_render_inquiry_form');
 add_action('admin_post_nopriv_cb_submit_inquiry', 'cb_handle_inquiry_submission');

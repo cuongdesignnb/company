@@ -7,7 +7,10 @@ function cb_section_types()
 {
     return [
         'hero_slider' => __('Banner chính', 'cb-company-core'),
+        'company_stats' => __('Thống kê năng lực', 'cb-company-core'),
         'company_intro' => __('Giới thiệu công ty', 'cb-company-core'),
+        'company_timeline' => __('Lịch sử phát triển', 'cb-company-core'),
+        'showroom_gallery' => __('Nhà máy và showroom', 'cb-company-core'),
         'product_categories' => __('Danh mục sản phẩm', 'cb-company-core'),
         'featured_products' => __('Sản phẩm nổi bật', 'cb-company-core'),
         'why_choose_us' => __('Lý do chọn chúng tôi', 'cb-company-core'),
@@ -28,7 +31,7 @@ function cb_builder_field_registry()
 {
     $types = array_keys(cb_section_types());
     $content = array_values(array_diff($types, ['hero_slider']));
-    $listing = ['product_categories', 'featured_products', 'case_studies', 'news_section', 'gallery'];
+    $listing = ['company_stats', 'showroom_gallery', 'product_categories', 'featured_products', 'case_studies', 'news_section', 'gallery'];
     $repeaters = array_keys(cb_section_item_schemas());
     return [
         'admin_label' => ['label' => __('Nhãn quản trị', 'cb-company-core'), 'type' => 'text', 'group' => 'advanced', 'for' => $types],
@@ -39,9 +42,11 @@ function cb_builder_field_registry()
         'button_text' => ['label' => __('Nhãn nút', 'cb-company-core'), 'type' => 'text', 'group' => 'content', 'for' => array_diff($content, ['spacer', 'content_editor', 'gallery'])],
         'button_url' => ['label' => __('Liên kết nút', 'cb-company-core'), 'type' => 'url', 'group' => 'content', 'for' => array_diff($content, ['spacer', 'content_editor', 'gallery'])],
         'image' => ['label' => __('Hình ảnh chính', 'cb-company-core'), 'type' => 'image', 'group' => 'images', 'for' => ['company_intro', 'factory_capability', 'inquiry_cta', 'contact_info']],
+        'secondary_image' => ['label' => __('Hình ảnh phụ', 'cb-company-core'), 'type' => 'image', 'group' => 'images', 'for' => ['company_intro']],
+        'tertiary_image' => ['label' => __('Hình ảnh bổ sung', 'cb-company-core'), 'type' => 'image', 'group' => 'images', 'for' => ['company_intro']],
         'items' => ['label' => __('Danh sách nội dung', 'cb-company-core'), 'type' => 'section_repeater', 'group' => 'content', 'for' => $repeaters],
         'limit' => ['label' => __('Số mục hiển thị', 'cb-company-core'), 'type' => 'number', 'group' => 'content', 'for' => $listing],
-        'layout_style' => ['label' => __('Kiểu bố cục', 'cb-company-core'), 'type' => 'select', 'group' => 'design', 'for' => $types, 'choices' => ['default' => __('Bố cục mặc định', 'cb-company-core'), 'split' => __('Chia hai cột', 'cb-company-core'), 'centered' => __('Căn giữa', 'cb-company-core'), 'image_left' => __('Ảnh bên trái', 'cb-company-core'), 'image_right' => __('Ảnh bên phải', 'cb-company-core'), 'grid' => __('Dạng lưới', 'cb-company-core'), 'carousel' => __('Băng chuyền', 'cb-company-core')]],
+        'layout_style' => ['label' => __('Kiểu bố cục', 'cb-company-core'), 'type' => 'select', 'group' => 'design', 'for' => $types, 'choices' => ['default' => __('Bố cục mặc định', 'cb-company-core'), 'full_width' => __('Toàn chiều rộng', 'cb-company-core'), 'image_only_catalog' => __('Hero catalogue chỉ có ảnh', 'cb-company-core'), 'split' => __('Chia hai cột', 'cb-company-core'), 'story_collage' => __('Câu chuyện và collage ảnh', 'cb-company-core'), 'centered' => __('Căn giữa', 'cb-company-core'), 'minimal_matrix' => __('Ma trận tối giản', 'cb-company-core'), 'technical_catalog' => __('Catalogue kỹ thuật', 'cb-company-core'), 'editorial_grid' => __('Lưới hình ảnh biên tập', 'cb-company-core'), 'spotlight' => __('Nội dung nổi bật', 'cb-company-core'), 'immersive' => __('Thư viện hình ảnh lớn', 'cb-company-core'), 'compact_band' => __('Dải CTA gọn', 'cb-company-core'), 'image_left' => __('Ảnh bên trái', 'cb-company-core'), 'image_right' => __('Ảnh bên phải', 'cb-company-core'), 'grid' => __('Dạng lưới', 'cb-company-core'), 'carousel' => __('Băng chuyền', 'cb-company-core')]],
         'background_color' => ['label' => __('Màu nền', 'cb-company-core'), 'type' => 'color', 'group' => 'design', 'for' => $types],
         'background_image' => ['label' => __('Ảnh nền', 'cb-company-core'), 'type' => 'image', 'group' => 'images', 'for' => array_diff($content, ['content_editor', 'spacer'])],
         'text_color' => ['label' => __('Màu chữ', 'cb-company-core'), 'type' => 'color', 'group' => 'design', 'for' => array_diff($types, ['spacer'])],
@@ -63,11 +68,31 @@ function cb_builder_field_registry()
 function cb_section_item_schemas()
 {
     return [
+        'company_stats' => [
+            'number' => ['text', __('Số liệu', 'cb-company-core')],
+            'suffix' => ['text', __('Hậu tố', 'cb-company-core')],
+            'label' => ['text', __('Nhãn', 'cb-company-core')],
+            'icon' => ['text', __('Biểu tượng', 'cb-company-core')],
+            'needs_review' => ['checkbox', __('Cần xác minh nội dung', 'cb-company-core')],
+        ],
         'company_intro' => [
             'number' => ['number', __('Số liệu', 'cb-company-core')],
             'suffix' => ['text', __('Hậu tố', 'cb-company-core')],
             'label' => ['text', __('Nhãn', 'cb-company-core')],
             'icon' => ['text', __('Biểu tượng', 'cb-company-core')],
+        ],
+        'company_timeline' => [
+            'year' => ['text', __('Năm hoặc giai đoạn', 'cb-company-core')],
+            'title' => ['text', __('Tiêu đề cột mốc', 'cb-company-core')],
+            'description' => ['textarea', __('Mô tả', 'cb-company-core')],
+            'needs_review' => ['checkbox', __('Cần xác minh nội dung', 'cb-company-core')],
+        ],
+        'showroom_gallery' => [
+            'enable' => ['checkbox', __('Bật hình ảnh', 'cb-company-core')],
+            'image' => ['image', __('Hình ảnh', 'cb-company-core')],
+            'image_alt' => ['text', __('Mô tả ảnh', 'cb-company-core')],
+            'title' => ['text', __('Tiêu đề', 'cb-company-core')],
+            'description' => ['textarea', __('Mô tả', 'cb-company-core')],
         ],
         'why_choose_us' => [
             'enable' => ['checkbox', __('Bật mục', 'cb-company-core')],

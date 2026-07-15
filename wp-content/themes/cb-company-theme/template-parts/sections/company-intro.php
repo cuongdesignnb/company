@@ -1,13 +1,15 @@
 <section id="about" <?php echo cb_theme_section_attrs($section, 'company_intro', 'cb-intro'); ?>>
-    <div class="cb-container cb-two-col">
-        <div><?php echo cb_theme_image($section['image_url'] ?: ($section['image'] ?? ''), $section['title'] ?? '', 'cb-rounded-image'); ?></div>
-        <div>
+    <div class="cb-container cb-intro-layout">
+        <div class="cb-intro-copy">
             <?php cb_theme_section_header($section); ?>
-            <div class="cb-stats-row">
-                <?php foreach (cb_theme_items($section) as $stat) : ?>
-                    <div><strong><?php echo esc_html(($stat['number'] ?? $stat['label'] ?? '') . ($stat['suffix'] ?? '')); ?></strong><span><?php echo esc_html(isset($stat['number']) ? ($stat['label'] ?? '') : ($stat['value'] ?? '')); ?></span></div>
-                <?php endforeach; ?>
-            </div>
+            <?php if (!empty($section['button_text']) && !empty($section['button_url'])) : ?>
+                <a class="cb-text-link" href="<?php echo esc_url($section['button_url']); ?>"><?php echo esc_html($section['button_text']); ?><svg aria-hidden="true" viewBox="0 0 24 24"><path d="M5 12h14m-5-5 5 5-5 5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></a>
+            <?php endif; ?>
+        </div>
+        <div class="cb-intro-collage">
+            <?php echo cb_theme_image($section['image_url'] ?? '', $section['title'] ?? '', 'cb-intro-image-main', 900, 680); ?>
+            <?php echo cb_theme_image($section['secondary_image_url'] ?? '', $section['title'] ?? '', 'cb-intro-image-secondary', 560, 680); ?>
+            <?php echo cb_theme_image($section['tertiary_image_url'] ?? '', $section['title'] ?? '', 'cb-intro-image-tertiary', 560, 680); ?>
         </div>
     </div>
 </section>

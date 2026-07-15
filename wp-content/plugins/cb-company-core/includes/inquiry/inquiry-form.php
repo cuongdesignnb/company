@@ -22,10 +22,10 @@ function cb_render_inquiry_form($args = [])
         <label><?php echo esc_html(cb_t('email')); ?><input required name="email" type="email"></label>
         <label><?php echo esc_html(cb_t('phone')); ?><input name="phone" type="text"></label>
         <label><?php echo esc_html(cb_t('country')); ?><input name="country" type="text"></label>
-        <label><?php echo esc_html__('Interested Product', 'cb-company-core'); ?><input name="interested_product" type="text" value="<?php echo esc_attr($product); ?>"></label>
+        <label><?php echo esc_html(cb_t('interested_product')); ?><input name="interested_product" type="text" value="<?php echo esc_attr($product); ?>"></label>
         <label><?php echo esc_html(cb_t('quantity')); ?><input name="quantity" type="text"></label>
         <label class="wide"><?php echo esc_html(cb_t('message')); ?><textarea required name="message" rows="5"></textarea></label>
-        <label class="wide cb-consent"><input required type="checkbox" name="consent" value="1"> <?php echo esc_html__('I agree to be contacted about this inquiry.', 'cb-company-core'); ?></label>
+        <label class="wide cb-consent"><input required type="checkbox" name="consent" value="1"> <?php echo esc_html(cb_t('inquiry_consent')); ?></label>
         <button class="cb-btn cb-btn-primary" type="submit"><?php echo esc_html(cb_t('submit')); ?></button>
     </form>
     <?php
