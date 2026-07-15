@@ -44,6 +44,7 @@ services:
       - ./wp-content/themes/cb-company-theme:/var/www/html/wp-content/themes/cb-company-theme
       - ./wp-content/plugins/cb-company-core:/var/www/html/wp-content/plugins/cb-company-core
       - ./wp-content/plugins/cb-webp-converter:/var/www/html/wp-content/plugins/cb-webp-converter
+      - ./wp-content/plugins/cb-site-transfer:/var/www/html/wp-content/plugins/cb-site-transfer
 
 volumes:
   db_data:

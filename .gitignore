@@ -3,4 +3,5 @@ db_data/
 *.log
 .env
 backups/
+dist/
 .tmp/

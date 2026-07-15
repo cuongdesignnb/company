@@ -1,0 +1,239 @@
+.cb-transfer-admin {
+  --cbt-border: #dcdcde;
+  --cbt-text: #1d2327;
+  --cbt-muted: #646970;
+  max-width: 1180px;
+}
+
+.cb-transfer-header {
+  align-items: center;
+  display: flex;
+  justify-content: space-between;
+  margin: 24px 0 18px;
+}
+
+.cb-transfer-header h1 {
+  color: var(--cbt-text);
+  font-size: 24px;
+  line-height: 1.3;
+  margin: 0 0 4px;
+}
+
+.cb-transfer-header p,
+.cb-transfer-version {
+  color: var(--cbt-muted);
+  margin: 0;
+}
+
+.cb-transfer-tabs {
+  border-bottom: 1px solid var(--cbt-border);
+  display: flex;
+  gap: 24px;
+}
+
+.cb-transfer-tab {
+  background: transparent;
+  border: 0;
+  border-bottom: 3px solid transparent;
+  color: #50575e;
+  cursor: pointer;
+  font-weight: 600;
+  padding: 12px 2px 10px;
+}
+
+.cb-transfer-tab.is-active {
+  border-bottom-color: #2271b1;
+  color: #1d2327;
+}
+
+.cb-transfer-panel {
+  display: none;
+  padding-top: 20px;
+}
+
+.cb-transfer-panel.is-active {
+  display: block;
+}
+
+.cb-transfer-card {
+  background: #fff;
+  border: 1px solid var(--cbt-border);
+  border-radius: 6px;
+  padding: 22px;
+}
+
+.cb-transfer-card h2 {
+  font-size: 18px;
+  margin: 0 0 18px;
+}
+
+.cb-transfer-check-grid {
+  display: grid;
+  gap: 12px 20px;
+  grid-template-columns: repeat(3, minmax(180px, 1fr));
+  margin-bottom: 20px;
+}
+
+.cb-transfer-dropzone {
+  align-items: center;
+  border: 2px dashed #8c8f94;
+  border-radius: 6px;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  justify-content: center;
+  min-height: 180px;
+  padding: 24px;
+  text-align: center;
+}
+
+.cb-transfer-dropzone.is-dragging,
+.cb-transfer-dropzone:focus {
+  border-color: #2271b1;
+  box-shadow: 0 0 0 1px #2271b1;
+  outline: 0;
+}
+
+.cb-transfer-dropzone .dashicons {
+  color: #2271b1;
+  font-size: 38px;
+  height: 38px;
+  width: 38px;
+}
+
+.cb-transfer-dropzone input {
+  margin-top: 8px;
+}
+
+.cb-transfer-import-controls {
+  align-items: end;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 18px;
+}
+
+.cb-transfer-import-controls label {
+  display: grid;
+  gap: 5px;
+  margin-right: 8px;
+}
+
+.cb-transfer-preflight {
+  border-top: 1px solid var(--cbt-border);
+  margin-top: 20px;
+  padding-top: 18px;
+}
+
+.cb-transfer-facts {
+  display: grid;
+  grid-template-columns: 130px minmax(0, 1fr);
+  margin: 0;
+}
+
+.cb-transfer-facts dt,
+.cb-transfer-facts dd {
+  border-bottom: 1px solid #f0f0f1;
+  margin: 0;
+  padding: 8px;
+  overflow-wrap: anywhere;
+}
+
+.cb-transfer-facts dt {
+  font-weight: 600;
+}
+
+.cb-transfer-notice {
+  border-left: 4px solid #72aee6;
+  margin: 12px 0;
+  padding: 9px 12px;
+}
+
+.cb-transfer-notice.is-error {
+  border-color: #d63638;
+  color: #8a2424;
+}
+
+.cb-transfer-notice.is-warning {
+  border-color: #dba617;
+}
+
+.cb-transfer-notice.is-success {
+  border-color: #00a32a;
+}
+
+.cb-transfer-progress {
+  margin-top: 20px;
+}
+
+.cb-transfer-progress > div {
+  background: #f0f0f1;
+  height: 10px;
+  overflow: hidden;
+}
+
+.cb-transfer-progress span {
+  background: #2271b1;
+  display: block;
+  height: 100%;
+  transition: width 180ms ease;
+  width: 0;
+}
+
+.cb-transfer-rollback-row {
+  align-items: center;
+  border-top: 1px solid var(--cbt-border);
+  display: flex;
+  justify-content: space-between;
+  padding: 12px 0;
+}
+
+.cb-transfer-danger {
+  border-left: 4px solid #d63638;
+}
+
+.cb-transfer-result {
+  display: inline-block;
+  margin-left: 10px;
+}
+
+.cb-transfer-result .cb-transfer-notice {
+  display: inline-block;
+  margin: 0;
+}
+
+.cb-transfer-history .button,
+#cb-transfer-history .button {
+  margin-right: 6px;
+}
+
+#cb-transfer-history {
+  max-width: 100%;
+  overflow-x: auto;
+}
+
+#cb-transfer-history table {
+  min-width: 900px;
+}
+
+@media (max-width: 900px) {
+  .cb-transfer-check-grid {
+    grid-template-columns: repeat(2, minmax(160px, 1fr));
+  }
+}
+
+@media (max-width: 600px) {
+  .cb-transfer-check-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .cb-transfer-tabs {
+    gap: 12px;
+    overflow-x: auto;
+  }
+
+  .cb-transfer-card {
+    padding: 16px;
+  }
+}
