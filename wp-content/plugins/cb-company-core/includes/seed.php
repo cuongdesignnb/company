@@ -890,6 +890,7 @@ function cb_install_demo_content()
     $certificate_ids = cb_install_demo_certificates($images);
     $manifest['posts'] = array_values(array_unique(array_merge((array) $manifest['posts'], $certificate_ids)));
     cb_seed_about_demo_visuals($images, $manifest);
+    cb_install_demo_menus();
     $manifest['installed_at'] = current_time('mysql');
     update_option('cb_demo_content_manifest', $manifest, false);
     update_option('cb_demo_content_installed', '1', false);
@@ -1094,6 +1095,7 @@ function cb_delete_demo_content()
         delete_post_meta($home_id, '_cb_demo_sections_installed');
     }
     cb_delete_demo_images();
+    cb_delete_demo_menus();
     delete_option('cb_demo_content_manifest');
     delete_option('cb_demo_content_installed');
 }
@@ -1104,6 +1106,122 @@ function cb_demo_content_status()
     return ['installed' => get_option('cb_demo_content_installed') === '1', 'post_count' => count($posts), 'manifest' => (array) get_option('cb_demo_content_manifest', [])];
 }
 
+function cb_demo_menu_definitions()
+{
+    $special = cb_get_group_options('cb_special_pages', ['en' => [], 'zh' => []]);
+    $definitions = [];
+    foreach (['en', 'zh'] as $language) {
+        $is_zh = $language === 'zh';
+        $about_id = absint($special[$language]['about'] ?? 0);
+        $contact_id = absint($special[$language]['contact'] ?? 0);
+        $primary = [
+            ['title' => $is_zh ? '首页' : 'Home', 'url' => home_url('/' . $language . '/')],
+            ['title' => $is_zh ? '关于我们' : 'About Us', 'object_id' => $about_id],
+            ['title' => $is_zh ? '产品中心' : 'Products', 'url' => home_url('/' . $language . '/products/')],
+            ['title' => $is_zh ? '制造能力' : 'Manufacturing', 'url' => home_url('/' . $language . '/factory/')],
+            ['title' => $is_zh ? '项目案例' : 'Case Studies', 'url' => home_url('/' . $language . '/cases/')],
+            ['title' => $is_zh ? '资质证书' : 'Certificates', 'url' => home_url('/' . $language . '/certificates/')],
+            ['title' => $is_zh ? '新闻资讯' : 'News', 'url' => home_url('/' . $language . '/news/')],
+            ['title' => $is_zh ? '联系我们' : 'Contact', 'object_id' => $contact_id],
+        ];
+        $footer = [
+            ['title' => $is_zh ? '关于我们' : 'About Aurelia', 'object_id' => $about_id],
+            ['title' => $is_zh ? '工厂与实验室' : 'Factory & Laboratory', 'url' => home_url('/' . $language . '/factory/')],
+            ['title' => $is_zh ? '项目案例' : 'Case Studies', 'url' => home_url('/' . $language . '/cases/')],
+            ['title' => $is_zh ? '资质证书' : 'Certificates', 'url' => home_url('/' . $language . '/certificates/')],
+            ['title' => $is_zh ? '新闻资讯' : 'News', 'url' => home_url('/' . $language . '/news/')],
+            ['title' => $is_zh ? '联系我们' : 'Contact', 'object_id' => $contact_id],
+        ];
+        $definitions[$language] = ['primary' => $primary, 'footer' => $footer];
+    }
+    return $definitions;
+}
+
+function cb_seed_menu_items($menu_id, $items)
+{
+    foreach ((array) wp_get_nav_menu_items($menu_id, ['post_status' => 'any']) as $item) {
+        wp_delete_post($item->ID, true);
+    }
+    $created = [];
+    foreach ($items as $position => $item) {
+        $args = [
+            'menu-item-title' => sanitize_text_field($item['title'] ?? ''),
+            'menu-item-status' => 'publish',
+            'menu-item-position' => $position + 1,
+        ];
+        $object_id = absint($item['object_id'] ?? 0);
+        if ($object_id && get_post_type($object_id) === 'page') {
+            $args += ['menu-item-type' => 'post_type', 'menu-item-object' => 'page', 'menu-item-object-id' => $object_id];
+        } else {
+            $args += ['menu-item-type' => 'custom', 'menu-item-url' => esc_url_raw($item['url'] ?? home_url('/'))];
+        }
+        $item_id = wp_update_nav_menu_item($menu_id, 0, $args);
+        if ($item_id && !is_wp_error($item_id)) {
+            update_post_meta($item_id, '_cb_is_demo_content', '1');
+            $created[] = absint($item_id);
+        }
+    }
+    return $created;
+}
+
+function cb_install_demo_menus()
+{
+    $manifest = (array) get_option('cb_demo_menu_manifest', []);
+    if (empty($manifest['before_locations'])) {
+        $manifest['before_locations'] = (array) get_theme_mod('nav_menu_locations', []);
+    }
+    $locations = (array) get_theme_mod('nav_menu_locations', []);
+    $definitions = cb_demo_menu_definitions();
+    foreach ($definitions as $language => $groups) {
+        foreach ($groups as $group => $items) {
+            $name = 'Aurelia ' . ucfirst($group) . ' ' . strtoupper($language);
+            $menu = wp_get_nav_menu_object($name);
+            if ($menu && get_term_meta($menu->term_id, '_cb_is_demo_content', true) !== '1') {
+                continue;
+            }
+            if (!$menu) {
+                $menu_id = wp_create_nav_menu($name);
+                if (is_wp_error($menu_id)) {
+                    continue;
+                }
+            } else {
+                $menu_id = absint($menu->term_id);
+            }
+            update_term_meta($menu_id, '_cb_is_demo_content', '1');
+            update_term_meta($menu_id, '_cb_language', $language);
+            $item_ids = cb_seed_menu_items($menu_id, $items);
+            $manifest['menus'][$language][$group] = ['menu_id' => $menu_id, 'item_ids' => $item_ids];
+            $locations[$group . '_' . $language] = $menu_id;
+            if ($group === 'primary') {
+                $locations['mobile_' . $language] = $menu_id;
+            }
+        }
+    }
+    set_theme_mod('nav_menu_locations', $locations);
+    $manifest['applied_locations'] = $locations;
+    $manifest['installed_at'] = current_time('mysql');
+    update_option('cb_demo_menu_manifest', $manifest, false);
+    return $manifest;
+}
+
+function cb_delete_demo_menus()
+{
+    $manifest = (array) get_option('cb_demo_menu_manifest', []);
+    $current_locations = (array) get_theme_mod('nav_menu_locations', []);
+    if (!empty($manifest['applied_locations']) && $current_locations === (array) $manifest['applied_locations']) {
+        set_theme_mod('nav_menu_locations', (array) ($manifest['before_locations'] ?? []));
+    }
+    foreach ((array) ($manifest['menus'] ?? []) as $groups) {
+        foreach ((array) $groups as $menu) {
+            $menu_id = absint($menu['menu_id'] ?? 0);
+            if ($menu_id && get_term_meta($menu_id, '_cb_is_demo_content', true) === '1') {
+                wp_delete_nav_menu($menu_id);
+            }
+        }
+    }
+    delete_option('cb_demo_menu_manifest');
+}
+
 function cb_handle_demo_content_action()
 {
     if (!current_user_can('manage_options')) {
@@ -1112,7 +1230,7 @@ function cb_handle_demo_content_action()
     check_admin_referer('cb_demo_content');
     $operation = cb_sanitize_choice(
         wp_unslash($_POST['operation'] ?? 'check'),
-        ['install', 'delete', 'restore', 'check', 'install_images', 'delete_images', 'install_certificates', 'delete_certificates'],
+        ['install', 'delete', 'restore', 'check', 'install_images', 'delete_images', 'install_certificates', 'delete_certificates', 'install_menus', 'delete_menus'],
         'check'
     );
     if ($operation === 'install') {
@@ -1130,6 +1248,10 @@ function cb_handle_demo_content_action()
         cb_install_demo_certificate_package();
     } elseif ($operation === 'delete_certificates') {
         cb_delete_demo_certificates();
+    } elseif ($operation === 'install_menus') {
+        cb_install_demo_menus();
+    } elseif ($operation === 'delete_menus') {
+        cb_delete_demo_menus();
     }
     wp_safe_redirect(add_query_arg(['page' => 'cb-company-tools', 'demo_action' => $operation], admin_url('admin.php')));
     exit;
