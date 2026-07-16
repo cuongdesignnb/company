@@ -24,6 +24,25 @@ function cb_register_post_types()
         ]);
     }
 
+    register_post_type('certificate', [
+        'labels' => [
+            'name' => __('Chứng nhận', 'cb-company-core'),
+            'singular_name' => __('Chứng nhận', 'cb-company-core'),
+            'add_new_item' => __('Thêm chứng nhận', 'cb-company-core'),
+            'edit_item' => __('Chỉnh sửa chứng nhận', 'cb-company-core'),
+            'view_item' => __('Xem chứng nhận', 'cb-company-core'),
+            'search_items' => __('Tìm chứng nhận', 'cb-company-core'),
+            'not_found' => __('Không tìm thấy chứng nhận.', 'cb-company-core'),
+        ],
+        'public' => true,
+        'show_in_rest' => true,
+        'show_in_menu' => false,
+        'menu_icon' => 'dashicons-awards',
+        'supports' => ['title', 'editor', 'thumbnail', 'excerpt', 'revisions', 'page-attributes'],
+        'has_archive' => true,
+        'rewrite' => false,
+    ]);
+
     register_post_type('inquiry', [
         'labels' => ['name' => __('Yêu cầu báo giá', 'cb-company-core'), 'singular_name' => __('Yêu cầu', 'cb-company-core')],
         'public' => false,

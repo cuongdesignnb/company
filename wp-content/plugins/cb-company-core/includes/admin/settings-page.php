@@ -39,6 +39,8 @@ function cb_register_settings_pages()
     foreach (cb_admin_menu_items() as $slug => $item) {
         add_submenu_page('cb-company', $item[0], $item[0], 'manage_options', $slug, $callbacks[$slug]);
     }
+    add_submenu_page('cb-company', __('Chứng nhận', 'cb-company-core'), __('Chứng nhận', 'cb-company-core'), 'edit_posts', 'edit.php?post_type=certificate');
+    add_submenu_page('cb-company', __('Nhóm chứng nhận', 'cb-company-core'), __('Nhóm chứng nhận', 'cb-company-core'), 'manage_categories', 'edit-tags.php?taxonomy=certificate_category&post_type=certificate');
 }
 
 function cb_register_settings()
@@ -553,6 +555,12 @@ function cb_render_tools_page()
         echo '<article class="cb-dashboard-card"><h2>' . esc_html__('Bố cục catalogue Aurelia', 'cb-company-core') . '</h2><p>' . esc_html__('Có bản sao lưu Home EN/ZH và thiết lập giao diện trước lần nâng cấp 1.4.0.', 'cb-company-core') . '</p><form method="post" action="' . esc_url(admin_url('admin-post.php')) . '"><input type="hidden" name="action" value="cb_restore_catalog_layout">';
         wp_nonce_field('cb_restore_catalog_layout');
         submit_button(__('Khôi phục bố cục trước nâng cấp', 'cb-company-core'), 'secondary', 'submit', false);
+        echo '</form></article>';
+    }
+    if (get_option('cb_about_certificate_backup_150')) {
+        echo '<article class="cb-dashboard-card"><h2>' . esc_html__('About và Chứng nhận', 'cb-company-core') . '</h2><p>' . esc_html__('Có bản sao lưu About EN/ZH trước lần nâng cấp 1.5.0.', 'cb-company-core') . '</p><form method="post" action="' . esc_url(admin_url('admin-post.php')) . '"><input type="hidden" name="action" value="cb_restore_about_layout">';
+        wp_nonce_field('cb_restore_about_layout');
+        submit_button(__('Khôi phục bố cục About trước 1.5.0', 'cb-company-core'), 'secondary', 'submit', false);
         echo '</form></article>';
     }
     echo '<article class="cb-dashboard-card"><h2>' . esc_html__('Backup trang chủ cũ', 'cb-company-core') . '</h2><p>' . (get_option('cb_homepage_sections_backup_110', null) !== null ? esc_html__('Đã tạo backup.', 'cb-company-core') : esc_html__('Chưa có dữ liệu cần backup.', 'cb-company-core')) . '</p></article></div>';

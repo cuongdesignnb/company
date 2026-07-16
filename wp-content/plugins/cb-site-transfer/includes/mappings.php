@@ -5,12 +5,12 @@ if (!defined('ABSPATH')) {
 
 function cb_transfer_post_types()
 {
-    return ['page', 'post', 'product', 'factory_showcase', 'case_study', 'video'];
+    return ['page', 'post', 'product', 'factory_showcase', 'case_study', 'video', 'certificate'];
 }
 
 function cb_transfer_taxonomies()
 {
-    return ['category', 'post_tag', 'product_category', 'product_tag', 'factory_category', 'case_category', 'video_category', 'nav_menu'];
+    return ['category', 'post_tag', 'product_category', 'product_tag', 'factory_category', 'case_category', 'video_category', 'certificate_category', 'nav_menu'];
 }
 
 function cb_transfer_option_allowlist()
@@ -150,7 +150,7 @@ function cb_transfer_remap_data($value, array $job, $field_key = '')
     }
     if (is_numeric($value)) {
         $source_id = (string) absint($value);
-        $attachment_field = (bool) preg_match('/(?:image_id|mobile_image_id|background_image_id|logo_id|favicon_id|footer_logo_id|seo_image_id|attachment_id|_thumbnail_id)$/', $field_key);
+        $attachment_field = (bool) preg_match('/(?:image_id|mobile_image_id|background_image_id|logo_id|favicon_id|footer_logo_id|seo_image_id|attachment_id|pdf_id|file_id|_thumbnail_id)$/', $field_key);
         $post_field = in_array($field_key, $post_reference_fields, true);
         if ($attachment_field && isset($mapping['attachment_ids'][$source_id])) {
             return absint($mapping['attachment_ids'][$source_id]);

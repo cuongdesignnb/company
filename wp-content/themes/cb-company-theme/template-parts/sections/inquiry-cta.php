@@ -1,4 +1,5 @@
-<section id="inquiry" <?php echo cb_theme_section_attrs($section, 'inquiry_cta', 'cb-cta'); ?>>
+<?php if (empty($section['section_id'])) $section['section_id'] = 'inquiry'; ?>
+<section <?php echo cb_theme_section_attrs($section, 'inquiry_cta', 'cb-cta'); ?>>
     <div class="cb-container cb-cta-grid">
         <div><?php cb_theme_section_header($section); ?><div class="cb-hero-actions">
             <?php if (!empty($section['items'])) : foreach ((array) $section['items'] as $button) : ?>

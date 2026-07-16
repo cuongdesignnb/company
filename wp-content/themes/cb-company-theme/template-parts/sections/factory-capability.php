@@ -1,4 +1,5 @@
-<section id="capabilities" <?php echo cb_theme_section_attrs($section, 'factory_capability'); ?>>
+<?php if (empty($section['section_id'])) $section['section_id'] = 'capabilities'; ?>
+<section <?php echo cb_theme_section_attrs($section, 'factory_capability'); ?>>
     <div class="cb-container">
         <?php cb_theme_section_header($section); ?>
         <div class="cb-factory-grid">

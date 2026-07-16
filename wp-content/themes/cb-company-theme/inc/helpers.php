@@ -145,13 +145,56 @@ function cb_theme_page_render_mode($post_id = 0)
     return get_post_meta($post_id, '_cb_page_render_mode', true) ?: 'editor';
 }
 
+function cb_theme_is_special_page($role, $post_id = 0)
+{
+    $post_id = $post_id ?: get_queried_object_id();
+    if (!$post_id || !function_exists('cb_get_group_options')) {
+        return false;
+    }
+    $special = cb_get_group_options('cb_special_pages', ['en' => [], 'zh' => []]);
+    foreach ((array) $special as $pages) {
+        if ((int) ($pages[$role] ?? 0) === (int) $post_id) {
+            return true;
+        }
+    }
+    return false;
+}
+
+function cb_theme_certificate_archive_url($term = '')
+{
+    if (function_exists('cb_certificate_archive_url')) {
+        return cb_certificate_archive_url(cb_theme_lang(), $term);
+    }
+    return home_url('/' . cb_theme_lang() . '/certificates/');
+}
+
+function cb_theme_about_sidebar_links($labels)
+{
+    $links = [
+        'overview' => $labels['overview'],
+        'milestones' => $labels['milestones'],
+        'factory' => $labels['factory'],
+        'certificates' => $labels['certificates'],
+        'quality' => $labels['quality'],
+        'services' => $labels['services'],
+        'contact' => $labels['contact'],
+    ];
+    foreach ($links as $anchor => $label) {
+        echo '<a href="#' . esc_attr($anchor) . '">' . esc_html($label) . '</a>';
+        if ($anchor === 'certificates') {
+            echo '<a class="cb-about-all-certificates" href="' . esc_url(cb_theme_certificate_archive_url()) . '">' . esc_html($labels['all']) . '<svg aria-hidden="true" viewBox="0 0 24 24"><path d="M5 12h13m-5-5 5 5-5 5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></a>';
+        }
+    }
+}
+
 function cb_theme_page_banner_style($post_id = 0)
 {
     $post_id = $post_id ?: get_queried_object_id();
+    $context = function_exists('cb_page_ui_context') ? cb_page_ui_context($post_id) : 'standard_page';
     $styles = [];
-    $image = cb_ui_get('banner_image', 'standard_page', $post_id, '');
+    $image = cb_ui_get('banner_image', $context, $post_id, '');
     if ($image) $styles[] = 'background-image:linear-gradient(rgba(0,0,0,.35),rgba(0,0,0,.35)),url(' . esc_url($image) . ')';
-    $height = cb_ui_get('banner_height_desktop', 'standard_page', $post_id, '');
+    $height = cb_ui_get('banner_height_desktop', $context, $post_id, '');
     if ($height) $styles[] = 'min-height:' . cb_sanitize_css_size($height, '');
     return $styles ? ' style="' . esc_attr(implode(';', $styles)) . '"' : '';
 }

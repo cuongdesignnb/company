@@ -20,7 +20,189 @@ function cb_core_maybe_migrate()
     }
     if (version_compare($version, '1.4.0', '<')) {
         cb_core_run_migration_140();
+        $version = '1.4.0';
     }
+    if (version_compare($version, '1.5.0', '<')) {
+        cb_core_run_migration_150();
+    }
+}
+
+function cb_core_run_migration_150()
+{
+    $special = cb_get_group_options('cb_special_pages', ['en' => [], 'zh' => []]);
+    if (get_option('cb_about_certificate_backup_150', null) === null) {
+        $backup = ['created_at' => current_time('mysql'), 'special_pages' => $special, 'pages' => []];
+        foreach (['en', 'zh'] as $language) {
+            $post_id = absint($special[$language]['about'] ?? 0);
+            if (!$post_id) {
+                continue;
+            }
+            $backup['pages'][$post_id] = [
+                'sections' => get_post_meta($post_id, '_cb_page_sections', true),
+                'page_ui' => get_post_meta($post_id, '_cb_page_ui', true),
+                'render_mode' => get_post_meta($post_id, '_cb_page_render_mode', true),
+            ];
+        }
+        update_option('cb_about_certificate_backup_150', $backup, false);
+    }
+
+    cb_install_certificate_categories_150();
+    foreach (['en', 'zh'] as $language) {
+        $post_id = absint($special[$language]['about'] ?? 0);
+        if (!$post_id) {
+            continue;
+        }
+        $sections = get_post_meta($post_id, '_cb_page_sections', true);
+        update_post_meta($post_id, '_cb_page_sections', cb_sanitize_page_sections(cb_migrate_about_sections_150((array) $sections, $language)));
+        update_post_meta($post_id, '_cb_page_render_mode', 'builder');
+        update_post_meta($post_id, '_cb_about_layout_version', '1.5.0');
+
+        $page_ui = get_post_meta($post_id, '_cb_page_ui', true);
+        $page_ui = is_array($page_ui) ? $page_ui : [];
+        $page_ui += [
+            'page_layout' => 'sidebar',
+            'show_banner' => '1',
+            'show_breadcrumb' => '1',
+            'banner_height_desktop' => '280px',
+            'banner_height_mobile' => '220px',
+        ];
+        update_post_meta($post_id, '_cb_page_ui', $page_ui);
+    }
+
+    update_option('cb_about_certificate_150_applied', current_time('mysql'), false);
+    update_option('cb_core_db_version', '1.5.0');
+    flush_rewrite_rules(false);
+}
+
+function cb_install_certificate_categories_150()
+{
+    $groups = [
+        'quality_systems' => ['en' => ['Quality Systems', 'quality-systems'], 'zh' => ['质量体系', 'quality-systems-zh']],
+        'product_compliance' => ['en' => ['Product Compliance', 'product-compliance'], 'zh' => ['产品合规', 'product-compliance-zh']],
+        'patents_design' => ['en' => ['Patents and Design', 'patents-design'], 'zh' => ['专利与设计', 'patents-design-zh']],
+        'awards_qualifications' => ['en' => ['Awards and Qualifications', 'awards-qualifications'], 'zh' => ['奖项与资质', 'awards-qualifications-zh']],
+    ];
+    foreach ($groups as $group => $translations) {
+        foreach ($translations as $language => $term_data) {
+            $term = term_exists($term_data[1], 'certificate_category');
+            if (!$term) {
+                $term = wp_insert_term($term_data[0], 'certificate_category', ['slug' => $term_data[1]]);
+            }
+            if (!is_wp_error($term)) {
+                $term_id = absint(is_array($term) ? $term['term_id'] : $term);
+                update_term_meta($term_id, '_cb_language', $language);
+                update_term_meta($term_id, '_cb_translation_group', 'certificate_category_' . $group);
+            }
+        }
+    }
+}
+
+function cb_migrate_about_sections_150($sections, $language)
+{
+    $is_zh = $language === 'zh';
+    $by_type = [];
+    foreach ($sections as $section) {
+        $type = $section['type'] ?? '';
+        $by_type[$type][] = (array) $section;
+    }
+    $take = static function ($type, $index = 0) use (&$by_type) {
+        return $by_type[$type][$index] ?? cb_default_builder_section($type);
+    };
+
+    $intro = $take('company_intro');
+    $intro['section_id'] = 'overview';
+    $intro['layout_style'] = $intro['layout_style'] ?: 'story_collage';
+
+    $stats = $take('company_stats');
+    $stats['section_id'] = $stats['section_id'] ?: 'capabilities';
+
+    $timeline = $take('company_timeline');
+    $timeline['section_id'] = 'milestones';
+
+    $gallery = $take('showroom_gallery');
+    $gallery['section_id'] = 'factory';
+    $gallery['layout_style'] = $gallery['layout_style'] ?: 'immersive';
+
+    $certificate = $take('certificates');
+    $certificate_source = !empty($certificate['items']) && empty($certificate['certificate_source'])
+        ? 'manual'
+        : ($certificate['certificate_source'] ?? 'certificate_posts');
+    $certificate = array_merge($certificate, [
+        'section_id' => 'certificates',
+        'layout_style' => 'document_grid',
+        'certificate_source' => $certificate_source,
+        'limit' => $certificate['limit'] ?: '6',
+        'columns_desktop' => $certificate['columns_desktop'] ?: '3',
+        'columns_tablet' => $certificate['columns_tablet'] ?: '2',
+        'columns_mobile' => $certificate['columns_mobile'] ?: '1',
+        'eyebrow' => $certificate['eyebrow'] ?: ($is_zh ? '质量与合规' : 'Quality & Compliance'),
+        'title' => $certificate['title'] ?: ($is_zh ? '资质证书' : 'Certificate Showcase'),
+        'description' => $certificate['description'] ?: ($is_zh ? '已审核并正式发布的体系、产品和企业资质文件。' : 'Reviewed system, product and corporate qualification documents published by Aurelia.'),
+        'button_text' => $certificate['button_text'] ?: ($is_zh ? '查看全部证书' : 'View all certificates'),
+    ]);
+
+    $quality = $take('why_choose_us');
+    $quality['section_id'] = 'quality';
+    $quality['layout_style'] = $quality['layout_style'] ?: 'minimal_matrix';
+    if (empty($quality['title'])) {
+        $quality['eyebrow'] = $is_zh ? '质量与研发' : 'Quality & R&D';
+        $quality['title'] = $is_zh ? '从工程设计到量产的质量控制' : 'Quality Control from Engineering to Mass Production';
+    }
+
+    $services = $take('why_choose_us', 1);
+    $services = array_merge($services, [
+        'section_id' => 'services',
+        'layout_style' => 'service_matrix',
+        'eyebrow' => $services['eyebrow'] ?: ($is_zh ? '服务承诺' : 'Service Commitments'),
+        'title' => $services['title'] ?: ($is_zh ? '支持品牌产品全周期落地' : 'Support across the Product Development Cycle'),
+        'description' => $services['description'] ?: ($is_zh ? '为国际品牌提供从产品定义到交付的协同服务。' : 'Coordinated support from product definition through delivery for international brands.'),
+    ]);
+    if (empty($services['items'])) {
+        $service_items = $is_zh
+            ? [['需求与合规咨询', '梳理目标市场、功能和合规要求。'], ['工业设计支持', '协调外观、结构与可制造性。'], ['模具与工程验证', '支持模具开发、样机与测试反馈。'], ['试产与质量确认', '在量产前验证工艺和质量控制点。'], ['柔性批量生产', '根据项目阶段协调产能和交付计划。'], ['出口与售后支持', '协助文件、物流和售后问题跟进。']]
+            : [['Requirement & Compliance Review', 'Align target markets, functions and compliance requirements.'], ['Industrial Design Support', 'Coordinate appearance, structure and manufacturability.'], ['Tooling & Engineering Validation', 'Support tooling, prototypes and test feedback.'], ['Pilot Run & Quality Approval', 'Validate processes and quality gates before mass production.'], ['Flexible Mass Production', 'Coordinate capacity and delivery plans by project stage.'], ['Export & After-sales Support', 'Assist with documentation, logistics and issue follow-up.']];
+        $services['items'] = array_map(static fn($item) => ['enable' => '1', 'icon' => '', 'title' => $item[0], 'description' => $item[1], 'url' => ''], $service_items);
+    }
+
+    $cta = $take('inquiry_cta');
+    $cta = array_merge($cta, [
+        'section_id' => 'contact',
+        'layout_style' => 'compact_band',
+        'title' => $cta['title'] ?: ($is_zh ? '准备开始您的 OEM/ODM 项目？' : 'Ready to Start Your OEM/ODM Project?'),
+        'description' => $cta['description'] ?: ($is_zh ? '发送产品需求，我们的团队将与您联系。' : 'Send your product brief and our team will follow up with you.'),
+    ]);
+    if (empty($cta['items'])) {
+        $cta['items'] = [['text' => $is_zh ? '提交产品需求' : 'Send product brief', 'url' => home_url('/' . $language . '/#inquiry'), 'style' => 'primary']];
+    }
+
+    return [$intro, $stats, $timeline, $gallery, $certificate, $quality, $services, $cta];
+}
+
+function cb_restore_about_layout_150()
+{
+    $backup = get_option('cb_about_certificate_backup_150', []);
+    if (!is_array($backup) || empty($backup['pages'])) {
+        return false;
+    }
+    foreach ($backup['pages'] as $post_id => $page) {
+        update_post_meta(absint($post_id), '_cb_page_sections', (array) ($page['sections'] ?? []));
+        update_post_meta(absint($post_id), '_cb_page_ui', (array) ($page['page_ui'] ?? []));
+        update_post_meta(absint($post_id), '_cb_page_render_mode', $page['render_mode'] ?: 'editor');
+        delete_post_meta(absint($post_id), '_cb_about_layout_version');
+    }
+    delete_option('cb_about_certificate_150_applied');
+    return true;
+}
+
+function cb_handle_restore_about_layout()
+{
+    if (!current_user_can('manage_options')) {
+        wp_die(esc_html__('Bạn không có quyền thực hiện thao tác này.', 'cb-company-core'), 403);
+    }
+    check_admin_referer('cb_restore_about_layout');
+    cb_restore_about_layout_150();
+    wp_safe_redirect(add_query_arg(['page' => 'cb-company-tools', 'about_restored' => '1'], admin_url('admin.php')));
+    exit;
 }
 
 function cb_core_run_migration_140()

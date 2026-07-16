@@ -12,6 +12,7 @@ function cb_transfer_export_defaults()
         'factory' => true,
         'cases' => true,
         'videos' => true,
+        'certificates' => true,
         'media' => true,
         'menus' => true,
         'settings' => true,
@@ -41,6 +42,7 @@ function cb_transfer_selected_post_types(array $selection)
         'factory' => 'factory_showcase',
         'cases' => 'case_study',
         'videos' => 'video',
+        'certificates' => 'certificate',
     ];
     $types = [];
     foreach ($map as $option => $post_type) {

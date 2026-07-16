@@ -41,6 +41,11 @@ function cb_register_language_rewrites()
     add_rewrite_rule('^(en|zh)/cases/?$', 'index.php?post_type=case_study&cb_lang=$matches[1]', 'top');
     add_rewrite_rule('^(en|zh)/videos/?$', 'index.php?post_type=video&cb_lang=$matches[1]', 'top');
     add_rewrite_rule('^(en|zh)/news/?$', 'index.php?post_type=post&cb_lang=$matches[1]', 'top');
+    add_rewrite_rule('^(en|zh)/certificates/page/([0-9]+)/?$', 'index.php?post_type=certificate&cb_lang=$matches[1]&paged=$matches[2]', 'top');
+    add_rewrite_rule('^(en|zh)/certificates/category/([^/]+)/page/([0-9]+)/?$', 'index.php?certificate_category=$matches[2]&cb_lang=$matches[1]&paged=$matches[3]', 'top');
+    add_rewrite_rule('^(en|zh)/certificates/category/([^/]+)/?$', 'index.php?certificate_category=$matches[2]&cb_lang=$matches[1]', 'top');
+    add_rewrite_rule('^(en|zh)/certificates/?$', 'index.php?post_type=certificate&cb_lang=$matches[1]', 'top');
+    add_rewrite_rule('^(en|zh)/certificate/([^/]+)/?$', 'index.php?certificate=$matches[2]&cb_lang=$matches[1]', 'top');
 }
 
 function cb_resolve_special_home_request($vars)
@@ -85,8 +90,11 @@ function cb_filter_main_query_language($query)
         return;
     }
     $type = $query->get('post_type');
-    $filterable = ['post', 'page', 'product', 'factory_showcase', 'case_study', 'video'];
-    if ($type === '' && ($query->is_home() || $query->is_archive() || $query->is_search())) {
+    $filterable = ['post', 'page', 'product', 'factory_showcase', 'case_study', 'video', 'certificate'];
+    if ($type === '' && $query->is_search()) {
+        $type = ['post', 'product', 'factory_showcase', 'case_study', 'video', 'certificate'];
+        $query->set('post_type', $type);
+    } elseif ($type === '' && ($query->is_home() || $query->is_archive())) {
         $type = 'post';
     }
     if (in_array($type, $filterable, true) || (is_array($type) && array_intersect($type, $filterable))) {
@@ -99,6 +107,28 @@ function cb_filter_main_query_language($query)
 function cb_get_language_url($lang)
 {
     $lang = isset(cb_languages()[$lang]) ? $lang : 'en';
+    if (is_post_type_archive('certificate')) {
+        return cb_certificate_archive_url($lang);
+    }
+    if (is_tax('certificate_category')) {
+        $term = get_queried_object();
+        $group = $term instanceof WP_Term ? get_term_meta($term->term_id, '_cb_translation_group', true) : '';
+        if ($group) {
+            $terms = get_terms([
+                'taxonomy' => 'certificate_category',
+                'hide_empty' => false,
+                'number' => 1,
+                'meta_query' => [
+                    ['key' => '_cb_translation_group', 'value' => $group],
+                    ['key' => '_cb_language', 'value' => $lang],
+                ],
+            ]);
+            if (!is_wp_error($terms) && !empty($terms[0])) {
+                return cb_certificate_archive_url($lang, $terms[0]);
+            }
+        }
+        return cb_certificate_archive_url($lang);
+    }
     if (is_singular()) {
         $translated = cb_get_translated_post_id(get_queried_object_id(), $lang);
         if ($translated) {

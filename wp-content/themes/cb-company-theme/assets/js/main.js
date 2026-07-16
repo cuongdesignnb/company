@@ -47,4 +47,66 @@
       });
     });
   });
+
+  function loadCertificateBrowser(url, updateHistory) {
+    const browser = document.querySelector('[data-cb-certificate-browser]');
+    if (!browser) return Promise.resolve();
+    browser.classList.add('is-loading');
+    browser.setAttribute('aria-busy', 'true');
+    return fetch(url, { credentials: 'same-origin', headers: { 'X-Requested-With': 'XMLHttpRequest' } })
+      .then(function (response) {
+        if (!response.ok) throw new Error('Certificate request failed');
+        return response.text();
+      })
+      .then(function (html) {
+        const page = new DOMParser().parseFromString(html, 'text/html');
+        const next = page.querySelector('[data-cb-certificate-browser]');
+        if (!next) throw new Error('Certificate browser missing');
+        browser.replaceWith(next);
+        if (updateHistory) window.history.pushState({ cbCertificates: true }, '', url);
+        next.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      })
+      .catch(function () {
+        window.location.assign(url);
+      });
+  }
+
+  document.addEventListener('click', function (event) {
+    const link = event.target.closest('[data-cb-certificate-filter], [data-cb-certificate-browser] .cb-pagination a');
+    if (!link || event.ctrlKey || event.metaKey || event.shiftKey || event.altKey) return;
+    event.preventDefault();
+    loadCertificateBrowser(link.href, true);
+  });
+
+  window.addEventListener('popstate', function () {
+    if (document.querySelector('[data-cb-certificate-browser]')) loadCertificateBrowser(window.location.href, false);
+  });
+
+  const certificateDialog = document.querySelector('[data-cb-lightbox]');
+  const certificateTrigger = document.querySelector('[data-cb-lightbox-open]');
+  if (certificateDialog && certificateTrigger && typeof certificateDialog.showModal === 'function') {
+    const closeButton = certificateDialog.querySelector('[data-cb-lightbox-close]');
+    certificateTrigger.addEventListener('click', function () {
+      certificateDialog.showModal();
+      closeButton?.focus();
+    });
+    closeButton?.addEventListener('click', function () { certificateDialog.close(); });
+    certificateDialog.addEventListener('keydown', function (event) {
+      if (event.key === 'Escape') {
+        event.preventDefault();
+        certificateDialog.close();
+      }
+    });
+    certificateDialog.addEventListener('click', function (event) {
+      if (event.target === certificateDialog) certificateDialog.close();
+    });
+    certificateDialog.addEventListener('close', function () { certificateTrigger.focus(); });
+  }
+
+  document.querySelectorAll('.cb-about-mobile-nav nav a').forEach(function (link) {
+    link.addEventListener('click', function () {
+      const details = link.closest('details');
+      if (details && link.hash) details.open = false;
+    });
+  });
 })();

@@ -149,7 +149,7 @@ function cb_admin_enqueue_assets($hook)
     $page = sanitize_key(wp_unslash($_GET['page'] ?? ''));
     $cb_pages = array_keys(cb_admin_menu_items());
     $is_cb_page = in_array($page, $cb_pages, true);
-    $editable_types = ['page', 'post', 'product', 'factory_showcase', 'case_study', 'video', 'inquiry'];
+    $editable_types = ['page', 'post', 'product', 'factory_showcase', 'case_study', 'video', 'certificate', 'inquiry'];
     $is_edit_screen = $screen && $screen->base === 'post' && in_array($screen->post_type, $editable_types, true);
     if (!$is_cb_page && !$is_edit_screen) {
         return;
@@ -192,6 +192,7 @@ function cb_admin_enqueue_assets($hook)
         'remove' => __('Xóa', 'cb-company-core'), 'removeConfirm' => __('Bạn chắc chắn muốn xóa khu vực này?', 'cb-company-core'),
         'collapse' => __('Thu gọn', 'cb-company-core'), 'expand' => __('Mở rộng', 'cb-company-core'),
         'selectImage' => __('Chọn hình ảnh', 'cb-company-core'), 'removeImage' => __('Xóa hình ảnh', 'cb-company-core'),
+        'selectFile' => __('Chọn tệp PDF', 'cb-company-core'), 'useFile' => __('Dùng tệp này', 'cb-company-core'),
         'unsavedChanges' => __('Bạn có thay đổi chưa được lưu.', 'cb-company-core'),
         'resetConfirm' => __('Bạn chắc chắn muốn khôi phục cài đặt?', 'cb-company-core'),
         'loading' => __('Đang tải dữ liệu...', 'cb-company-core'),

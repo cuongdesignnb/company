@@ -97,6 +97,7 @@ function cb_transfer_render_admin_page()
                         'pages' => __('Nội dung Page', 'cb-site-transfer'), 'products' => __('Sản phẩm', 'cb-site-transfer'),
                         'news' => __('Tin tức', 'cb-site-transfer'), 'factory' => __('Nhà máy', 'cb-site-transfer'),
                         'cases' => __('Dự án', 'cb-site-transfer'), 'videos' => __('Video', 'cb-site-transfer'),
+                        'certificates' => __('Chứng nhận và tài liệu PDF', 'cb-site-transfer'),
                         'media' => __('Media Library', 'cb-site-transfer'), 'menus' => __('Menu', 'cb-site-transfer'),
                         'settings' => __('Cài đặt giao diện', 'cb-site-transfer'), 'seo' => __('SEO', 'cb-site-transfer'),
                         'forms' => __('Biểu mẫu', 'cb-site-transfer'), 'inquiries' => __('Inquiry (dữ liệu cá nhân)', 'cb-site-transfer'),

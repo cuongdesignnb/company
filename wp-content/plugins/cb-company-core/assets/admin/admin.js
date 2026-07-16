@@ -75,6 +75,31 @@
     frame.open();
   }
 
+  function openFileMedia(field) {
+    if (!window.wp || !wp.media) return;
+    const frame = wp.media({
+      title: i18n.selectFile || 'Chọn tệp PDF',
+      button: { text: i18n.useFile || 'Dùng tệp này' },
+      multiple: false,
+      library: { type: field.find('.cb-pick-file').data('media-type') || 'application/pdf' }
+    });
+    frame.on('select', function () {
+      const file = frame.state().get('selection').first().toJSON();
+      field.find('.cb-file-id').val(file.id);
+      field.find('.cb-file-url').val(file.url).trigger('change');
+      field.find('.cb-current-file').remove();
+      $('<a>', {
+        class: 'cb-current-file',
+        href: file.url,
+        target: '_blank',
+        rel: 'noopener',
+        text: file.filename || file.title || file.url
+      }).insertBefore(field.find('.cb-media-actions'));
+      markDirty();
+    });
+    frame.open();
+  }
+
   function applySectionVisibility(card) {
     const type = card.find('.cb-section-type-select').val();
     const activeGroup = card.find('.cb-section-tab.is-active').data('tab') || 'content';
@@ -165,6 +190,17 @@
 
   $(document).on('click', '.cb-pick-image', function () {
     openMedia($(this).closest('.cb-image-field'));
+  });
+
+  $(document).on('click', '.cb-pick-file', function () {
+    openFileMedia($(this).closest('.cb-admin-file-field'));
+  });
+
+  $(document).on('click', '.cb-remove-file', function () {
+    const field = $(this).closest('.cb-admin-file-field');
+    field.find('.cb-file-id, .cb-file-url').val('').trigger('change');
+    field.find('.cb-current-file').remove();
+    markDirty();
   });
 
   $(document).on('click', '.cb-remove-image', function () {

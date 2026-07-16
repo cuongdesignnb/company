@@ -1,4 +1,5 @@
-<section id="about" <?php echo cb_theme_section_attrs($section, 'company_intro', 'cb-intro'); ?>>
+<?php if (empty($section['section_id'])) $section['section_id'] = 'about'; ?>
+<section <?php echo cb_theme_section_attrs($section, 'company_intro', 'cb-intro'); ?>>
     <div class="cb-container cb-intro-layout">
         <div class="cb-intro-copy">
             <?php cb_theme_section_header($section); ?>

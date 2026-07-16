@@ -11,6 +11,7 @@ function cb_register_taxonomies()
         'factory_category' => [__('Danh mục nhà máy', 'cb-company-core'), __('Danh mục nhà máy', 'cb-company-core'), ['factory_showcase']],
         'case_category' => [__('Danh mục dự án', 'cb-company-core'), __('Danh mục dự án', 'cb-company-core'), ['case_study']],
         'video_category' => [__('Danh mục video', 'cb-company-core'), __('Danh mục video', 'cb-company-core'), ['video']],
+        'certificate_category' => [__('Nhóm chứng nhận', 'cb-company-core'), __('Nhóm chứng nhận', 'cb-company-core'), ['certificate']],
     ];
 
     foreach ($taxes as $tax => $data) {
@@ -20,7 +21,7 @@ function cb_register_taxonomies()
             'hierarchical' => $tax !== 'product_tag',
             'show_admin_column' => true,
             'show_in_rest' => true,
-            'rewrite' => ['slug' => str_replace('_', '-', $tax), 'with_front' => false],
+            'rewrite' => $tax === 'certificate_category' ? false : ['slug' => str_replace('_', '-', $tax), 'with_front' => false],
         ]);
     }
 }
