@@ -137,7 +137,7 @@ function cb_migrate_about_sections_150($sections, $language)
         'columns_mobile' => $certificate['columns_mobile'] ?: '1',
         'eyebrow' => $certificate['eyebrow'] ?: ($is_zh ? '质量与合规' : 'Quality & Compliance'),
         'title' => $certificate['title'] ?: ($is_zh ? '资质证书' : 'Certificate Showcase'),
-        'description' => $certificate['description'] ?: ($is_zh ? '已审核并正式发布的体系、产品和企业资质文件。' : 'Reviewed system, product and corporate qualification documents published by Aurelia.'),
+        'description' => $certificate['description'] ?: ($is_zh ? '集中展示质量、工程与合规文件；演示记录须在正式上线前替换。' : 'A structured library for quality, engineering and compliance documents. Replace demo records before production launch.'),
         'button_text' => $certificate['button_text'] ?: ($is_zh ? '查看全部证书' : 'View all certificates'),
     ]);
 

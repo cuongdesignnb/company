@@ -193,9 +193,12 @@ function cb_theme_page_banner_style($post_id = 0)
     $context = function_exists('cb_page_ui_context') ? cb_page_ui_context($post_id) : 'standard_page';
     $styles = [];
     $image = cb_ui_get('banner_image', $context, $post_id, '');
-    if ($image) $styles[] = 'background-image:linear-gradient(rgba(0,0,0,.35),rgba(0,0,0,.35)),url(' . esc_url($image) . ')';
+    $overlay = max(0, min(90, absint(cb_ui_get('banner_overlay', $context, $post_id, '42')))) / 100;
+    if ($image) $styles[] = 'background-image:linear-gradient(rgba(19,23,29,' . $overlay . '),rgba(19,23,29,' . $overlay . ')),url(' . esc_url($image) . ')';
     $height = cb_ui_get('banner_height_desktop', $context, $post_id, '');
     if ($height) $styles[] = 'min-height:' . cb_sanitize_css_size($height, '');
+    $mobile_height = cb_ui_get('banner_height_mobile', $context, $post_id, '');
+    if ($mobile_height) $styles[] = '--cb-page-hero-mobile-height:' . cb_sanitize_css_size($mobile_height, '');
     return $styles ? ' style="' . esc_attr(implode(';', $styles)) . '"' : '';
 }
 

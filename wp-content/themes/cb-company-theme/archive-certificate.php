@@ -38,9 +38,8 @@ $terms = is_wp_error($terms) ? [] : $terms;
             <div class="cb-certificate-grid cb-certificate-archive-grid" aria-live="polite">
                 <?php while (have_posts()) : the_post(); get_template_part('template-parts/cards/certificate', null, ['certificate_id' => get_the_ID()]); endwhile; ?>
             </div>
-            <nav class="cb-pagination" aria-label="<?php echo esc_attr($is_zh ? '证书分页' : 'Certificate pagination'); ?>">
-                <?php echo wp_kses_post(paginate_links(['type' => 'list', 'prev_text' => '&lsaquo;', 'next_text' => '&rsaquo;'])); ?>
-            </nav>
+            <?php $pagination = paginate_links(['type' => 'list', 'prev_text' => '&lsaquo;', 'next_text' => '&rsaquo;']); ?>
+            <?php if ($pagination) : ?><nav class="cb-pagination" aria-label="<?php echo esc_attr($is_zh ? '证书分页' : 'Certificate pagination'); ?>"><?php echo wp_kses_post($pagination); ?></nav><?php endif; ?>
         <?php else : ?>
             <div class="cb-empty-state">
                 <svg aria-hidden="true" viewBox="0 0 48 60"><path d="M7 2h23l11 11v45H7zM30 2v12h11M14 28h20M14 36h20M14 44h13" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></svg>

@@ -11,6 +11,7 @@ while (have_posts()) : the_post();
     $verification_url = get_post_meta($certificate_id, '_cb_verification_url', true);
     $pdf_url = get_post_meta($certificate_id, '_cb_pdf_url', true);
     $expired = function_exists('cb_certificate_is_expired') && cb_certificate_is_expired($certificate_id);
+    $demo = get_post_meta($certificate_id, '_cb_is_demo_content', true) === '1';
     $image_id = get_post_thumbnail_id($certificate_id);
     $image_url = $image_id ? wp_get_attachment_image_url($image_id, 'full') : '';
     $image_alt = $image_id ? get_post_meta($image_id, '_wp_attachment_image_alt', true) : '';
@@ -41,7 +42,7 @@ while (have_posts()) : the_post();
                 <?php endif; ?>
             </div>
             <div class="cb-certificate-summary">
-                <span class="cb-certificate-validity <?php echo $expired ? 'is-expired' : 'is-current'; ?>"><?php echo esc_html($expired ? ($is_zh ? '已失效' : 'Expired') : ($is_zh ? '有效文件' : 'Valid document')); ?></span>
+                <span class="cb-certificate-validity <?php echo $demo ? 'is-demo' : ($expired ? 'is-expired' : 'is-current'); ?>"><?php echo esc_html($demo ? ($is_zh ? '演示文件 · 非合规证明' : 'Demo document · Not a compliance claim') : ($expired ? ($is_zh ? '已失效' : 'Expired') : ($is_zh ? '有效文件' : 'Valid document'))); ?></span>
                 <h2><?php echo esc_html($is_zh ? '证书信息' : 'Document information'); ?></h2>
                 <dl>
                     <?php foreach ($meta_rows as $label => $value) : if (!$value) continue; ?>

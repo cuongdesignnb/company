@@ -109,4 +109,20 @@
       if (details && link.hash) details.open = false;
     });
   });
+
+  const aboutLinks = Array.from(document.querySelectorAll('.cb-about-desktop-nav nav a[href^="#"]'));
+  if (aboutLinks.length && 'IntersectionObserver' in window) {
+    const targets = aboutLinks.map(function (link) { return document.querySelector(link.hash); }).filter(Boolean);
+    const observer = new IntersectionObserver(function (entries) {
+      const visible = entries.filter(function (entry) { return entry.isIntersecting; }).sort(function (a, b) { return b.intersectionRatio - a.intersectionRatio; });
+      if (!visible.length) return;
+      aboutLinks.forEach(function (link) {
+        const active = link.hash === '#' + visible[0].target.id;
+        link.classList.toggle('is-active', active);
+        if (active) link.setAttribute('aria-current', 'location');
+        else link.removeAttribute('aria-current');
+      });
+    }, { rootMargin: '-18% 0px -62% 0px', threshold: [0.05, 0.35] });
+    targets.forEach(function (target) { observer.observe(target); });
+  }
 })();

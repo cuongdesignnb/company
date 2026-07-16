@@ -121,6 +121,36 @@ function cb_demo_image_definitions()
             'title' => 'Electric kettle product',
             'alt' => 'Stainless steel electric kettle on a clean studio background',
         ],
+        'demo_certificate_quality' => [
+            'file' => 'demo-certificate-quality-process.webp',
+            'title' => 'Aurelia demo quality process review',
+            'alt' => 'Demo quality process review document, not for compliance use',
+        ],
+        'demo_certificate_safety' => [
+            'file' => 'demo-certificate-product-safety.webp',
+            'title' => 'Aurelia demo product safety test summary',
+            'alt' => 'Demo product safety test summary, not for compliance use',
+        ],
+        'demo_certificate_supplier' => [
+            'file' => 'demo-certificate-supplier-audit.webp',
+            'title' => 'Aurelia demo supplier audit report',
+            'alt' => 'Demo supplier audit report, not for compliance use',
+        ],
+        'demo_certificate_rd' => [
+            'file' => 'demo-certificate-rd-validation.webp',
+            'title' => 'Aurelia demo research and development validation record',
+            'alt' => 'Demo research and development validation record, not for compliance use',
+        ],
+        'demo_certificate_packaging' => [
+            'file' => 'demo-certificate-packaging.webp',
+            'title' => 'Aurelia demo packaging reliability review',
+            'alt' => 'Demo packaging reliability review, not for compliance use',
+        ],
+        'demo_certificate_export' => [
+            'file' => 'demo-certificate-export.webp',
+            'title' => 'Aurelia demo export documentation checklist',
+            'alt' => 'Demo export documentation checklist, not for compliance use',
+        ],
     ];
 }
 
@@ -366,6 +396,17 @@ function cb_install_demo_images($assign = true)
 function cb_delete_demo_images()
 {
     $manifest = (array) get_option('cb_demo_image_manifest', []);
+    $content_manifest = (array) get_option('cb_demo_content_manifest', []);
+    foreach ((array) ($content_manifest['about_pages'] ?? []) as $page_id => $snapshot) {
+        $current = get_post_meta(absint($page_id), '_cb_page_ui', true);
+        if (!empty($snapshot['applied_hash']) && hash_equals((string) $snapshot['applied_hash'], md5(serialize(is_array($current) ? $current : [])))) {
+            update_post_meta(absint($page_id), '_cb_page_ui', (array) ($snapshot['before'] ?? []));
+        }
+    }
+    unset($content_manifest['about_pages']);
+    if ($content_manifest) {
+        update_option('cb_demo_content_manifest', $content_manifest, false);
+    }
     foreach ((array) ($manifest['pages'] ?? []) as $page_id => $snapshot) {
         $current = get_post_meta($page_id, '_cb_page_sections', true);
         $current_hash = md5(serialize(is_array($current) ? $current : []));
@@ -781,7 +822,10 @@ function cb_install_catalog_content(array $images)
 function cb_install_demo_content()
 {
     $images = cb_install_demo_images(false);
-    $manifest = ['posts' => [], 'terms' => [], 'home_page' => 0, 'home_sections_hash' => '', 'installed_at' => current_time('mysql')];
+    $manifest = wp_parse_args((array) get_option('cb_demo_content_manifest', []), [
+        'posts' => [], 'terms' => [], 'about_pages' => [], 'home_page' => 0,
+        'home_sections_hash' => '', 'installed_at' => current_time('mysql'),
+    ]);
     $special = cb_get_group_options('cb_special_pages', ['en' => [], 'zh' => []]);
     $home_id = absint($special['en']['home'] ?? 0);
     if ($home_id && !cb_get_page_sections($home_id)) {
@@ -843,15 +887,181 @@ function cb_install_demo_content()
             $manifest['posts'][] = absint($post_id);
         }
     }
+    $certificate_ids = cb_install_demo_certificates($images);
+    $manifest['posts'] = array_values(array_unique(array_merge((array) $manifest['posts'], $certificate_ids)));
+    cb_seed_about_demo_visuals($images, $manifest);
+    $manifest['installed_at'] = current_time('mysql');
     update_option('cb_demo_content_manifest', $manifest, false);
     update_option('cb_demo_content_installed', '1', false);
     return $manifest;
 }
 
+function cb_install_demo_certificates($images = [])
+{
+    if (!$images) {
+        $images = cb_install_demo_images(false);
+    }
+    $records = [
+        'quality-process' => ['Quality Process Review', '质量流程评审', 'DEMO-QP-001', 'quality-systems', 'demo_certificate_quality'],
+        'product-safety' => ['Product Safety Test Summary', '产品安全测试摘要', 'DEMO-PS-002', 'product-compliance', 'demo_certificate_safety'],
+        'supplier-audit' => ['Supplier Audit Report', '供应商审核报告', 'DEMO-SA-003', 'quality-systems', 'demo_certificate_supplier'],
+        'rd-validation' => ['R&D Validation Record', '研发验证记录', 'DEMO-RD-004', 'patents-design', 'demo_certificate_rd'],
+        'packaging-review' => ['Packaging Reliability Review', '包装可靠性评审', 'DEMO-PR-005', 'product-compliance', 'demo_certificate_packaging'],
+        'export-checklist' => ['Export Documentation Checklist', '出口文件检查清单', 'DEMO-ED-006', 'awards-qualifications', 'demo_certificate_export'],
+    ];
+    $post_ids = [];
+    foreach ($records as $key => $record) {
+        $translations = [];
+        foreach (['en', 'zh'] as $language) {
+            $existing = get_posts([
+                'post_type' => 'certificate', 'post_status' => 'any', 'posts_per_page' => 1,
+                'fields' => 'ids', 'meta_query' => [
+                    ['key' => '_cb_demo_certificate_key', 'value' => $key],
+                    ['key' => '_cb_language', 'value' => $language],
+                ],
+            ]);
+            $is_zh = $language === 'zh';
+            $title = $is_zh ? $record[1] : $record[0];
+            $excerpt = $is_zh
+                ? '用于演示 Aurelia 文档库界面，不代表真实认证或合规声明。'
+                : 'A sample record for previewing the Aurelia document library. It is not a certification or compliance claim.';
+            $post_data = [
+                'post_type' => 'certificate', 'post_status' => 'draft',
+                'post_title' => $title, 'post_name' => 'demo-' . $key . '-' . $language,
+                'post_excerpt' => $excerpt,
+                'post_content' => '<p>' . $excerpt . '</p><h2>' . ($is_zh ? '演示用途' : 'Demo purpose') . '</h2><p>' . ($is_zh ? '请在正式上线前替换为经审核的真实文件和元数据。' : 'Replace this record with an approved document and verified metadata before production publication.') . '</p>',
+                'menu_order' => array_search($key, array_keys($records), true),
+            ];
+            if ($existing) {
+                $post_data['ID'] = absint($existing[0]);
+                $post_id = wp_update_post($post_data);
+            } else {
+                $post_id = wp_insert_post($post_data);
+            }
+            if (!$post_id || is_wp_error($post_id)) {
+                continue;
+            }
+            $image = $images[$record[4]] ?? ['id' => 0, 'url' => ''];
+            update_post_meta($post_id, '_cb_is_demo_content', '1');
+            update_post_meta($post_id, '_cb_demo_certificate_key', $key);
+            update_post_meta($post_id, '_cb_language', $language);
+            update_post_meta($post_id, '_cb_translation_group', 'demo-certificate-' . $key);
+            update_post_meta($post_id, '_cb_issuer', $is_zh ? 'Aurelia 内部评审团队（演示）' : 'Aurelia Internal Review Team (Demo)');
+            update_post_meta($post_id, '_cb_standard', $record[2]);
+            update_post_meta($post_id, '_cb_certificate_number', 'SAMPLE-' . strtoupper(substr(md5($key), 0, 8)));
+            update_post_meta($post_id, '_cb_issue_date', '2026-01-15');
+            update_post_meta($post_id, '_cb_expiry_date', '');
+            update_post_meta($post_id, '_cb_featured', '1');
+            update_post_meta($post_id, '_cb_needs_content_review', '1');
+            if (!empty($image['id'])) {
+                set_post_thumbnail($post_id, absint($image['id']));
+            }
+            $term_slug = $record[3] . ($is_zh ? '-zh' : '');
+            $term = get_term_by('slug', $term_slug, 'certificate_category');
+            if ($term) {
+                wp_set_object_terms($post_id, [(int) $term->term_id], 'certificate_category');
+            }
+            wp_update_post(['ID' => $post_id, 'post_status' => 'publish']);
+            $translations[$language] = absint($post_id);
+            $post_ids[] = absint($post_id);
+        }
+        if (!empty($translations['en']) && !empty($translations['zh'])) {
+            update_post_meta($translations['en'], '_cb_translated_post_zh', $translations['zh']);
+            update_post_meta($translations['zh'], '_cb_translated_post_en', $translations['en']);
+        }
+    }
+    return array_values(array_unique($post_ids));
+}
+
+function cb_install_demo_certificate_package()
+{
+    $images = cb_install_demo_images(false);
+    $post_ids = cb_install_demo_certificates($images);
+    $manifest = wp_parse_args((array) get_option('cb_demo_content_manifest', []), ['posts' => [], 'terms' => [], 'about_pages' => []]);
+    $manifest['posts'] = array_values(array_unique(array_merge((array) $manifest['posts'], $post_ids)));
+    cb_seed_about_demo_visuals($images, $manifest);
+    $manifest['installed_at'] = current_time('mysql');
+    update_option('cb_demo_content_manifest', $manifest, false);
+    update_option('cb_demo_content_installed', '1', false);
+    return $post_ids;
+}
+
+function cb_seed_about_demo_visuals($images, &$manifest)
+{
+    $banner = $images['hero_campus'] ?? [];
+    if (empty($banner['url'])) {
+        return;
+    }
+    $special = cb_get_group_options('cb_special_pages', ['en' => [], 'zh' => []]);
+    foreach (['en', 'zh'] as $language) {
+        $page_id = absint($special[$language]['about'] ?? 0);
+        if (!$page_id) {
+            continue;
+        }
+        $sections = cb_get_page_sections($page_id);
+        $section_changed = false;
+        foreach ($sections as &$section) {
+            if (($section['type'] ?? '') !== 'certificates') {
+                continue;
+            }
+            $legacy_description = $language === 'zh'
+                ? '已审核并正式发布的体系、产品和企业资质文件。'
+                : 'Reviewed system, product and corporate qualification documents published by Aurelia.';
+            if (($section['description'] ?? '') === $legacy_description || empty($section['description'])) {
+                $section['description'] = $language === 'zh'
+                    ? '集中展示质量、工程与合规文件；演示记录须在正式上线前替换。'
+                    : 'A structured library for quality, engineering and compliance documents. Replace demo records before production launch.';
+                $section_changed = true;
+            }
+        }
+        unset($section);
+        if ($section_changed) {
+            update_post_meta($page_id, '_cb_page_sections', cb_sanitize_page_sections($sections));
+        }
+        $page_ui = get_post_meta($page_id, '_cb_page_ui', true);
+        $page_ui = is_array($page_ui) ? $page_ui : [];
+        if (!empty($page_ui['banner_image']) && !cb_demo_image_is_replaceable($page_ui['banner_image'])) {
+            continue;
+        }
+        if (empty($manifest['about_pages'][$page_id])) {
+            $manifest['about_pages'][$page_id]['before'] = $page_ui;
+        }
+        $page_ui['banner_image'] = $banner['url'];
+        $page_ui['banner_image_id'] = absint($banner['id'] ?? 0);
+        $page_ui['banner_overlay'] = '58';
+        $page_ui['banner_height_desktop'] = '330px';
+        $page_ui['banner_height_mobile'] = '240px';
+        if (empty($page_ui['banner_description'])) {
+            $page_ui['banner_description'] = $language === 'zh'
+                ? '工程、质量和柔性制造能力，为全球品牌提供支持。'
+                : 'Engineering, quality and flexible manufacturing for ambitious global brands.';
+        }
+        update_post_meta($page_id, '_cb_page_ui', $page_ui);
+        $manifest['about_pages'][$page_id]['applied_hash'] = md5(serialize($page_ui));
+    }
+}
+
+function cb_delete_demo_certificates()
+{
+    $posts = get_posts([
+        'post_type' => 'certificate', 'post_status' => 'any', 'posts_per_page' => -1,
+        'fields' => 'ids', 'meta_key' => '_cb_is_demo_content', 'meta_value' => '1',
+    ]);
+    foreach ($posts as $post_id) {
+        wp_delete_post($post_id, true);
+    }
+    $manifest = (array) get_option('cb_demo_content_manifest', []);
+    if (!empty($manifest['posts'])) {
+        $manifest['posts'] = array_values(array_diff(array_map('absint', (array) $manifest['posts']), array_map('absint', $posts)));
+        update_option('cb_demo_content_manifest', $manifest, false);
+    }
+    return count($posts);
+}
+
 function cb_delete_demo_content()
 {
     $posts = get_posts([
-        'post_type' => ['post', 'page', 'product', 'factory_showcase', 'case_study', 'video'],
+        'post_type' => ['post', 'page', 'product', 'factory_showcase', 'case_study', 'video', 'certificate'],
         'post_status' => 'any',
         'posts_per_page' => -1,
         'fields' => 'ids',
@@ -868,6 +1078,12 @@ function cb_delete_demo_content()
         }
     }
     $manifest = (array) get_option('cb_demo_content_manifest', []);
+    foreach ((array) ($manifest['about_pages'] ?? []) as $page_id => $snapshot) {
+        $current = get_post_meta(absint($page_id), '_cb_page_ui', true);
+        if (!empty($snapshot['applied_hash']) && hash_equals((string) $snapshot['applied_hash'], md5(serialize(is_array($current) ? $current : [])))) {
+            update_post_meta(absint($page_id), '_cb_page_ui', (array) ($snapshot['before'] ?? []));
+        }
+    }
     $home_id = absint($manifest['home_page'] ?? 0);
     if ($home_id && get_post_meta($home_id, '_cb_demo_sections_installed', true) === '1') {
         $current_sections = get_post_meta($home_id, '_cb_page_sections', true);
@@ -896,7 +1112,7 @@ function cb_handle_demo_content_action()
     check_admin_referer('cb_demo_content');
     $operation = cb_sanitize_choice(
         wp_unslash($_POST['operation'] ?? 'check'),
-        ['install', 'delete', 'restore', 'check', 'install_images', 'delete_images'],
+        ['install', 'delete', 'restore', 'check', 'install_images', 'delete_images', 'install_certificates', 'delete_certificates'],
         'check'
     );
     if ($operation === 'install') {
@@ -910,6 +1126,10 @@ function cb_handle_demo_content_action()
         cb_install_demo_images();
     } elseif ($operation === 'delete_images') {
         cb_delete_demo_images();
+    } elseif ($operation === 'install_certificates') {
+        cb_install_demo_certificate_package();
+    } elseif ($operation === 'delete_certificates') {
+        cb_delete_demo_certificates();
     }
     wp_safe_redirect(add_query_arg(['page' => 'cb-company-tools', 'demo_action' => $operation], admin_url('admin.php')));
     exit;
