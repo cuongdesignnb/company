@@ -279,6 +279,82 @@ function cb_transfer_link_post_record(array $record, array &$job)
     return 'updated';
 }
 
+function cb_transfer_menu_item_identity($item)
+{
+    $item = wp_setup_nav_menu_item($item);
+    $type = sanitize_key($item->type ?? 'custom');
+    $object = sanitize_key($item->object ?? 'custom');
+    $object_id = in_array($type, ['post_type', 'taxonomy'], true) ? absint($item->object_id ?? 0) : 0;
+    $url = $type === 'custom' ? strtolower(untrailingslashit(esc_url_raw($item->url ?? ''))) : '';
+    $title = strtolower(trim(preg_replace('/\s+/u', ' ', wp_strip_all_tags($item->title ?? ''))));
+    return implode('|', [$type, $object, $object_id, $url, $title]);
+}
+
+function cb_transfer_draft_menu_subtree($item_id, array $children, array &$drafted, &$snapshot = null)
+{
+    $item_id = absint($item_id);
+    if (!$item_id || isset($drafted[$item_id])) {
+        return;
+    }
+    foreach ((array) ($children[$item_id] ?? []) as $child_id) {
+        cb_transfer_draft_menu_subtree($child_id, $children, $drafted, $snapshot);
+    }
+    if (is_array($snapshot) && !empty($snapshot['rollback_id'])) {
+        cb_transfer_snapshot_post($snapshot, $item_id);
+    }
+    if (get_post_status($item_id) === 'publish') {
+        wp_update_post(['ID' => $item_id, 'post_status' => 'draft']);
+    }
+    $drafted[$item_id] = true;
+}
+
+function cb_transfer_repair_menu_duplicates($menu_id, array $incoming_uuids = [], &$snapshot = null)
+{
+    $items = wp_get_nav_menu_items(absint($menu_id), ['post_status' => 'any']);
+    if (!$items) {
+        return [];
+    }
+    $children = [];
+    $siblings = [];
+    foreach ($items as $item) {
+        if (get_post_status($item->ID) !== 'publish') {
+            continue;
+        }
+        $parent_id = absint($item->menu_item_parent);
+        $children[$parent_id][] = absint($item->ID);
+        $siblings[$parent_id][] = $item;
+    }
+    $drafted = [];
+    foreach ($siblings as $group) {
+        $seen = [];
+        foreach ($group as $item) {
+            if (isset($drafted[$item->ID])) {
+                continue;
+            }
+            $identity = cb_transfer_menu_item_identity($item);
+            if (!isset($seen[$identity])) {
+                $seen[$identity] = $item;
+                continue;
+            }
+            $kept = $seen[$identity];
+            $kept_uuid = sanitize_text_field(get_post_meta($kept->ID, '_cb_transfer_uuid', true));
+            $item_uuid = sanitize_text_field(get_post_meta($item->ID, '_cb_transfer_uuid', true));
+            $kept_is_incoming = $kept_uuid && isset($incoming_uuids[$kept_uuid]);
+            $item_is_incoming = $item_uuid && isset($incoming_uuids[$item_uuid]);
+            $draft_id = $item->ID;
+            if ($item_is_incoming && !$kept_is_incoming) {
+                $draft_id = $kept->ID;
+                $seen[$identity] = $item;
+            } elseif (!$kept_is_incoming && !$item_is_incoming && $kept_uuid && !$item_uuid) {
+                $draft_id = $kept->ID;
+                $seen[$identity] = $item;
+            }
+            cb_transfer_draft_menu_subtree($draft_id, $children, $drafted, $snapshot);
+        }
+    }
+    return array_map('absint', array_keys($drafted));
+}
+
 function cb_transfer_import_menus(array $menu_data, array &$job, array &$snapshot)
 {
     foreach ((array) ($menu_data['menus'] ?? []) as $menu) {
@@ -344,6 +420,7 @@ function cb_transfer_import_menus(array $menu_data, array &$job, array &$snapsho
                 cb_transfer_snapshot_post($snapshot, $previous_item->ID);
                 wp_update_post(['ID' => $previous_item->ID, 'post_status' => 'draft']);
             }
+            cb_transfer_repair_menu_duplicates($menu_id, $incoming_item_uuids, $snapshot);
         }
         $job['mapping']['menus'][$menu['source_uuid']] = $menu_id;
     }
