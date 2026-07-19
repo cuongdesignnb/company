@@ -290,6 +290,22 @@ function cb_transfer_menu_item_identity($item)
     return implode('|', [$type, $object, $object_id, $url, $title]);
 }
 
+function cb_transfer_menu_item_label_identity($item)
+{
+    $item = wp_setup_nav_menu_item($item);
+    $title = trim(preg_replace('/\s+/u', ' ', wp_strip_all_tags($item->title ?? '')));
+    return strtolower(remove_accents($title));
+}
+
+function cb_transfer_menu_item_preference($item, array $incoming_uuids)
+{
+    $uuid = sanitize_text_field(get_post_meta($item->ID, '_cb_transfer_uuid', true));
+    $score = $uuid && isset($incoming_uuids[$uuid]) ? 1000 : 0;
+    $score += $uuid ? 100 : 0;
+    $score += get_post_meta($item->ID, '_cb_is_demo_content', true) === '1' ? 10 : 0;
+    return $score;
+}
+
 function cb_transfer_draft_menu_subtree($item_id, array $children, array &$drafted, &$snapshot = null)
 {
     $item_id = absint($item_id);
@@ -331,23 +347,28 @@ function cb_transfer_repair_menu_duplicates($menu_id, array $incoming_uuids = []
             if (isset($drafted[$item->ID])) {
                 continue;
             }
-            $identity = cb_transfer_menu_item_identity($item);
-            if (!isset($seen[$identity])) {
-                $seen[$identity] = $item;
+            $strict_identity = cb_transfer_menu_item_identity($item);
+            $label_identity = cb_transfer_menu_item_label_identity($item);
+            $group_key = $label_identity !== '' ? $label_identity : $strict_identity;
+            if (!isset($seen[$group_key])) {
+                $seen[$group_key] = ['item' => $item, 'strict_identity' => $strict_identity];
                 continue;
             }
-            $kept = $seen[$identity];
+            $kept = $seen[$group_key]['item'];
+            $same_target = $strict_identity === $seen[$group_key]['strict_identity'];
             $kept_uuid = sanitize_text_field(get_post_meta($kept->ID, '_cb_transfer_uuid', true));
             $item_uuid = sanitize_text_field(get_post_meta($item->ID, '_cb_transfer_uuid', true));
-            $kept_is_incoming = $kept_uuid && isset($incoming_uuids[$kept_uuid]);
-            $item_is_incoming = $item_uuid && isset($incoming_uuids[$item_uuid]);
+            $kept_is_managed = $kept_uuid || get_post_meta($kept->ID, '_cb_is_demo_content', true) === '1';
+            $item_is_managed = $item_uuid || get_post_meta($item->ID, '_cb_is_demo_content', true) === '1';
+            if (!$same_target && !$kept_is_managed && !$item_is_managed) {
+                continue;
+            }
+            $kept_score = cb_transfer_menu_item_preference($kept, $incoming_uuids);
+            $item_score = cb_transfer_menu_item_preference($item, $incoming_uuids);
             $draft_id = $item->ID;
-            if ($item_is_incoming && !$kept_is_incoming) {
+            if ($item_score > $kept_score || ($item_score === $kept_score && $item->ID > $kept->ID)) {
                 $draft_id = $kept->ID;
-                $seen[$identity] = $item;
-            } elseif (!$kept_is_incoming && !$item_is_incoming && $kept_uuid && !$item_uuid) {
-                $draft_id = $kept->ID;
-                $seen[$identity] = $item;
+                $seen[$group_key] = ['item' => $item, 'strict_identity' => $strict_identity];
             }
             cb_transfer_draft_menu_subtree($draft_id, $children, $drafted, $snapshot);
         }

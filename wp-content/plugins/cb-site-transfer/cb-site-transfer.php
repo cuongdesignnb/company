@@ -2,7 +2,7 @@
 /**
  * Plugin Name: CB Site Transfer
  * Description: Xuất và nhập dữ liệu website CB Company bằng package JSON an toàn.
- * Version: 1.1.2
+ * Version: 1.1.3
  * Author: CB
  * Text Domain: cb-site-transfer
  * Domain Path: /languages
@@ -15,7 +15,7 @@ if (!defined('ABSPATH')) {
 define('CB_TRANSFER_FILE', __FILE__);
 define('CB_TRANSFER_PATH', plugin_dir_path(__FILE__));
 define('CB_TRANSFER_URL', plugin_dir_url(__FILE__));
-define('CB_TRANSFER_VERSION', '1.1.2');
+define('CB_TRANSFER_VERSION', '1.1.3');
 define('CB_TRANSFER_FORMAT_VERSION', '1.0.0');
 
 require_once CB_TRANSFER_PATH . 'includes/mappings.php';
@@ -59,7 +59,7 @@ function cb_transfer_maybe_upgrade()
         return;
     }
     $version = (string) get_option('cb_transfer_db_version', '0');
-    if (version_compare($version, '1.1.2', '>=')) {
+    if (version_compare($version, '1.1.3', '>=')) {
         return;
     }
     $repaired = [];
@@ -69,8 +69,8 @@ function cb_transfer_maybe_upgrade()
             $repaired[$menu->term_id] = $drafted;
         }
     }
-    update_option('cb_transfer_db_version', '1.1.2', false);
-    update_option('cb_transfer_menu_repair_112', [
+    update_option('cb_transfer_db_version', '1.1.3', false);
+    update_option('cb_transfer_menu_repair_113', [
         'repaired_at' => current_time('mysql'),
         'menus' => $repaired,
     ], false);
