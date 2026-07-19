@@ -7,7 +7,7 @@
         } ?>
         <button class="cb-filter-toggle" type="button" data-cb-filter-toggle aria-expanded="false"><svg aria-hidden="true" viewBox="0 0 24 24"><path d="M4 6h16M7 12h10m-7 6h4" fill="none" stroke="currentColor" stroke-width="2"/></svg><?php echo esc_html(cb_theme_lang() === 'zh' ? '产品分类' : 'Product Categories'); ?></button>
         <div class="cb-catalog-layout">
-            <aside class="cb-catalog-sidebar" data-cb-filter-panel><h2><?php echo esc_html(cb_theme_lang() === 'zh' ? '产品分类' : 'Product Categories'); ?></h2><nav><?php foreach (cb_theme_product_terms() as $category) : ?><a class="<?php echo $category->term_id === $term->term_id ? 'is-active' : ''; ?>" href="<?php echo esc_url(get_term_link($category)); ?>"><?php echo esc_html($category->name); ?></a><?php endforeach; ?></nav></aside>
+            <aside class="cb-catalog-sidebar" data-cb-filter-panel><?php cb_theme_catalog_sidebar($term->term_id); ?></aside>
             <div class="cb-catalog-main"><div class="cb-product-row cb-product-archive-grid">
                 <?php while (have_posts()) : the_post(); ?><?php get_template_part('template-parts/cards/product-card'); ?><?php endwhile; ?>
             </div><div class="cb-pagination"><?php the_posts_pagination(); ?></div></div>

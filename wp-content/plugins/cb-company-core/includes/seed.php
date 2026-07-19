@@ -817,11 +817,221 @@ function cb_install_catalog_content(array $images)
             }
         }
     }
+    cb_install_catalog_subpages($images);
+}
+
+function cb_catalog_gallery_items(array $images, array $keys, $language)
+{
+    $definitions = cb_demo_image_definitions();
+    $items = [];
+    foreach ($keys as $key) {
+        $image = cb_catalog_image($images, $key);
+        if (empty($image['url'])) {
+            continue;
+        }
+        $items[] = [
+            'enable' => '1',
+            'image_id' => absint($image['id'] ?? 0),
+            'image_url' => $image['url'],
+            'image_alt' => $definitions[$key]['alt'] ?? '',
+            'caption' => $language === 'zh' ? 'Aurelia 制造与质量环境' : 'Aurelia manufacturing and quality environment',
+        ];
+    }
+    return $items;
+}
+
+function cb_catalog_subpage_cta($language)
+{
+    $is_zh = $language === 'zh';
+    return array_merge(cb_default_builder_section('inquiry_cta'), [
+        'layout_style' => 'compact_band',
+        'title' => $is_zh ? '准备讨论您的产品项目？' : 'Ready to discuss your product program?',
+        'description' => $is_zh ? '分享目标市场、产品方向和预计采购量，我们将建议下一步。' : 'Share your target market, product direction and estimated volume. We will recommend the next practical step.',
+        'items' => [[
+            'text' => $is_zh ? '提交产品需求' : 'Send Product Brief',
+            'url' => cb_catalog_contact_url($language),
+            'style' => 'primary',
+        ]],
+    ]);
+}
+
+function cb_catalog_contact_url($language)
+{
+    $special = cb_get_group_options('cb_special_pages', ['en' => [], 'zh' => []]);
+    $post_id = absint($special[$language]['contact'] ?? 0);
+    return $post_id ? get_permalink($post_id) : home_url('/' . $language . '/contact/');
+}
+
+function cb_install_catalog_subpages(array $images)
+{
+    $special = cb_get_group_options('cb_special_pages', ['en' => [], 'zh' => []]);
+    $page_records = [
+        'company-style' => [
+            'en' => [
+                'title' => 'Company Style', 'slug' => 'company-style',
+                'excerpt' => 'A closer view of Aurelia teams, manufacturing environments and product development culture.',
+                'content' => '<h2>Built around practical manufacturing</h2><p>Aurelia brings product planning, engineering coordination, pilot production, quality validation and fulfillment into one collaborative workflow. Our teams work from clear project gates so international brand partners can review decisions early and keep programs moving.</p><h2>People, process and place</h2><p>From engineering workstations to organized assembly cells and inspection areas, each environment is arranged to support repeatable work and transparent communication. The gallery below presents representative demo imagery that should be replaced or approved before production launch.</p>',
+                'banner' => 'hero_campus', 'gallery' => ['hero_assembly', 'factory_closeup', 'factory_detail', 'quality_lab', 'warehouse', 'hero_showroom'],
+            ],
+            'zh' => [
+                'title' => '企业风采', 'slug' => 'company-style-zh',
+                'excerpt' => '了解 Aurelia 的团队、制造环境与产品开发文化。',
+                'content' => '<h2>以务实制造为核心</h2><p>Aurelia 将产品规划、工程协同、试产、质量验证与交付整合到清晰的项目流程中，帮助国际品牌在关键阶段及时评审并稳步推进项目。</p><h2>团队、流程与环境</h2><p>从工程工作区到装配单元和检验区域，每个环境都围绕标准化作业与透明沟通进行组织。以下图片为代表性演示素材，正式上线前应完成确认或替换。</p>',
+                'banner' => 'hero_campus', 'gallery' => ['hero_assembly', 'factory_closeup', 'factory_detail', 'quality_lab', 'warehouse', 'hero_showroom'],
+            ],
+        ],
+        'faq' => [
+            'en' => [
+                'title' => 'Frequently Asked Questions', 'slug' => 'faq',
+                'excerpt' => 'Practical answers for OEM and ODM kitchen appliance programs.',
+                'content' => '<h2>Planning an OEM/ODM program</h2><p>These answers cover the questions brand teams most often raise during early evaluation. Final commercial, compliance and delivery terms are confirmed for each product brief.</p>',
+                'banner' => 'quality_detail',
+                'items' => [
+                    ['question' => 'What information should we include in a product brief?', 'answer' => 'Share the target market, product category, key functions, expected price position, estimated volume, launch timing and any required compliance standards.'],
+                    ['question' => 'Can Aurelia support both OEM and ODM projects?', 'answer' => 'Yes. Programs can begin with an existing platform, a customized platform or a jointly defined product direction, subject to technical review.'],
+                    ['question' => 'How are samples and prototypes managed?', 'answer' => 'The team confirms scope, review criteria and timing before each sample round, then records feedback for the next engineering decision.'],
+                    ['question' => 'How is product quality planned?', 'answer' => 'Quality planning covers incoming materials, process controls, performance checks, reliability validation and final inspection for the agreed market.'],
+                    ['question' => 'Can colors, branding and packaging be customized?', 'answer' => 'Available customization depends on the selected platform and order plan. Color, logo, accessories, manuals and packaging can be reviewed together.'],
+                    ['question' => 'How is delivery timing confirmed?', 'answer' => 'Timing is based on engineering status, tooling, compliance, material readiness, pilot approval and production capacity. A project schedule is confirmed before order execution.'],
+                ],
+            ],
+            'zh' => [
+                'title' => '常见问题', 'slug' => 'faq-zh',
+                'excerpt' => '厨房电器 OEM/ODM 项目的常见问题与实用说明。',
+                'content' => '<h2>规划 OEM/ODM 项目</h2><p>以下内容涵盖品牌团队在项目评估初期最常提出的问题。最终商务、合规与交付条件将根据具体产品需求确认。</p>',
+                'banner' => 'quality_detail',
+                'items' => [
+                    ['question' => '产品需求书应包含哪些信息？', 'answer' => '建议提供目标市场、产品类别、核心功能、价格定位、预计采购量、上市时间及所需合规标准。'],
+                    ['question' => 'Aurelia 是否同时支持 OEM 和 ODM？', 'answer' => '支持。项目可基于成熟平台、定制平台或双方共同定义的产品方向开展，并需经过技术评审。'],
+                    ['question' => '样机与原型如何管理？', 'answer' => '每轮样机前确认范围、评审标准和时间，并记录反馈以支持下一阶段工程决策。'],
+                    ['question' => '产品质量如何规划？', 'answer' => '质量计划覆盖来料、过程控制、性能检测、可靠性验证和面向目标市场的最终检验。'],
+                    ['question' => '是否可以定制颜色、品牌与包装？', 'answer' => '可定制范围取决于产品平台与订单计划，可共同评审颜色、标识、配件、说明书和包装。'],
+                    ['question' => '交付周期如何确认？', 'answer' => '交期根据工程状态、模具、合规、物料、试产批准和产能综合确认，并在订单执行前建立项目计划。'],
+                ],
+            ],
+        ],
+        'service' => [
+            'en' => [
+                'title' => 'Service', 'slug' => 'service',
+                'excerpt' => 'Coordinated support from product definition through manufacturing and delivery.',
+                'content' => '<h2>Support across the product lifecycle</h2><p>Industrial product programs succeed when commercial, engineering, quality and delivery decisions stay connected. Aurelia assigns clear project ownership and organizes reviews around the milestones that matter to brand teams.</p><h2>From first brief to repeat order</h2><p>Support can include platform selection, requirement alignment, design coordination, tooling follow-up, sample review, compliance preparation, production planning and after-sales issue analysis.</p>',
+                'banner' => 'hero_showroom',
+                'services' => [['Requirement review', 'Align market, positioning, functions and compliance.'], ['Engineering coordination', 'Connect industrial design, structure and manufacturability.'], ['Sample management', 'Plan prototype rounds and record review decisions.'], ['Quality planning', 'Define validation and inspection gates before production.'], ['Delivery coordination', 'Connect materials, capacity, packaging and shipment plans.'], ['After-sales support', 'Track issues and coordinate corrective follow-up.']],
+            ],
+            'zh' => [
+                'title' => '服务保障', 'slug' => 'service-zh',
+                'excerpt' => '从产品定义到制造与交付的协同支持。',
+                'content' => '<h2>覆盖产品全生命周期的支持</h2><p>工业产品项目需要商务、工程、质量和交付决策持续协同。Aurelia 明确项目责任，并围绕品牌团队关注的关键节点组织评审。</p><h2>从首次需求到持续订单</h2><p>服务可覆盖平台选择、需求梳理、设计协同、模具跟进、样机评审、合规准备、生产计划与售后问题分析。</p>',
+                'banner' => 'hero_showroom',
+                'services' => [['需求评审', '梳理市场、定位、功能与合规要求。'], ['工程协同', '协调工业设计、结构与可制造性。'], ['样机管理', '规划原型轮次并记录评审结论。'], ['质量规划', '量产前定义验证与检验节点。'], ['交付协同', '连接物料、产能、包装与出货计划。'], ['售后支持', '跟踪问题并协调纠正措施。']],
+            ],
+        ],
+        'delivery' => [
+            'en' => [
+                'title' => 'Delivery', 'slug' => 'delivery',
+                'excerpt' => 'A controlled path from approved order to international shipment.',
+                'content' => '<h2>Delivery starts before production</h2><p>Reliable shipment depends on early alignment of materials, packaging, documentation, inspection and destination requirements. Aurelia reviews these dependencies as part of the project plan rather than waiting until goods are complete.</p><h2>Visible milestones and clear handoffs</h2><p>Order status is managed through material readiness, pilot approval, production, final inspection, packing and shipment release. Actual timing is confirmed for each program.</p>',
+                'banner' => 'warehouse', 'gallery' => ['warehouse', 'warehouse_detail', 'case_hospitality_detail'],
+            ],
+            'zh' => [
+                'title' => '准时交付', 'slug' => 'delivery-zh',
+                'excerpt' => '从订单批准到国际出货的可控流程。',
+                'content' => '<h2>交付管理始于生产之前</h2><p>可靠出货依赖物料、包装、文件、检验和目的地要求的提前协同。Aurelia 将这些依赖纳入项目计划，而不是等产品完成后再处理。</p><h2>清晰节点与明确交接</h2><p>订单状态按照物料准备、试产批准、生产、最终检验、包装和放行进行管理，实际周期根据具体项目确认。</p>',
+                'banner' => 'warehouse', 'gallery' => ['warehouse', 'warehouse_detail', 'case_hospitality_detail'],
+            ],
+        ],
+    ];
+
+    foreach ($page_records as $seed_key => $translations) {
+        foreach ($translations as $language => $record) {
+            $parent_id = absint($special[$language]['about'] ?? 0);
+            $banner = cb_catalog_image($images, $record['banner']);
+            $page_id = cb_catalog_upsert_post('page', 'subpage-' . $seed_key, $language, [
+                'post_title' => $record['title'],
+                'post_name' => $record['slug'],
+                'post_parent' => $parent_id,
+                'post_excerpt' => $record['excerpt'],
+                'post_content' => $record['content'],
+            ], $banner);
+            if (!$page_id) {
+                continue;
+            }
+            $sections = [cb_default_builder_section('content_editor')];
+            if ($seed_key === 'faq') {
+                $sections[] = array_merge(cb_default_builder_section('faq_list'), ['layout_style' => 'numbered_list', 'items' => $record['items']]);
+            } elseif ($seed_key === 'service') {
+                $items = array_map(static fn($item) => ['enable' => '1', 'icon' => '', 'title' => $item[0], 'description' => $item[1], 'url' => ''], $record['services']);
+                $sections[] = array_merge(cb_default_builder_section('why_choose_us'), ['layout_style' => 'service_matrix', 'items' => $items]);
+            } elseif (!empty($record['gallery'])) {
+                $sections[] = array_merge(cb_default_builder_section('gallery'), ['layout_style' => 'editorial_stack', 'items' => cb_catalog_gallery_items($images, $record['gallery'], $language)]);
+            }
+            $sections[] = cb_catalog_subpage_cta($language);
+            if (!cb_get_page_sections($page_id)) {
+                update_post_meta($page_id, '_cb_page_sections', cb_sanitize_page_sections($sections));
+            }
+            $page_ui = get_post_meta($page_id, '_cb_page_ui', true);
+            $page_ui = is_array($page_ui) ? $page_ui : [];
+            $page_ui += [
+                'page_layout' => 'sidebar', 'show_banner' => '1', 'show_breadcrumb' => '1',
+                'banner_title' => $record['title'], 'banner_description' => $record['excerpt'],
+                'banner_image' => $banner['url'] ?? '', 'banner_image_id' => absint($banner['id'] ?? 0),
+                'banner_overlay' => '58', 'banner_height_desktop' => '330px', 'banner_height_mobile' => '240px',
+            ];
+            update_post_meta($page_id, '_cb_page_ui', $page_ui);
+            update_post_meta($page_id, '_cb_page_render_mode', 'builder');
+            update_post_meta($page_id, '_cb_catalog_subpage_version', '1.6.0');
+        }
+    }
+
+    cb_install_factory_subpages($images);
+}
+
+function cb_install_factory_subpages(array $images)
+{
+    $records = [
+        'production-equipment' => ['Production Equipment', '生产设备', 'Equipment planning supports repeatable appliance manufacturing across forming, assembly and finishing processes.', '设备规划覆盖成型、装配与表面处理等环节，为稳定制造提供支持。', 'factory_detail', ['factory_detail', 'factory_closeup', 'hero_assembly']],
+        'production-line' => ['Production Line', '生产线', 'Flexible assembly cells connect standardized work, process checks and visible production control.', '柔性装配单元连接标准作业、过程检查与可视化生产管理。', 'hero_assembly', ['hero_assembly', 'factory_closeup', 'factory_detail']],
+        'production-workshop' => ['Production Workshop', '生产车间', 'Organized workshop zones support material flow, assembly, inspection and finished-goods handoff.', '规范的车间分区支持物料流转、装配、检验与成品交接。', 'factory_closeup', ['factory_closeup', 'factory_detail', 'warehouse']],
+        'testing-equipment' => ['Testing Equipment', '检测设备', 'Performance and reliability equipment supports project-specific validation and quality decisions.', '性能与可靠性设备支持针对项目的验证与质量决策。', 'quality_lab', ['quality_lab', 'quality_detail', 'factory_detail']],
+    ];
+    foreach ($records as $seed_key => $record) {
+        foreach (['en', 'zh'] as $language) {
+            $is_zh = $language === 'zh';
+            $title = $record[$is_zh ? 1 : 0];
+            $excerpt = $record[$is_zh ? 3 : 2];
+            $content = $is_zh
+                ? '<h2>' . $title . '</h2><p>' . $excerpt . '</p><h2>面向项目的制造管理</h2><p>实际设备配置、产能与检测范围将根据产品平台和客户需求确认。Aurelia 通过工程评审、过程控制和质量记录支持项目实施。</p>'
+                : '<h2>' . $title . '</h2><p>' . $excerpt . '</p><h2>Manufacturing management for each program</h2><p>Actual equipment configuration, capacity and test scope are confirmed against the selected product platform and customer requirements. Aurelia supports execution through engineering reviews, process controls and quality records.</p>';
+            $image = cb_catalog_image($images, $record[4]);
+            $post_id = cb_catalog_upsert_post('factory_showcase', 'factory-showcase-' . $seed_key, $language, [
+                'post_title' => $title,
+                'post_name' => $seed_key . ($is_zh ? '-zh' : ''),
+                'post_excerpt' => $excerpt,
+                'post_content' => $content,
+            ], $image);
+            if (!$post_id) {
+                continue;
+            }
+            if (get_post_meta($post_id, '_cb_is_demo_content', true) === '1') {
+                wp_update_post(['ID' => $post_id, 'post_name' => $seed_key . ($is_zh ? '-zh' : '')]);
+            }
+            if (!get_post_meta($post_id, '_cb_gallery', true)) {
+                $gallery = [];
+                foreach (cb_catalog_gallery_items($images, $record[5], $language) as $item) {
+                    $gallery[] = ['title' => $item['caption'], 'description' => '', 'image_id' => $item['image_id'], 'image_url' => $item['image_url'], 'image_alt' => $item['image_alt'], 'url' => ''];
+                }
+                update_post_meta($post_id, '_cb_gallery', $gallery);
+            }
+            update_post_meta($post_id, '_cb_featured', '1');
+            update_post_meta($post_id, '_cb_catalog_subpage_version', '1.6.0');
+        }
+    }
 }
 
 function cb_install_demo_content()
 {
     $images = cb_install_demo_images(false);
+    cb_install_catalog_content($images);
     $manifest = wp_parse_args((array) get_option('cb_demo_content_manifest', []), [
         'posts' => [], 'terms' => [], 'about_pages' => [], 'home_page' => 0,
         'home_sections_hash' => '', 'installed_at' => current_time('mysql'),
@@ -1165,18 +1375,18 @@ function cb_demo_menu_definitions()
             $product_children[] = cb_demo_menu_term_item('product_category', $language, $product_name, $product_url);
         }
         $factory_children = [
-            ['title' => $is_zh ? '工厂概览' : 'Factory Overview', 'url' => $factory_url],
-            cb_demo_menu_catalog_item('factory_showcase', 'factory_showcase-assembly', $language, $is_zh ? '自动化装配线' : 'Automated Assembly Line', $factory_url),
-            cb_demo_menu_catalog_item('factory_showcase', 'factory_showcase-quality', $language, $is_zh ? '质量与可靠性实验室' : 'Quality & Reliability Laboratory', $factory_url),
-            cb_demo_menu_catalog_item('factory_showcase', 'factory_showcase-logistics', $language, $is_zh ? '仓储与全球交付' : 'Warehouse & Global Fulfillment', $factory_url),
+            cb_demo_menu_catalog_item('factory_showcase', 'factory-showcase-production-equipment', $language, $is_zh ? '生产设备' : 'Production Equipment', $factory_url),
+            cb_demo_menu_catalog_item('factory_showcase', 'factory-showcase-production-line', $language, $is_zh ? '生产线' : 'Production Line', $factory_url),
+            cb_demo_menu_catalog_item('factory_showcase', 'factory-showcase-production-workshop', $language, $is_zh ? '生产车间' : 'Production Workshop', $factory_url),
+            cb_demo_menu_catalog_item('factory_showcase', 'factory-showcase-testing-equipment', $language, $is_zh ? '检测设备' : 'Testing Equipment', $factory_url),
         ];
         $about_children = [
-            ['title' => $is_zh ? '公司概况' : 'Company Overview', 'url' => $about_url . '#overview'],
-            ['title' => $is_zh ? '发展历程' : 'Milestones', 'url' => $about_url . '#milestones'],
-            ['title' => $is_zh ? '工厂与实验室' : 'Factory & Laboratory', 'url' => $about_url . '#factory'],
+            ['title' => $is_zh ? '公司概况' : 'Company Overview', 'object_id' => $about_id],
+            cb_demo_menu_catalog_item('page', 'subpage-company-style', $language, $is_zh ? '企业风采' : 'Company Style', $about_url),
             ['title' => $is_zh ? '资质证书' : 'Certificates', 'url' => home_url('/' . $language . '/certificates/')],
-            ['title' => $is_zh ? '质量与研发' : 'Quality & R&D', 'url' => $about_url . '#quality'],
-            ['title' => $is_zh ? '服务承诺' : 'Service Commitments', 'url' => $about_url . '#services'],
+            cb_demo_menu_catalog_item('page', 'subpage-faq', $language, $is_zh ? '常见问题' : 'FAQ', $about_url),
+            cb_demo_menu_catalog_item('page', 'subpage-service', $language, $is_zh ? '服务保障' : 'Service', $about_url),
+            cb_demo_menu_catalog_item('page', 'subpage-delivery', $language, $is_zh ? '准时交付' : 'Delivery', $about_url),
         ];
         $primary = [
             ['title' => $is_zh ? '首页' : 'Home', 'url' => home_url('/' . $language . '/')],

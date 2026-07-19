@@ -23,6 +23,7 @@ function cb_section_types()
         'contact_info' => __('Thông tin liên hệ', 'cb-company-core'),
         'content_editor' => __('Nội dung từ trình soạn thảo', 'cb-company-core'),
         'gallery' => __('Thư viện hình ảnh', 'cb-company-core'),
+        'faq_list' => __('Câu hỏi thường gặp', 'cb-company-core'),
         'spacer' => __('Khoảng cách', 'cb-company-core'),
     ];
 }
@@ -31,7 +32,7 @@ function cb_builder_field_registry()
 {
     $types = array_keys(cb_section_types());
     $content = array_values(array_diff($types, ['hero_slider']));
-    $listing = ['company_stats', 'showroom_gallery', 'product_categories', 'featured_products', 'case_studies', 'certificates', 'news_section', 'gallery'];
+    $listing = ['company_stats', 'showroom_gallery', 'product_categories', 'featured_products', 'case_studies', 'certificates', 'news_section', 'gallery', 'faq_list'];
     $repeaters = array_keys(cb_section_item_schemas());
     return [
         'admin_label' => ['label' => __('Nhãn quản trị', 'cb-company-core'), 'type' => 'text', 'group' => 'advanced', 'for' => $types],
@@ -49,7 +50,7 @@ function cb_builder_field_registry()
         'certificate_source' => ['label' => __('Nguồn dữ liệu chứng nhận', 'cb-company-core'), 'type' => 'select', 'group' => 'content', 'for' => ['certificates'], 'choices' => ['certificate_posts' => __('Bài chứng nhận đã xuất bản', 'cb-company-core'), 'manual' => __('Danh sách thủ công cũ', 'cb-company-core')]],
         'certificate_category' => ['label' => __('Slug nhóm chứng nhận', 'cb-company-core'), 'type' => 'text', 'group' => 'content', 'for' => ['certificates']],
         'show_certificate_filters' => ['label' => __('Hiện bộ lọc nhóm', 'cb-company-core'), 'type' => 'checkbox', 'group' => 'content', 'for' => ['certificates']],
-        'layout_style' => ['label' => __('Kiểu bố cục', 'cb-company-core'), 'type' => 'select', 'group' => 'design', 'for' => $types, 'choices' => ['default' => __('Bố cục mặc định', 'cb-company-core'), 'full_width' => __('Toàn chiều rộng', 'cb-company-core'), 'image_only_catalog' => __('Hero catalogue chỉ có ảnh', 'cb-company-core'), 'split' => __('Chia hai cột', 'cb-company-core'), 'story_collage' => __('Câu chuyện và collage ảnh', 'cb-company-core'), 'centered' => __('Căn giữa', 'cb-company-core'), 'minimal_matrix' => __('Ma trận tối giản', 'cb-company-core'), 'service_matrix' => __('Ma trận năng lực dịch vụ', 'cb-company-core'), 'technical_catalog' => __('Catalogue kỹ thuật', 'cb-company-core'), 'document_grid' => __('Lưới tài liệu dọc', 'cb-company-core'), 'editorial_grid' => __('Lưới hình ảnh biên tập', 'cb-company-core'), 'spotlight' => __('Nội dung nổi bật', 'cb-company-core'), 'immersive' => __('Thư viện hình ảnh lớn', 'cb-company-core'), 'compact_band' => __('Dải CTA gọn', 'cb-company-core'), 'image_left' => __('Ảnh bên trái', 'cb-company-core'), 'image_right' => __('Ảnh bên phải', 'cb-company-core'), 'grid' => __('Dạng lưới', 'cb-company-core'), 'carousel' => __('Băng chuyền', 'cb-company-core')]],
+        'layout_style' => ['label' => __('Kiểu bố cục', 'cb-company-core'), 'type' => 'select', 'group' => 'design', 'for' => $types, 'choices' => ['default' => __('Bố cục mặc định', 'cb-company-core'), 'full_width' => __('Toàn chiều rộng', 'cb-company-core'), 'image_only_catalog' => __('Hero catalogue chỉ có ảnh', 'cb-company-core'), 'split' => __('Chia hai cột', 'cb-company-core'), 'story_collage' => __('Câu chuyện và collage ảnh', 'cb-company-core'), 'centered' => __('Căn giữa', 'cb-company-core'), 'minimal_matrix' => __('Ma trận tối giản', 'cb-company-core'), 'service_matrix' => __('Ma trận năng lực dịch vụ', 'cb-company-core'), 'technical_catalog' => __('Catalogue kỹ thuật', 'cb-company-core'), 'document_grid' => __('Lưới tài liệu dọc', 'cb-company-core'), 'editorial_grid' => __('Lưới hình ảnh biên tập', 'cb-company-core'), 'editorial_stack' => __('Ảnh lớn xếp dọc', 'cb-company-core'), 'numbered_list' => __('Danh sách đánh số', 'cb-company-core'), 'spotlight' => __('Nội dung nổi bật', 'cb-company-core'), 'immersive' => __('Thư viện hình ảnh lớn', 'cb-company-core'), 'compact_band' => __('Dải CTA gọn', 'cb-company-core'), 'image_left' => __('Ảnh bên trái', 'cb-company-core'), 'image_right' => __('Ảnh bên phải', 'cb-company-core'), 'grid' => __('Dạng lưới', 'cb-company-core'), 'carousel' => __('Băng chuyền', 'cb-company-core')]],
         'background_color' => ['label' => __('Màu nền', 'cb-company-core'), 'type' => 'color', 'group' => 'design', 'for' => $types],
         'background_image' => ['label' => __('Ảnh nền', 'cb-company-core'), 'type' => 'image', 'group' => 'images', 'for' => array_diff($content, ['content_editor', 'spacer'])],
         'text_color' => ['label' => __('Màu chữ', 'cb-company-core'), 'type' => 'color', 'group' => 'design', 'for' => array_diff($types, ['spacer'])],
@@ -150,6 +151,10 @@ function cb_section_item_schemas()
             'image' => ['image', __('Hình ảnh', 'cb-company-core')],
             'image_alt' => ['text', __('Mô tả ảnh', 'cb-company-core')],
             'caption' => ['text', __('Chú thích', 'cb-company-core')],
+        ],
+        'faq_list' => [
+            'question' => ['text', __('Câu hỏi', 'cb-company-core')],
+            'answer' => ['textarea', __('Câu trả lời', 'cb-company-core')],
         ],
     ];
 }

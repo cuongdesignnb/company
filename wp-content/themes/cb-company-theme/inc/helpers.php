@@ -69,8 +69,8 @@ function cb_theme_items($section)
     if (!empty($section['items']) && is_array($section['items'])) {
         return array_map(static function ($item) {
             $item = (array) $item;
-            $item['label'] = $item['label'] ?? ($item['title'] ?? '');
-            $item['value'] = $item['value'] ?? ($item['description'] ?? '');
+            $item['label'] = $item['label'] ?? ($item['title'] ?? ($item['question'] ?? ''));
+            $item['value'] = $item['value'] ?? ($item['description'] ?? ($item['answer'] ?? ''));
             $item['image'] = $item['image'] ?? ($item['image_url'] ?? '');
             $item['url'] = $item['url'] ?? ($item['link'] ?? '');
             return $item;
@@ -88,6 +88,77 @@ function cb_theme_product_terms($limit = 0)
         'meta_query' => [['key' => '_cb_language', 'value' => cb_theme_lang()]],
     ]);
     return is_wp_error($terms) ? [] : $terms;
+}
+
+function cb_theme_contact_page_url()
+{
+    if (function_exists('cb_get_group_options')) {
+        $special = cb_get_group_options('cb_special_pages', ['en' => [], 'zh' => []]);
+        $post_id = absint($special[cb_theme_lang()]['contact'] ?? 0);
+        if ($post_id) {
+            return get_permalink($post_id);
+        }
+    }
+    return home_url('/' . cb_theme_lang() . '/contact/');
+}
+
+function cb_theme_featured_products($limit = 3)
+{
+    return get_posts([
+        'post_type' => 'product',
+        'post_status' => 'publish',
+        'posts_per_page' => absint($limit),
+        'meta_query' => [
+            'relation' => 'AND',
+            ['key' => '_cb_language', 'value' => cb_theme_lang()],
+            ['key' => '_cb_featured', 'value' => '1'],
+        ],
+        'orderby' => ['menu_order' => 'ASC', 'date' => 'DESC'],
+    ]);
+}
+
+function cb_theme_catalog_sidebar($active_term_id = 0)
+{
+    $is_zh = cb_theme_lang() === 'zh';
+    $labels = $is_zh
+        ? ['products' => '产品分类', 'featured' => '推荐产品', 'contact' => '联系我们', 'contact_copy' => '告诉我们您的目标市场、产品方向和预计采购量。', 'brief' => '提交产品需求']
+        : ['products' => 'Product Categories', 'featured' => 'Featured Products', 'contact' => 'Contact Us', 'contact_copy' => 'Tell us your target market, product direction and estimated volume.', 'brief' => 'Send Product Brief'];
+    ?>
+    <div class="cb-catalog-sidebar-inner">
+        <section class="cb-sidebar-section cb-sidebar-categories">
+            <h2><?php echo esc_html($labels['products']); ?></h2>
+            <nav aria-label="<?php echo esc_attr($labels['products']); ?>">
+                <?php foreach (cb_theme_product_terms() as $category) : ?>
+                    <a class="<?php echo (int) $category->term_id === (int) $active_term_id ? 'is-active' : ''; ?>" href="<?php echo esc_url(get_term_link($category)); ?>">
+                        <span><?php echo esc_html($category->name); ?></span>
+                        <svg aria-hidden="true" viewBox="0 0 24 24"><path d="M9 5l7 7-7 7" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                    </a>
+                <?php endforeach; ?>
+            </nav>
+        </section>
+        <?php $products = cb_theme_featured_products(); if ($products) : ?>
+            <section class="cb-sidebar-section cb-sidebar-featured">
+                <h2><?php echo esc_html($labels['featured']); ?></h2>
+                <div class="cb-sidebar-product-list">
+                    <?php foreach ($products as $product) : ?>
+                        <a class="cb-sidebar-product" href="<?php echo esc_url(cb_theme_post_url($product->ID)); ?>">
+                            <?php echo cb_theme_image(get_the_post_thumbnail_url($product->ID, 'thumbnail'), get_the_title($product), '', 96, 96); ?>
+                            <span><strong><?php echo esc_html(get_the_title($product)); ?></strong><small><?php echo esc_html(get_post_meta($product->ID, '_cb_model', true)); ?></small></span>
+                        </a>
+                    <?php endforeach; ?>
+                </div>
+            </section>
+        <?php endif; ?>
+        <section class="cb-sidebar-contact">
+            <p class="cb-eyebrow"><?php echo esc_html($labels['contact']); ?></p>
+            <h3><?php echo esc_html($is_zh ? '启动您的 OEM/ODM 项目' : 'Start Your OEM/ODM Project'); ?></h3>
+            <p><?php echo esc_html($labels['contact_copy']); ?></p>
+            <?php if (cb_theme_option('contact_email')) : ?><a href="mailto:<?php echo esc_attr(cb_theme_option('contact_email')); ?>"><?php echo esc_html(cb_theme_option('contact_email')); ?></a><?php endif; ?>
+            <?php if (cb_theme_option('contact_phone')) : ?><a href="tel:<?php echo esc_attr(preg_replace('/[^\d+]/', '', cb_theme_option('contact_phone'))); ?>"><?php echo esc_html(cb_theme_option('contact_phone')); ?></a><?php endif; ?>
+            <a class="cb-btn cb-btn-primary" href="<?php echo esc_url(cb_theme_contact_page_url()); ?>"><?php echo esc_html($labels['brief']); ?></a>
+        </section>
+    </div>
+    <?php
 }
 
 function cb_theme_section_header($section)

@@ -24,7 +24,50 @@ function cb_core_maybe_migrate()
     }
     if (version_compare($version, '1.5.0', '<')) {
         cb_core_run_migration_150();
+        $version = '1.5.0';
     }
+    if (version_compare($version, '1.6.0', '<')) {
+        cb_core_run_migration_160();
+    }
+}
+
+function cb_core_run_migration_160()
+{
+    if (get_option('cb_catalog_subpages_backup_160', null) === null) {
+        $backup = [
+            'created_at' => current_time('mysql'),
+            'menu_locations' => get_theme_mod('nav_menu_locations', []),
+            'posts' => [],
+        ];
+        $post_ids = get_posts([
+            'post_type' => ['page', 'factory_showcase'],
+            'post_status' => 'any',
+            'posts_per_page' => -1,
+            'fields' => 'ids',
+            'meta_query' => [['key' => '_cb_catalog_seed_key', 'compare' => 'EXISTS']],
+        ]);
+        foreach ($post_ids as $post_id) {
+            $backup['posts'][$post_id] = [
+                'seed_key' => get_post_meta($post_id, '_cb_catalog_seed_key', true),
+                'sections' => get_post_meta($post_id, '_cb_page_sections', true),
+                'page_ui' => get_post_meta($post_id, '_cb_page_ui', true),
+                'render_mode' => get_post_meta($post_id, '_cb_page_render_mode', true),
+                'gallery' => get_post_meta($post_id, '_cb_gallery', true),
+            ];
+        }
+        update_option('cb_catalog_subpages_backup_160', $backup, false);
+    }
+
+    $images = function_exists('cb_install_demo_images') ? cb_install_demo_images(false) : [];
+    if (function_exists('cb_install_catalog_content')) {
+        cb_install_catalog_content($images);
+    }
+    if (function_exists('cb_install_demo_menus')) {
+        cb_install_demo_menus();
+    }
+    update_option('cb_catalog_subpages_160_applied', current_time('mysql'), false);
+    update_option('cb_core_db_version', '1.6.0');
+    flush_rewrite_rules(false);
 }
 
 function cb_core_run_migration_150()
