@@ -736,6 +736,100 @@ function cb_catalog_upsert_post($post_type, $seed_key, $language, array $data, a
     return $post_id;
 }
 
+function cb_install_catalog_videos(array $images)
+{
+    $videos = [
+        [
+            'key' => 'campus-tour',
+            'title_en' => 'Aurelia Manufacturing Campus Tour',
+            'title_zh' => 'Aurelia 制造基地参观',
+            'excerpt_en' => 'Walk through the showroom, engineering areas and coordinated manufacturing environment behind Aurelia OEM/ODM programs.',
+            'excerpt_zh' => '参观 Aurelia 的展厅、工程区域与协同制造环境，了解 OEM/ODM 项目的实施基础。',
+            'category_en' => 'Company and Showroom',
+            'category_zh' => '企业与展厅',
+            'category_key' => 'company-showroom',
+            'image' => 'hero_campus',
+            'duration' => '02:48',
+        ],
+        [
+            'key' => 'assembly-line',
+            'title_en' => 'Flexible Assembly Line Overview',
+            'title_zh' => '柔性装配线概览',
+            'excerpt_en' => 'See how flexible work cells, process controls and production planning support multiple kitchen appliance platforms.',
+            'excerpt_zh' => '了解柔性工作单元、过程控制与生产计划如何支持多种厨房电器平台。',
+            'category_en' => 'Manufacturing',
+            'category_zh' => '生产制造',
+            'category_key' => 'manufacturing',
+            'image' => 'hero_assembly',
+            'duration' => '03:16',
+        ],
+        [
+            'key' => 'quality-testing',
+            'title_en' => 'Quality and Reliability Testing',
+            'title_zh' => '质量与可靠性检测',
+            'excerpt_en' => 'A practical view of performance, endurance and safety validation planned around the requirements of each target market.',
+            'excerpt_zh' => '展示围绕目标市场要求开展的性能、耐久与安全验证流程。',
+            'category_en' => 'Quality',
+            'category_zh' => '质量检测',
+            'category_key' => 'quality',
+            'image' => 'quality_lab',
+            'duration' => '02:35',
+        ],
+        [
+            'key' => 'warehouse-delivery',
+            'title_en' => 'Warehouse and Global Delivery',
+            'title_zh' => '仓储与全球交付',
+            'excerpt_en' => 'Follow the controls connecting finished-goods storage, packaging review, shipment release and international fulfillment.',
+            'excerpt_zh' => '了解成品仓储、包装审核、出货放行与国际交付之间的管理流程。',
+            'category_en' => 'Logistics',
+            'category_zh' => '仓储物流',
+            'category_key' => 'logistics',
+            'image' => 'warehouse',
+            'duration' => '02:12',
+        ],
+    ];
+
+    foreach ($videos as $index => $video) {
+        foreach (['en', 'zh'] as $language) {
+            $is_zh = $language === 'zh';
+            $title = $video['title_' . $language];
+            $excerpt = $video['excerpt_' . $language];
+            $category_name = $video['category_' . $language];
+            $image = cb_catalog_image($images, $video['image']);
+            $post_id = cb_catalog_upsert_post('video', 'video-' . $video['key'], $language, [
+                'post_title' => $title,
+                'post_name' => 'aurelia-' . $video['key'] . ($is_zh ? '-zh' : ''),
+                'post_excerpt' => $excerpt,
+                'post_content' => $is_zh
+                    ? '<h2>影像内容概览</h2><p>' . $excerpt . '</p><h2>面向品牌项目的制造支持</h2><p>视频内容展示 Aurelia 的代表性制造环境与工作流程。具体设备、产能和项目条件应根据实际产品需求进一步确认。</p>'
+                    : '<h2>What this video covers</h2><p>' . $excerpt . '</p><h2>Manufacturing support for brand programs</h2><p>This video profile presents representative Aurelia manufacturing environments and workflows. Specific equipment, capacity and program conditions are confirmed against each product brief.</p>',
+                'menu_order' => $index + 1,
+            ], $image);
+            if (!$post_id) {
+                continue;
+            }
+            update_post_meta($post_id, '_cb_short_description', $excerpt);
+            update_post_meta($post_id, '_cb_video_duration', $video['duration']);
+            update_post_meta($post_id, '_cb_display_order', (string) ($index + 1));
+            update_post_meta($post_id, '_cb_featured', $index === 0 ? '1' : '0');
+
+            $term = term_exists($category_name, 'video_category');
+            if (!$term) {
+                $term = wp_insert_term($category_name, 'video_category', [
+                    'slug' => $video['category_key'] . ($is_zh ? '-zh' : ''),
+                ]);
+            }
+            if (!is_wp_error($term)) {
+                $term_id = absint(is_array($term) ? $term['term_id'] : $term);
+                update_term_meta($term_id, '_cb_language', $language);
+                update_term_meta($term_id, '_cb_translation_group', 'aurelia-video-category-' . $video['category_key']);
+                update_term_meta($term_id, '_cb_is_demo_content', '1');
+                wp_set_object_terms($post_id, [$term_id], 'video_category');
+            }
+        }
+    }
+}
+
 function cb_install_catalog_content(array $images)
 {
     $product_definitions = [
@@ -817,6 +911,7 @@ function cb_install_catalog_content(array $images)
             }
         }
     }
+    cb_install_catalog_videos($images);
     cb_install_catalog_subpages($images);
 }
 
@@ -1395,6 +1490,7 @@ function cb_demo_menu_definitions()
             ['title' => $is_zh ? '制造能力' : 'Manufacturing', 'url' => $factory_url, 'children' => $factory_children],
             ['title' => $is_zh ? '项目案例' : 'Case Studies', 'url' => home_url('/' . $language . '/cases/')],
             ['title' => $is_zh ? '资质证书' : 'Certificates', 'url' => home_url('/' . $language . '/certificates/')],
+            ['title' => $is_zh ? '视频中心' : 'Videos', 'url' => home_url('/' . $language . '/videos/')],
             ['title' => $is_zh ? '新闻资讯' : 'News', 'url' => home_url('/' . $language . '/news/')],
             ['title' => $is_zh ? '联系我们' : 'Contact', 'object_id' => $contact_id],
         ];
@@ -1403,6 +1499,7 @@ function cb_demo_menu_definitions()
             ['title' => $is_zh ? '工厂与实验室' : 'Factory & Laboratory', 'url' => home_url('/' . $language . '/factory/')],
             ['title' => $is_zh ? '项目案例' : 'Case Studies', 'url' => home_url('/' . $language . '/cases/')],
             ['title' => $is_zh ? '资质证书' : 'Certificates', 'url' => home_url('/' . $language . '/certificates/')],
+            ['title' => $is_zh ? '视频中心' : 'Videos', 'url' => home_url('/' . $language . '/videos/')],
             ['title' => $is_zh ? '新闻资讯' : 'News', 'url' => home_url('/' . $language . '/news/')],
             ['title' => $is_zh ? '联系我们' : 'Contact', 'object_id' => $contact_id],
         ];

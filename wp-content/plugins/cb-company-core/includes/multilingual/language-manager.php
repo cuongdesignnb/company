@@ -41,6 +41,7 @@ function cb_register_language_rewrites()
     add_rewrite_rule('^(en|zh)/factory/([^/]+)/?$', 'index.php?factory_showcase=$matches[2]&cb_lang=$matches[1]', 'top');
     add_rewrite_rule('^(en|zh)/cases/?$', 'index.php?post_type=case_study&cb_lang=$matches[1]', 'top');
     add_rewrite_rule('^(en|zh)/videos/?$', 'index.php?post_type=video&cb_lang=$matches[1]', 'top');
+    add_rewrite_rule('^(en|zh)/video/([^/]+)/?$', 'index.php?video=$matches[2]&cb_lang=$matches[1]', 'top');
     add_rewrite_rule('^(en|zh)/news/?$', 'index.php?post_type=post&cb_lang=$matches[1]', 'top');
     add_rewrite_rule('^(en|zh)/certificates/page/([0-9]+)/?$', 'index.php?post_type=certificate&cb_lang=$matches[1]&paged=$matches[2]', 'top');
     add_rewrite_rule('^(en|zh)/certificates/category/([^/]+)/page/([0-9]+)/?$', 'index.php?certificate_category=$matches[2]&cb_lang=$matches[1]&paged=$matches[3]', 'top');
@@ -51,12 +52,16 @@ function cb_register_language_rewrites()
 
 function cb_language_post_type_link($url, $post)
 {
-    if (!($post instanceof WP_Post) || $post->post_type !== 'factory_showcase') {
+    if (!($post instanceof WP_Post)) {
+        return $url;
+    }
+    $paths = ['factory_showcase' => 'factory', 'video' => 'video'];
+    if (!isset($paths[$post->post_type])) {
         return $url;
     }
     $language = get_post_meta($post->ID, '_cb_language', true);
     $language = isset(cb_languages()[$language]) ? $language : 'en';
-    return home_url('/' . $language . '/factory/' . $post->post_name . '/');
+    return home_url('/' . $language . '/' . $paths[$post->post_type] . '/' . $post->post_name . '/');
 }
 
 function cb_resolve_special_home_request($vars)

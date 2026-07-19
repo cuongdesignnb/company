@@ -62,7 +62,15 @@ function cb_content_meta_schemas()
             'seo' => [__('SEO', 'cb-company-core'), $seo],
         ],
         'video' => [
-            'general' => [__('Thông tin chung', 'cb-company-core'), ['_cb_video_url' => [__('Video URL', 'cb-company-core'), 'url'], '_cb_short_description' => [__('Mô tả ngắn', 'cb-company-core'), 'textarea']]],
+            'general' => [__('Thông tin chung', 'cb-company-core'), [
+                '_cb_short_description' => [__('Mô tả ngắn', 'cb-company-core'), 'textarea'],
+                '_cb_video_duration' => [__('Thời lượng hiển thị', 'cb-company-core'), 'text'],
+                '_cb_featured' => [__('Video nổi bật', 'cb-company-core'), 'checkbox'],
+                '_cb_display_order' => [__('Thứ tự hiển thị', 'cb-company-core'), 'number'],
+            ]],
+            'media' => [__('Hình ảnh và video', 'cb-company-core'), [
+                '_cb_video_url' => [__('Video URL hoặc tệp MP4/WebM', 'cb-company-core'), 'url'],
+            ]],
             'language' => [__('Ngôn ngữ', 'cb-company-core'), $language],
             'seo' => [__('SEO', 'cb-company-core'), $seo],
         ],

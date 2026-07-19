@@ -102,6 +102,88 @@ function cb_theme_contact_page_url()
     return home_url('/' . cb_theme_lang() . '/contact/');
 }
 
+function cb_theme_video_archive_url()
+{
+    return home_url('/' . cb_theme_lang() . '/videos/');
+}
+
+function cb_theme_video_terms()
+{
+    $terms = get_terms([
+        'taxonomy' => 'video_category',
+        'hide_empty' => true,
+        'meta_query' => [
+            'relation' => 'OR',
+            ['key' => '_cb_language', 'value' => cb_theme_lang()],
+            ['key' => '_cb_language', 'compare' => 'NOT EXISTS'],
+        ],
+    ]);
+    return is_wp_error($terms) ? [] : $terms;
+}
+
+function cb_theme_video_meta($post_id)
+{
+    $terms = get_the_terms($post_id, 'video_category');
+    $term_name = !is_wp_error($terms) && $terms ? $terms[0]->name : '';
+    $duration = (string) get_post_meta($post_id, '_cb_video_duration', true);
+    $parts = array_filter([$term_name, $duration]);
+    if (!$parts) {
+        return '';
+    }
+    return '<p class="cb-video-meta">' . esc_html(implode(' / ', $parts)) . '</p>';
+}
+
+function cb_theme_is_direct_video_url($url)
+{
+    $path = (string) wp_parse_url($url, PHP_URL_PATH);
+    return (bool) preg_match('/\.(mp4|webm|ogv|ogg|m4v)$/i', $path);
+}
+
+function cb_theme_video_media($post_id, &$media_type = '')
+{
+    $url = (string) get_post_meta($post_id, '_cb_video_url', true);
+    $poster = get_the_post_thumbnail_url($post_id, 'full');
+    if ($url && cb_theme_is_direct_video_url($url)) {
+        $media_type = 'video';
+        $mime = wp_check_filetype((string) wp_parse_url($url, PHP_URL_PATH));
+        return '<video controls preload="metadata"' . ($poster ? ' poster="' . esc_url($poster) . '"' : '') . '><source src="' . esc_url($url) . '" type="' . esc_attr($mime['type'] ?: 'video/mp4') . '"></video>';
+    }
+    if ($url) {
+        $embed = wp_oembed_get($url, ['width' => 1220]);
+        if ($embed) {
+            $media_type = 'embed';
+            $allowed = wp_kses_allowed_html('post');
+            $allowed['iframe'] = [
+                'src' => true,
+                'width' => true,
+                'height' => true,
+                'frameborder' => true,
+                'allow' => true,
+                'allowfullscreen' => true,
+                'loading' => true,
+                'title' => true,
+            ];
+            return wp_kses($embed, $allowed);
+        }
+        $media_type = 'external';
+    } elseif ($poster) {
+        $media_type = 'poster';
+    }
+    return $poster ? cb_theme_image($poster, get_the_title($post_id), 'cb-video-poster-image', 1400, 788) : '';
+}
+
+function cb_theme_related_videos($post_id, $limit = 3)
+{
+    return get_posts([
+        'post_type' => 'video',
+        'post_status' => 'publish',
+        'posts_per_page' => absint($limit),
+        'post__not_in' => [absint($post_id)],
+        'meta_query' => [['key' => '_cb_language', 'value' => cb_theme_lang()]],
+        'orderby' => ['menu_order' => 'ASC', 'date' => 'DESC'],
+    ]);
+}
+
 function cb_theme_featured_products($limit = 3)
 {
     return get_posts([

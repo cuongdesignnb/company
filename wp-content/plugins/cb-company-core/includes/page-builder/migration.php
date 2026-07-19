@@ -28,7 +28,38 @@ function cb_core_maybe_migrate()
     }
     if (version_compare($version, '1.6.0', '<')) {
         cb_core_run_migration_160();
+        $version = '1.6.0';
     }
+    if (version_compare($version, '1.7.0', '<')) {
+        cb_core_run_migration_170();
+    }
+}
+
+function cb_core_run_migration_170()
+{
+    if (get_option('cb_video_module_backup_170', null) === null) {
+        update_option('cb_video_module_backup_170', [
+            'created_at' => current_time('mysql'),
+            'menu_locations' => get_theme_mod('nav_menu_locations', []),
+            'existing_video_ids' => get_posts([
+                'post_type' => 'video',
+                'post_status' => 'any',
+                'posts_per_page' => -1,
+                'fields' => 'ids',
+            ]),
+        ], false);
+    }
+
+    $images = function_exists('cb_install_demo_images') ? cb_install_demo_images(false) : [];
+    if (function_exists('cb_install_catalog_videos')) {
+        cb_install_catalog_videos($images);
+    }
+    if (function_exists('cb_install_demo_menus')) {
+        cb_install_demo_menus();
+    }
+    update_option('cb_video_module_170_applied', current_time('mysql'), false);
+    update_option('cb_core_db_version', '1.7.0');
+    flush_rewrite_rules(false);
 }
 
 function cb_core_run_migration_160()
