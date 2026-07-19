@@ -2,7 +2,7 @@
 /**
  * Plugin Name: CB Site Transfer
  * Description: Xuất và nhập dữ liệu website CB Company bằng package JSON an toàn.
- * Version: 1.1.0
+ * Version: 1.1.1
  * Author: CB
  * Text Domain: cb-site-transfer
  * Domain Path: /languages
@@ -15,7 +15,7 @@ if (!defined('ABSPATH')) {
 define('CB_TRANSFER_FILE', __FILE__);
 define('CB_TRANSFER_PATH', plugin_dir_path(__FILE__));
 define('CB_TRANSFER_URL', plugin_dir_url(__FILE__));
-define('CB_TRANSFER_VERSION', '1.1.0');
+define('CB_TRANSFER_VERSION', '1.1.1');
 define('CB_TRANSFER_FORMAT_VERSION', '1.0.0');
 
 require_once CB_TRANSFER_PATH . 'includes/mappings.php';

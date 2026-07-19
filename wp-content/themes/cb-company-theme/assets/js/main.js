@@ -11,6 +11,35 @@
     });
   }
 
+  const submenuToggles = Array.from(document.querySelectorAll('.cb-main-nav .cb-submenu-toggle'));
+  function closeSubmenus(except) {
+    submenuToggles.forEach(function (button) {
+      const item = button.closest('.menu-item-has-children');
+      if (!item || item === except) return;
+      item.classList.remove('is-submenu-open');
+      button.setAttribute('aria-expanded', 'false');
+    });
+  }
+  submenuToggles.forEach(function (button) {
+    button.addEventListener('click', function () {
+      const item = button.closest('.menu-item-has-children');
+      if (!item) return;
+      const open = !item.classList.contains('is-submenu-open');
+      closeSubmenus(item);
+      item.classList.toggle('is-submenu-open', open);
+      button.setAttribute('aria-expanded', open ? 'true' : 'false');
+    });
+  });
+  document.addEventListener('click', function (event) {
+    if (!event.target.closest('.cb-main-nav')) closeSubmenus();
+  });
+  document.addEventListener('keydown', function (event) {
+    if (event.key !== 'Escape') return;
+    const expanded = document.querySelector('.cb-main-nav .cb-submenu-toggle[aria-expanded="true"]');
+    closeSubmenus();
+    expanded?.focus();
+  });
+
   document.querySelectorAll('[data-cb-gallery]').forEach(function (gallery) {
     const track = gallery.querySelector('[data-cb-gallery-track]');
     const items = Array.from(gallery.querySelectorAll('.cb-showroom-item'));

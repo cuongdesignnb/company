@@ -290,6 +290,14 @@ function cb_transfer_import_menus(array $menu_data, array &$job, array &$snapsho
             update_term_meta($menu_id, '_cb_transfer_uuid', sanitize_text_field($menu['source_uuid'] ?? ''));
             $snapshot['created_terms'][] = ['term_id' => $menu_id, 'taxonomy' => 'nav_menu'];
         }
+        $incoming_item_uuids = [];
+        foreach ((array) ($menu['items'] ?? []) as $item) {
+            $source_uuid = sanitize_text_field($item['source_uuid'] ?? '');
+            if ($source_uuid) {
+                $incoming_item_uuids[$source_uuid] = true;
+            }
+        }
+        $previous_items = wp_get_nav_menu_items($menu_id, ['post_status' => 'any']);
         $item_map = [];
         $skipped_items = [];
         foreach ((array) ($menu['items'] ?? []) as $item) {
@@ -326,6 +334,16 @@ function cb_transfer_import_menus(array $menu_data, array &$job, array &$snapsho
             if (!empty($skipped_items[(string) absint($item['source_id'] ?? 0)])) continue;
             $parent_id = absint($item_map[(string) absint($item['parent_source_id'] ?? 0)] ?? 0);
             if ($item_id) update_post_meta($item_id, '_menu_item_menu_item_parent', (string) $parent_id);
+        }
+        if ($job['mode'] !== 'create_only') {
+            foreach ((array) $previous_items as $previous_item) {
+                $previous_uuid = sanitize_text_field(get_post_meta($previous_item->ID, '_cb_transfer_uuid', true));
+                if (!$previous_uuid || isset($incoming_item_uuids[$previous_uuid])) {
+                    continue;
+                }
+                cb_transfer_snapshot_post($snapshot, $previous_item->ID);
+                wp_update_post(['ID' => $previous_item->ID, 'post_status' => 'draft']);
+            }
         }
         $job['mapping']['menus'][$menu['source_uuid']] = $menu_id;
     }

@@ -229,7 +229,7 @@ function cb_transfer_export_menus(array $selection)
         $menu_uuid = cb_transfer_entity_uuid('term', $menu->term_id);
         $menu_id_to_uuid[$menu->term_id] = $menu_uuid;
         $items = [];
-        foreach ((array) wp_get_nav_menu_items($menu->term_id, ['post_status' => 'any']) as $item) {
+        foreach ((array) wp_get_nav_menu_items($menu->term_id, ['post_status' => 'publish']) as $item) {
             $object_uuid = '';
             if ($item->type === 'post_type' && $item->object_id) {
                 $object_uuid = cb_transfer_entity_uuid('post', $item->object_id);

@@ -1106,6 +1106,46 @@ function cb_demo_content_status()
     return ['installed' => get_option('cb_demo_content_installed') === '1', 'post_count' => count($posts), 'manifest' => (array) get_option('cb_demo_content_manifest', [])];
 }
 
+function cb_demo_menu_term_item($taxonomy, $language, $title, $fallback_url)
+{
+    $terms = get_terms([
+        'taxonomy' => $taxonomy,
+        'hide_empty' => false,
+        'name' => $title,
+        'number' => 5,
+    ]);
+    if (!is_wp_error($terms)) {
+        foreach ($terms as $term) {
+            $term_language = (string) get_term_meta($term->term_id, '_cb_language', true);
+            if ($term_language && $term_language !== $language) {
+                continue;
+            }
+            return [
+                'title' => $title,
+                'term_id' => absint($term->term_id),
+                'taxonomy' => $taxonomy,
+            ];
+        }
+    }
+    return ['title' => $title, 'url' => $fallback_url];
+}
+
+function cb_demo_menu_catalog_item($post_type, $seed_key, $language, $title, $fallback_url)
+{
+    $posts = get_posts([
+        'post_type' => $post_type,
+        'post_status' => 'publish',
+        'posts_per_page' => 1,
+        'fields' => 'ids',
+        'meta_key' => '_cb_catalog_seed_key',
+        'meta_value' => $seed_key . '-' . $language,
+    ]);
+    if ($posts) {
+        return ['title' => $title, 'object_id' => absint($posts[0])];
+    }
+    return ['title' => $title, 'url' => $fallback_url];
+}
+
 function cb_demo_menu_definitions()
 {
     $special = cb_get_group_options('cb_special_pages', ['en' => [], 'zh' => []]);
@@ -1114,11 +1154,35 @@ function cb_demo_menu_definitions()
         $is_zh = $language === 'zh';
         $about_id = absint($special[$language]['about'] ?? 0);
         $contact_id = absint($special[$language]['contact'] ?? 0);
+        $about_url = $about_id ? get_permalink($about_id) : home_url('/' . $language . '/about-us/');
+        $product_url = home_url('/' . $language . '/products/');
+        $factory_url = home_url('/' . $language . '/factory/');
+        $product_names = $is_zh
+            ? ['小型厨房电器', '咖啡机', '食物处理', '烹饪电器']
+            : ['Small Kitchen Appliances', 'Coffee Machines', 'Food Preparation', 'Cooking Appliances'];
+        $product_children = [];
+        foreach ($product_names as $product_name) {
+            $product_children[] = cb_demo_menu_term_item('product_category', $language, $product_name, $product_url);
+        }
+        $factory_children = [
+            ['title' => $is_zh ? '工厂概览' : 'Factory Overview', 'url' => $factory_url],
+            cb_demo_menu_catalog_item('factory_showcase', 'factory_showcase-assembly', $language, $is_zh ? '自动化装配线' : 'Automated Assembly Line', $factory_url),
+            cb_demo_menu_catalog_item('factory_showcase', 'factory_showcase-quality', $language, $is_zh ? '质量与可靠性实验室' : 'Quality & Reliability Laboratory', $factory_url),
+            cb_demo_menu_catalog_item('factory_showcase', 'factory_showcase-logistics', $language, $is_zh ? '仓储与全球交付' : 'Warehouse & Global Fulfillment', $factory_url),
+        ];
+        $about_children = [
+            ['title' => $is_zh ? '公司概况' : 'Company Overview', 'url' => $about_url . '#overview'],
+            ['title' => $is_zh ? '发展历程' : 'Milestones', 'url' => $about_url . '#milestones'],
+            ['title' => $is_zh ? '工厂与实验室' : 'Factory & Laboratory', 'url' => $about_url . '#factory'],
+            ['title' => $is_zh ? '资质证书' : 'Certificates', 'url' => home_url('/' . $language . '/certificates/')],
+            ['title' => $is_zh ? '质量与研发' : 'Quality & R&D', 'url' => $about_url . '#quality'],
+            ['title' => $is_zh ? '服务承诺' : 'Service Commitments', 'url' => $about_url . '#services'],
+        ];
         $primary = [
             ['title' => $is_zh ? '首页' : 'Home', 'url' => home_url('/' . $language . '/')],
-            ['title' => $is_zh ? '关于我们' : 'About Us', 'object_id' => $about_id],
-            ['title' => $is_zh ? '产品中心' : 'Products', 'url' => home_url('/' . $language . '/products/')],
-            ['title' => $is_zh ? '制造能力' : 'Manufacturing', 'url' => home_url('/' . $language . '/factory/')],
+            ['title' => $is_zh ? '关于我们' : 'About Us', 'object_id' => $about_id, 'children' => $about_children],
+            ['title' => $is_zh ? '产品中心' : 'Products', 'url' => $product_url, 'children' => $product_children],
+            ['title' => $is_zh ? '制造能力' : 'Manufacturing', 'url' => $factory_url, 'children' => $factory_children],
             ['title' => $is_zh ? '项目案例' : 'Case Studies', 'url' => home_url('/' . $language . '/cases/')],
             ['title' => $is_zh ? '资质证书' : 'Certificates', 'url' => home_url('/' . $language . '/certificates/')],
             ['title' => $is_zh ? '新闻资讯' : 'News', 'url' => home_url('/' . $language . '/news/')],
@@ -1137,30 +1201,46 @@ function cb_demo_menu_definitions()
     return $definitions;
 }
 
+function cb_seed_menu_item_tree($menu_id, $items, $parent_id, &$position, &$created)
+{
+    foreach ($items as $item) {
+        $args = [
+            'menu-item-title' => sanitize_text_field($item['title'] ?? ''),
+            'menu-item-status' => 'publish',
+            'menu-item-position' => ++$position,
+            'menu-item-parent-id' => absint($parent_id),
+        ];
+        $object_id = absint($item['object_id'] ?? 0);
+        $term_id = absint($item['term_id'] ?? 0);
+        $taxonomy = sanitize_key($item['taxonomy'] ?? '');
+        $post_type = $object_id ? get_post_type($object_id) : '';
+        if ($object_id && $post_type) {
+            $args += ['menu-item-type' => 'post_type', 'menu-item-object' => $post_type, 'menu-item-object-id' => $object_id];
+        } elseif ($term_id && $taxonomy && taxonomy_exists($taxonomy)) {
+            $args += ['menu-item-type' => 'taxonomy', 'menu-item-object' => $taxonomy, 'menu-item-object-id' => $term_id];
+        } else {
+            $args += ['menu-item-type' => 'custom', 'menu-item-url' => esc_url_raw($item['url'] ?? home_url('/'))];
+        }
+        $item_id = wp_update_nav_menu_item($menu_id, 0, $args);
+        if (!$item_id || is_wp_error($item_id)) {
+            continue;
+        }
+        update_post_meta($item_id, '_cb_is_demo_content', '1');
+        $created[] = absint($item_id);
+        if (!empty($item['children'])) {
+            cb_seed_menu_item_tree($menu_id, (array) $item['children'], $item_id, $position, $created);
+        }
+    }
+}
+
 function cb_seed_menu_items($menu_id, $items)
 {
     foreach ((array) wp_get_nav_menu_items($menu_id, ['post_status' => 'any']) as $item) {
         wp_delete_post($item->ID, true);
     }
     $created = [];
-    foreach ($items as $position => $item) {
-        $args = [
-            'menu-item-title' => sanitize_text_field($item['title'] ?? ''),
-            'menu-item-status' => 'publish',
-            'menu-item-position' => $position + 1,
-        ];
-        $object_id = absint($item['object_id'] ?? 0);
-        if ($object_id && get_post_type($object_id) === 'page') {
-            $args += ['menu-item-type' => 'post_type', 'menu-item-object' => 'page', 'menu-item-object-id' => $object_id];
-        } else {
-            $args += ['menu-item-type' => 'custom', 'menu-item-url' => esc_url_raw($item['url'] ?? home_url('/'))];
-        }
-        $item_id = wp_update_nav_menu_item($menu_id, 0, $args);
-        if ($item_id && !is_wp_error($item_id)) {
-            update_post_meta($item_id, '_cb_is_demo_content', '1');
-            $created[] = absint($item_id);
-        }
-    }
+    $position = 0;
+    cb_seed_menu_item_tree($menu_id, $items, 0, $position, $created);
     return $created;
 }
 
