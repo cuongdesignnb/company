@@ -27,10 +27,14 @@ function cb_render_content_pages_page()
     $roles = cb_content_page_roles();
     $role = sanitize_key(wp_unslash($_GET['content_role'] ?? 'home'));
     $language = sanitize_key(wp_unslash($_GET['language'] ?? 'en'));
+    $requested_post_id = absint($_GET['post_id'] ?? 0);
+    if ($requested_post_id && get_post_type($requested_post_id) === 'page') {
+        $role = 'other';
+    }
     $role = isset($roles[$role]) ? $role : 'home';
     $language = isset(cb_languages()[$language]) ? $language : 'en';
     $special = cb_get_group_options('cb_special_pages', ['en' => [], 'zh' => []]);
-    $post_id = $role === 'other' ? absint($_GET['post_id'] ?? 0) : absint($special[$language][$role] ?? 0);
+    $post_id = $role === 'other' ? $requested_post_id : absint($special[$language][$role] ?? 0);
     $post = $post_id ? get_post($post_id) : null;
 
     cb_admin_shell_start(__('Nội dung trang', 'cb-company-core'), 'cb-company-content');

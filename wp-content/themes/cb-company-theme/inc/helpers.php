@@ -260,23 +260,29 @@ function cb_render_page_sections($post_id = 0)
 {
     $post_id = $post_id ?: get_queried_object_id();
     $sections = function_exists('cb_get_page_sections') ? cb_get_page_sections($post_id) : [];
-    foreach ((array) $sections as $section) {
+    foreach ((array) $sections as $index => $section) {
         if (function_exists('cb_normalize_homepage_section')) {
             $section = cb_normalize_homepage_section($section);
         }
         if (($section['enable'] ?? '1') !== '1') {
             continue;
         }
-        cb_render_page_section($section, $post_id);
+        cb_render_page_section($section, $post_id, $index);
     }
 }
 
-function cb_render_page_section($section, $post_id = 0)
+function cb_render_page_section($section, $post_id = 0, $index = null)
 {
     $type = sanitize_key($section['type'] ?? '');
     $file = locate_template('template-parts/sections/' . str_replace('_', '-', $type) . '.php');
     if ($file) {
+        $GLOBALS['cb_current_section_context'] = [
+            'post_id' => absint($post_id),
+            'index' => is_numeric($index) ? (int) $index : null,
+            'type' => $type,
+        ];
         include $file;
+        unset($GLOBALS['cb_current_section_context']);
     }
 }
 
@@ -399,7 +405,16 @@ function cb_theme_section_attrs($section, $type, $extra_class = '')
     }
     $id = !empty($section['section_id']) ? ' id="' . esc_attr(sanitize_title($section['section_id'])) . '"' : '';
     $style = $styles ? ' style="' . esc_attr(implode(';', $styles)) . '"' : '';
-    return $id . ' class="' . esc_attr(implode(' ', array_filter($classes))) . '"' . $style;
+    $edit_attrs = '';
+    $context = $GLOBALS['cb_current_section_context'] ?? [];
+    $post_id = absint($context['post_id'] ?? get_queried_object_id());
+    $index = $context['index'] ?? null;
+    if (is_user_logged_in() && $post_id && is_numeric($index) && current_user_can('edit_post', $post_id)) {
+        $types = function_exists('cb_section_types') ? cb_section_types() : [];
+        $label = $section['admin_label'] ?: ($section['title'] ?: ($types[$type] ?? $type));
+        $edit_attrs = ' data-cb-editable-section="1" data-cb-post-id="' . esc_attr((string) $post_id) . '" data-cb-section-index="' . esc_attr((string) $index) . '" data-cb-section-type="' . esc_attr($type) . '" data-cb-section-label="' . esc_attr(wp_strip_all_tags($label)) . '"';
+    }
+    return $id . ' class="' . esc_attr(implode(' ', array_filter($classes))) . '"' . $style . $edit_attrs;
 }
 
 function cb_theme_button_classes($variant = 'primary')

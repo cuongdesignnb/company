@@ -148,7 +148,7 @@ function cb_admin_enqueue_assets($hook)
     $screen = function_exists('get_current_screen') ? get_current_screen() : null;
     $page = sanitize_key(wp_unslash($_GET['page'] ?? ''));
     $cb_pages = array_keys(cb_admin_menu_items());
-    $is_cb_page = in_array($page, $cb_pages, true);
+    $is_cb_page = in_array($page, $cb_pages, true) || $page === 'cb-company-editing-guide';
     $editable_types = ['page', 'post', 'product', 'factory_showcase', 'case_study', 'video', 'certificate', 'inquiry'];
     $is_edit_screen = $screen && $screen->base === 'post' && in_array($screen->post_type, $editable_types, true);
     if (!$is_cb_page && !$is_edit_screen) {

@@ -58,6 +58,45 @@
     }
   }
 
+  function enhanceSectionCards(context) {
+    $(context).find('.cb-section-card').each(function () {
+      const card = $(this);
+      const looseThumb = card.children('.cb-section-thumb').first();
+      if (looseThumb.length && !card.find('.cb-section-head > .cb-section-thumb').length) {
+        looseThumb.insertAfter(card.find('.cb-drag-handle').first());
+      }
+      const previewUrl = card.attr('data-preview-url');
+      if (previewUrl && !card.find('.cb-preview-section').length) {
+        card.find('.cb-section-actions').prepend('<a class="button cb-preview-section" href="' + previewUrl + '" target="_blank" rel="noopener"><span class="dashicons dashicons-visibility" aria-hidden="true"></span> Xem trên trang</a>');
+      }
+      const count = card.attr('data-item-count');
+      if (count && !card.find('.cb-item-count-summary').length) {
+        card.find('.cb-section-title small').append(' · <span class="cb-item-count-summary">' + count + ' mục</span>');
+      }
+    });
+  }
+
+  function openSectionFromUrl() {
+    const params = new URLSearchParams(window.location.search);
+    const section = params.get('section');
+    const tab = params.get('tab') || 'content';
+    if (section === null) return;
+    const card = $('.cb-section-card[data-section-index="' + section + '"]').first();
+    if (!card.length) return;
+    if (card.hasClass('is-collapsed')) {
+      card.find('.cb-collapse-section').first().trigger('click');
+    }
+    const tabButton = card.find('.cb-section-tab[data-tab="' + tab + '"]').first();
+    if (tabButton.length) {
+      tabButton.trigger('click');
+    }
+    card.addClass('cb-section-deep-link-target');
+    $('html, body').animate({ scrollTop: Math.max(0, card.offset().top - 96) }, 300);
+    window.setTimeout(function () {
+      card.removeClass('cb-section-deep-link-target');
+    }, 3000);
+  }
+
   function openMedia(field) {
     if (!window.wp || !wp.media) return;
     const frame = wp.media({
@@ -135,6 +174,13 @@
         $(this).attr('name', name.replace(/_cb_page_sections\[(?:\d+|__new__)\]/, '_cb_page_sections[' + index + ']'));
       });
       $(this).find('.cb-section-number').text(index + 1);
+      $(this).attr('data-section-index', index);
+      const previewUrl = $(this).attr('data-preview-url');
+      if (previewUrl) {
+        const updatedUrl = previewUrl.replace(/([?&]cb_focus_section=)[^&]*/, '$1' + index);
+        $(this).attr('data-preview-url', updatedUrl);
+        $(this).find('.cb-preview-section').attr('href', updatedUrl);
+      }
       $(this).find('.cb-repeater').each(function () {
         const currentBase = String($(this).attr('data-name-base') || '');
         $(this).attr('data-name-base', currentBase.replace(/_cb_page_sections\[(?:\d+|__new__)\]/, '_cb_page_sections[' + index + ']'));
@@ -264,6 +310,15 @@
     card.find('.cb-collapse-section').trigger('click');
   });
 
+  $(document).on('click', '.cb-add-section-preset', function () {
+    const type = $(this).data('section-type') || 'hero_slider';
+    $('.cb-add-section').first().trigger('click');
+    const card = $('.cb-sections-list > .cb-section-card').last();
+    card.find('.cb-section-type-select').val(type).trigger('change');
+    applySectionVisibility(card);
+    enhanceSectionCards(card);
+  });
+
   $(document).on('click', '.cb-initialize-builder', function () {
     $('.cb-add-section').first().trigger('click');
     $(this).closest('.cb-builder-empty').remove();
@@ -358,10 +413,12 @@
   $(function () {
     initColorPicker(document);
     initSortables(document);
+    enhanceSectionCards(document);
     $('.cb-section-card').each(function () { applySectionVisibility($(this)); });
     $('.cb-page-override').each(function () {
       $(this).toggleClass('has-override', $(this).find('.cb-override-switch input').is(':checked'));
     });
     auditDuplicateIds();
+    openSectionFromUrl();
   });
 })(jQuery);

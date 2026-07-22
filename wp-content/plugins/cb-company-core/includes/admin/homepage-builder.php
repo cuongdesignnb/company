@@ -23,6 +23,7 @@ function cb_render_page_builder_editor($post, $args = [])
     if ($args['show_sync_tools']) {
         cb_render_builder_sync_tools($post);
     }
+    cb_render_section_preset_library();
     echo '<div class="cb-builder-toolbar"><p>' . esc_html__('Kéo thả để sắp xếp. Mỗi khu vực được thu gọn để dễ quản lý.', 'cb-company-core') . '</p><button type="button" class="button button-primary cb-add-section"><span class="dashicons dashicons-plus-alt2" aria-hidden="true"></span> ' . esc_html__('Thêm khu vực', 'cb-company-core') . '</button></div>';
     if (!$sections) {
         echo '<div class="cb-builder-empty"><p>' . esc_html__('Trang này chưa có section.', 'cb-company-core') . '</p><button type="button" class="button cb-initialize-builder">' . esc_html__('Khởi tạo bố cục trang', 'cb-company-core') . '</button></div>';
@@ -51,6 +52,24 @@ function cb_render_builder_sync_tools($post)
     echo '<p><a class="button" href="' . esc_url($export_url) . '"><span class="dashicons dashicons-download" aria-hidden="true"></span> ' . esc_html__('Xuất JSON', 'cb-company-core') . '</a></p></div></details>';
 }
 
+function cb_render_section_preset_library()
+{
+    $presets = [
+        'hero_slider' => __('Hero', 'cb-company-core'),
+        'company_stats' => __('Stats', 'cb-company-core'),
+        'company_intro' => __('Intro', 'cb-company-core'),
+        'showroom_gallery' => __('Gallery', 'cb-company-core'),
+        'featured_products' => __('Products', 'cb-company-core'),
+        'news_section' => __('News', 'cb-company-core'),
+        'inquiry_cta' => __('CTA', 'cb-company-core'),
+    ];
+    echo '<details class="cb-section-presets"><summary>' . esc_html__('Thư viện section', 'cb-company-core') . '</summary><div class="cb-section-preset-grid">';
+    foreach ($presets as $type => $label) {
+        echo '<button type="button" class="button cb-add-section-preset" data-section-type="' . esc_attr($type) . '"><span class="dashicons dashicons-plus-alt2" aria-hidden="true"></span> ' . esc_html($label) . '</button>';
+    }
+    echo '</div></details>';
+}
+
 function cb_render_builder_section_card($index, $section, $post_id = 0)
 {
     $section = cb_normalize_homepage_section($section);
@@ -58,11 +77,15 @@ function cb_render_builder_section_card($index, $section, $post_id = 0)
     $type = $section['type'];
     $title = $section['admin_label'] ?: ($section['title'] ?: $types[$type]);
     $number = is_numeric($index) ? (int) $index + 1 : 1;
+    $thumbnail = function_exists('cb_rest_section_thumbnail') ? cb_rest_section_thumbnail($section) : '';
+    $item_count = function_exists('cb_rest_section_item_count') ? cb_rest_section_item_count($section) : count((array) ($section['items'] ?? []));
+    $preview_url = $post_id ? add_query_arg('cb_focus_section', is_numeric($index) ? (string) $index : '', get_permalink($post_id)) : '';
     $summary = $type === 'hero_slider'
         ? sprintf(_n('%d slide', '%d slide', count($section['slides']), 'cb-company-core'), count($section['slides']))
         : ($types[$type] ?? $type);
     $image_selected = $type === 'hero_slider' && !empty($section['slides'][0]['image_url']);
-    echo '<article class="cb-section-card is-collapsed" data-section-type="' . esc_attr($type) . '">';
+    echo '<article class="cb-section-card is-collapsed" data-section-type="' . esc_attr($type) . '" data-section-index="' . esc_attr((string) $index) . '" data-preview-url="' . esc_url($preview_url) . '" data-item-count="' . esc_attr((string) $item_count) . '">';
+    echo '<span class="cb-section-thumb">' . ($thumbnail ? '<img src="' . esc_url($thumbnail) . '" alt="">' : '<span class="dashicons dashicons-format-image" aria-hidden="true"></span>') . '</span>';
     echo '<div class="cb-section-head"><button type="button" class="cb-icon-button cb-drag-handle" aria-label="' . esc_attr__('Kéo để sắp xếp', 'cb-company-core') . '"><span class="dashicons dashicons-move" aria-hidden="true"></span></button>';
     echo '<span class="cb-section-title"><span class="cb-section-number">' . esc_html((string) $number) . '</span>. <span class="cb-section-title-text">' . esc_html($title) . '</span><small><span class="cb-section-summary">' . esc_html($summary) . '</span> · <span class="cb-enable-summary">' . (($section['enable'] ?? '1') === '1' ? esc_html__('Đang bật', 'cb-company-core') : esc_html__('Đang tắt', 'cb-company-core')) . '</span>';
     if ($type === 'hero_slider') {
