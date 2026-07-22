@@ -170,8 +170,9 @@ function cb_footer_contact_settings_schema()
     $schema = cb_footer_settings_schema();
     if (isset($schema['contact']['fields']) && is_array($schema['contact']['fields'])) {
         $schema['contact']['fields'][] = ['contact_whatsapp', 'text', __('WhatsApp', 'cb-company-core')];
+        $schema['contact']['fields'][] = ['contact_whatsapp_qr', 'image', __('Ảnh QR WhatsApp', 'cb-company-core'), __('Dùng trên thanh liên hệ và trang Contact. Có thể ghi đè trong section Thông tin liên hệ.', 'cb-company-core')];
         $schema['contact']['fields'][] = ['contact_wechat_id', 'text', __('WeChat ID', 'cb-company-core')];
-        $schema['contact']['fields'][] = ['contact_wechat_qr', 'image', __('Ảnh QR WeChat', 'cb-company-core'), __('Chọn từ Media Library hoặc nhập đường dẫn ảnh.', 'cb-company-core')];
+        $schema['contact']['fields'][] = ['contact_wechat_qr', 'image', __('Ảnh QR WeChat', 'cb-company-core'), __('Dùng trên thanh liên hệ và trang Contact. Có thể ghi đè trong section Thông tin liên hệ.', 'cb-company-core')];
     }
     return $schema;
 }

@@ -2626,7 +2626,8 @@ p {
 }
 
 .cb-contact-rail a:hover .cb-contact-popover,
-.cb-contact-rail a:focus-visible .cb-contact-popover {
+.cb-contact-rail a:focus-visible .cb-contact-popover,
+.cb-contact-rail a.is-open .cb-contact-popover {
     opacity: 1;
     transform: translate(0, -50%);
 }
@@ -2651,6 +2652,55 @@ p {
 .cb-contact-popover-qr strong,
 .cb-contact-popover-qr small {
     display: block;
+}
+
+.cb-contact-qr-block {
+    margin-top: 36px;
+    padding-top: 28px;
+    border-top: 1px solid var(--cb-border, #e5e8ec);
+}
+
+.cb-contact-qr-block > h3 {
+    margin: 0 0 18px;
+    font-size: 20px;
+}
+
+.cb-contact-qr-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 220px));
+    gap: 18px;
+}
+
+.cb-contact-qr-item {
+    display: grid;
+    grid-template-columns: 112px minmax(0, 1fr);
+    gap: 14px;
+    align-items: center;
+    margin: 0;
+    padding: 14px;
+    background: #fff;
+    border: 1px solid var(--cb-border, #e5e8ec);
+    border-radius: 8px;
+}
+
+.cb-contact-qr-item img {
+    display: block;
+    width: 112px;
+    height: 112px;
+    object-fit: contain;
+}
+
+.cb-contact-qr-item figcaption,
+.cb-contact-qr-item strong,
+.cb-contact-qr-item span {
+    display: block;
+}
+
+.cb-contact-qr-item span {
+    margin-top: 5px;
+    color: var(--cb-muted, #6f7782);
+    font-size: 12px;
+    overflow-wrap: anywhere;
 }
 
 .cb-contact-popover-qr small {
@@ -3057,6 +3107,45 @@ p {
 
     .cb-contact-popover {
         display: none;
+    }
+
+    .cb-contact-rail [data-cb-contact-qr] .cb-contact-popover {
+        top: auto;
+        right: 50%;
+        bottom: calc(100% + 12px);
+        display: grid;
+        opacity: 0;
+        pointer-events: none;
+        transform: translate(50%, 8px);
+    }
+
+    .cb-contact-rail [data-cb-contact-qr] .cb-contact-popover::after {
+        top: auto;
+        right: calc(50% - 5px);
+        bottom: -6px;
+        border: 0;
+        border-right: 1px solid #d9dee5;
+        border-bottom: 1px solid #d9dee5;
+        transform: rotate(45deg);
+    }
+
+    .cb-contact-rail [data-cb-contact-qr].is-open .cb-contact-popover {
+        opacity: 1;
+        pointer-events: auto;
+        transform: translate(50%, 0);
+    }
+
+    .cb-contact-qr-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .cb-contact-qr-item {
+        grid-template-columns: 96px minmax(0, 1fr);
+    }
+
+    .cb-contact-qr-item img {
+        width: 96px;
+        height: 96px;
     }
 
     .cb-site-footer {

@@ -66,6 +66,34 @@
     });
   });
 
+  const contactQrLinks = Array.from(document.querySelectorAll('[data-cb-contact-qr]'));
+  const contactQrMobile = window.matchMedia('(max-width: 768px)');
+  function closeContactQr(except) {
+    contactQrLinks.forEach(function (link) {
+      if (link === except) return;
+      link.classList.remove('is-open');
+      link.setAttribute('aria-expanded', 'false');
+    });
+  }
+  contactQrLinks.forEach(function (link) {
+    link.addEventListener('click', function (event) {
+      if (!contactQrMobile.matches) return;
+      if (!link.classList.contains('is-open')) {
+        event.preventDefault();
+        closeContactQr(link);
+        link.classList.add('is-open');
+        link.setAttribute('aria-expanded', 'true');
+      }
+    });
+  });
+  document.addEventListener('click', function (event) {
+    if (!event.target.closest('[data-cb-contact-qr]')) closeContactQr();
+  });
+  document.addEventListener('keydown', function (event) {
+    if (event.key === 'Escape') closeContactQr();
+  });
+  contactQrMobile.addEventListener?.('change', function () { closeContactQr(); });
+
   document.querySelectorAll('[data-cb-product-gallery]').forEach(function (gallery) {
     const main = gallery.querySelector('.cb-product-main-image');
     gallery.querySelectorAll('[data-cb-product-thumb]').forEach(function (button) {

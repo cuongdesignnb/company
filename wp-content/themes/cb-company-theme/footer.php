@@ -61,15 +61,20 @@ $footer_style = $footer_image ? '--cb-footer-image:url(' . esc_url($footer_image
     <?php
     $whatsapp_number = cb_theme_option('contact_whatsapp') ?: cb_theme_option('contact_phone');
     $whatsapp_digits = preg_replace('/[^\d]/', '', $whatsapp_number);
+    $whatsapp_qr = cb_theme_option('contact_whatsapp_qr');
     $wechat_id = cb_theme_option('contact_wechat_id', 'wechat') ?: 'wechat';
     $wechat_qr = cb_theme_option('contact_wechat_qr');
     ?>
     <nav class="cb-contact-rail" aria-label="<?php echo esc_attr(cb_theme_t('contact_us')); ?>">
         <?php if ($whatsapp_number && $whatsapp_digits) : ?>
-            <a href="<?php echo esc_url('https://wa.me/' . $whatsapp_digits); ?>" target="_blank" rel="noopener" aria-label="<?php echo esc_attr('WhatsApp ' . $whatsapp_number); ?>">
+            <a href="<?php echo esc_url('https://wa.me/' . $whatsapp_digits); ?>" target="_blank" rel="noopener" aria-label="<?php echo esc_attr('WhatsApp ' . $whatsapp_number); ?>"<?php if ($whatsapp_qr) : ?> data-cb-contact-qr aria-haspopup="true" aria-expanded="false" aria-controls="cb-whatsapp-qr"<?php endif; ?>>
                 <svg aria-hidden="true" viewBox="0 0 24 24"><path d="M6.3 19.1 3.7 20l.9-2.5a8 8 0 1 1 1.7 1.6Z" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/><path d="M8.8 8.5c.2-.5.4-.5.7-.5h.5c.2 0 .4 0 .5.4l.6 1.4c.1.3.1.5-.1.7l-.4.5c-.1.1-.2.3-.1.5.4.8 1.1 1.6 2.1 2 .2.1.4.1.5-.1l.6-.7c.2-.2.4-.2.7-.1l1.5.7c.3.1.4.3.4.5 0 .6-.5 1.4-1.1 1.6-.6.3-2 .1-3.6-.8-1.9-1-3.2-2.7-3.6-3.8-.5-1.2 0-2 .3-2.3Z" fill="currentColor"/></svg>
                 <span>WhatsApp</span>
-                <em class="cb-contact-popover" role="tooltip"><?php echo esc_html($whatsapp_number); ?></em>
+                <em class="cb-contact-popover<?php echo $whatsapp_qr ? ' cb-contact-popover-qr' : ''; ?>" id="cb-whatsapp-qr" role="tooltip">
+                    <?php if ($whatsapp_qr) : ?><img src="<?php echo esc_url($whatsapp_qr); ?>" alt="<?php echo esc_attr('WhatsApp QR ' . $whatsapp_number); ?>"><?php endif; ?>
+                    <?php if ($whatsapp_qr) : ?><strong>WhatsApp</strong><?php endif; ?>
+                    <small><?php echo esc_html($whatsapp_number); ?></small>
+                </em>
             </a>
         <?php endif; ?>
         <?php if (cb_theme_option('contact_email')) : ?>
@@ -79,10 +84,10 @@ $footer_style = $footer_image ? '--cb-footer-image:url(' . esc_url($footer_image
                 <em class="cb-contact-popover" role="tooltip"><?php echo esc_html(cb_theme_option('contact_email')); ?></em>
             </a>
         <?php endif; ?>
-        <a class="is-primary" href="weixin://" aria-label="<?php echo esc_attr('WeChat ' . $wechat_id); ?>">
+        <a class="is-primary" href="weixin://" aria-label="<?php echo esc_attr('WeChat ' . $wechat_id); ?>"<?php if ($wechat_qr) : ?> data-cb-contact-qr aria-haspopup="true" aria-expanded="false" aria-controls="cb-wechat-qr"<?php endif; ?>>
             <svg aria-hidden="true" viewBox="0 0 24 24"><path d="M9.8 5.2C5.9 5.2 3 7.6 3 10.6c0 1.8 1 3.3 2.6 4.3l-.5 1.8 2.1-1a8.8 8.8 0 0 0 2.6.4c3.8 0 6.8-2.4 6.8-5.5s-3-5.4-6.8-5.4Z" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/><path d="M14.2 10.8c3.1.3 5.4 2.2 5.4 4.6 0 1.5-.9 2.8-2.2 3.6l.4 1.4-1.7-.8a7.4 7.4 0 0 1-2.1.3c-2.4 0-4.4-1.1-5.2-2.8" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/><circle cx="7.5" cy="9.9" r=".7" fill="currentColor"/><circle cx="12" cy="9.9" r=".7" fill="currentColor"/></svg>
             <span>WeChat</span>
-            <em class="cb-contact-popover cb-contact-popover-qr" role="tooltip">
+            <em class="cb-contact-popover cb-contact-popover-qr" id="cb-wechat-qr" role="tooltip">
                 <?php if ($wechat_qr) : ?><img src="<?php echo esc_url($wechat_qr); ?>" alt="<?php echo esc_attr('WeChat QR ' . $wechat_id); ?>"><?php endif; ?>
                 <strong>WeChat ID</strong>
                 <small><?php echo esc_html($wechat_id); ?></small>

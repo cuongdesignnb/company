@@ -294,7 +294,7 @@ function cb_rest_quick_section_schema($section)
 
 function cb_rest_quick_section_keys()
 {
-    return ['eyebrow', 'title', 'subtitle', 'description', 'button_text', 'button_url', 'image', 'secondary_image', 'tertiary_image', 'background_image', 'layout_style', 'background_color', 'text_color'];
+    return ['eyebrow', 'title', 'subtitle', 'description', 'button_text', 'button_url', 'image', 'secondary_image', 'tertiary_image', 'whatsapp_qr', 'wechat_qr', 'background_image', 'layout_style', 'background_color', 'text_color'];
 }
 
 function cb_rest_quick_item_schema($type)
@@ -345,7 +345,7 @@ function cb_rest_merge_quick_section($current, $payload)
     }
     foreach (cb_rest_quick_section_keys() as $key) {
         if (array_key_exists($key, $payload)) {
-            if (in_array($key, ['image', 'secondary_image', 'tertiary_image', 'background_image'], true)) {
+            if (in_array($key, ['image', 'secondary_image', 'tertiary_image', 'whatsapp_qr', 'wechat_qr', 'background_image'], true)) {
                 $current[$key . '_id'] = absint($payload[$key . '_id'] ?? $current[$key . '_id'] ?? 0);
                 $current[$key . '_url'] = esc_url_raw($payload[$key . '_url'] ?? $current[$key . '_url'] ?? '');
             } else {

@@ -54,7 +54,7 @@ function cb_default_footer_settings()
         'footer_text_color' => '#cfd3dc', 'footer_heading_color' => '#ffffff',
         'show_footer_logo' => '0', 'show_footer_products' => '0', 'show_footer_links' => '0',
         'show_footer_contact' => '0', 'show_footer_social' => '0', 'show_footer_subscribe' => '0',
-        'contact_phone' => '', 'contact_whatsapp' => '', 'contact_email' => '', 'contact_wechat_id' => 'wechat',
+        'contact_phone' => '', 'contact_whatsapp' => '', 'contact_whatsapp_qr_id' => '', 'contact_whatsapp_qr' => '', 'contact_email' => '', 'contact_wechat_id' => 'wechat',
         'contact_wechat_qr_id' => '', 'contact_wechat_qr' => '', 'company_address' => '',
         'footer_description' => '', 'copyright_text' => '', 'social_links' => [],
         'floating_contact' => '0',
@@ -211,7 +211,7 @@ function cb_sanitize_settings_group($input, $defaults)
             $clean[$key] = cb_sanitize_repeater_items($value);
         } elseif (str_ends_with($key, '_id')) {
             $clean[$key] = (string) absint($value);
-        } elseif (str_contains($key, 'url') || in_array($key, ['footer_background_image', 'contact_wechat_qr', 'default_og_image'], true)) {
+        } elseif (str_contains($key, 'url') || in_array($key, ['footer_background_image', 'contact_whatsapp_qr', 'contact_wechat_qr', 'default_og_image'], true)) {
             $clean[$key] = esc_url_raw($value);
         } elseif (str_contains($key, 'color')) {
             $clean[$key] = sanitize_hex_color($value) ?: '';
