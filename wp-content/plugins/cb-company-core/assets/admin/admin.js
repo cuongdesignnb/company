@@ -106,8 +106,8 @@
     });
     frame.on('select', function () {
       const image = frame.state().get('selection').first().toJSON();
-      field.find('> .cb-image-id').val(image.id);
-      field.find('> .cb-image-url').val(image.url);
+      field.find('.cb-image-id').first().val(image.id);
+      field.find('.cb-image-url').first().val(image.url).trigger('change');
       field.find('> .cb-image-preview').html($('<img>', { src: image.url, alt: '' }));
       markDirty();
     });
@@ -251,8 +251,27 @@
 
   $(document).on('click', '.cb-remove-image', function () {
     const field = $(this).closest('.cb-image-field');
-    field.find('> .cb-image-id, > .cb-image-url').val('');
+    field.find('.cb-image-id, .cb-image-url').val('');
     field.find('> .cb-image-preview').empty();
+    markDirty();
+  });
+
+  $(document).on('input change', '.cb-image-url', function (event) {
+    const input = $(this);
+    const field = input.closest('.cb-image-field');
+    const url = $.trim(input.val());
+    if (event.type === 'input') {
+      field.find('.cb-image-id').first().val('');
+    }
+    const preview = field.find('> .cb-image-preview').empty();
+    preview.append(url
+      ? $('<img>', { src: url, alt: '' })
+      : $('<span>').text(i18n.imageMissing || 'Chưa chọn ảnh'));
+    markDirty();
+  });
+
+  $(document).on('input', '.cb-file-url', function () {
+    $(this).closest('.cb-admin-file-field').find('.cb-file-id').val('');
     markDirty();
   });
 

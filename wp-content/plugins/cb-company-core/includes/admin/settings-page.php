@@ -144,7 +144,7 @@ function cb_footer_settings_schema()
         'layout' => ['label' => __('Bố cục', 'cb-company-core'), 'fields' => [
             ['footer_layout', 'select', __('Bố cục footer', 'cb-company-core'), '', ['four_columns' => __('Bốn cột', 'cb-company-core'), 'three_columns' => __('Ba cột', 'cb-company-core'), 'centered' => __('Căn giữa', 'cb-company-core'), 'minimal' => __('Tối giản', 'cb-company-core')]],
             ['footer_bg_color', 'color', __('Màu nền', 'cb-company-core')], ['footer_text_color', 'color', __('Màu nội dung', 'cb-company-core')],
-            ['footer_background_image', 'text', __('URL ảnh nền footer', 'cb-company-core')],
+            ['footer_background_image', 'image', __('Ảnh nền footer', 'cb-company-core'), __('Chọn từ Media Library hoặc nhập đường dẫn ảnh.', 'cb-company-core')],
             ['footer_heading_color', 'color', __('Màu tiêu đề', 'cb-company-core')], ['footer_description', 'textarea', __('Mô tả footer', 'cb-company-core')],
             ['copyright_text', 'text', __('Bản quyền', 'cb-company-core')],
         ]],
@@ -171,7 +171,7 @@ function cb_footer_contact_settings_schema()
     if (isset($schema['contact']['fields']) && is_array($schema['contact']['fields'])) {
         $schema['contact']['fields'][] = ['contact_whatsapp', 'text', __('WhatsApp', 'cb-company-core')];
         $schema['contact']['fields'][] = ['contact_wechat_id', 'text', __('WeChat ID', 'cb-company-core')];
-        $schema['contact']['fields'][] = ['contact_wechat_qr', 'text', __('URL QR WeChat', 'cb-company-core')];
+        $schema['contact']['fields'][] = ['contact_wechat_qr', 'image', __('Ảnh QR WeChat', 'cb-company-core'), __('Chọn từ Media Library hoặc nhập đường dẫn ảnh.', 'cb-company-core')];
     }
     return $schema;
 }
@@ -207,7 +207,7 @@ function cb_sanitize_string_translations($input)
 }
 
 function cb_default_form_settings() { return ['admin_email' => get_option('admin_email'), 'sender_name' => get_bloginfo('name'), 'subject_en' => 'New website inquiry', 'subject_zh' => '新的产品询价', 'auto_reply' => '1']; }
-function cb_default_seo_settings() { return ['title_suffix' => get_bloginfo('name'), 'default_description' => '', 'default_og_image' => '', 'enable_schema' => '1']; }
+function cb_default_seo_settings() { return ['title_suffix' => get_bloginfo('name'), 'default_description' => '', 'default_og_image_id' => '', 'default_og_image' => '', 'enable_schema' => '1']; }
 function cb_default_performance_settings() { return ['lazy_images' => '1', 'disable_emojis' => '1', 'preload_logo' => '1', 'revision_limit' => '10']; }
 function cb_sanitize_form_settings($input) { return cb_sanitize_settings_group($input, cb_default_form_settings()); }
 function cb_sanitize_seo_settings($input) { return cb_sanitize_settings_group($input, cb_default_seo_settings()); }
@@ -272,6 +272,10 @@ function cb_render_settings_field($option, $field, $values, $defaults, $id_prefi
     $extra = $field[4] ?? [];
     if ($type === 'image_pair') {
         cb_admin_image_field(['id' => $id_prefix . '-' . $key, 'label' => $label, 'description' => $description, 'name_base' => $option, 'id_key' => $key . '_id', 'url_key' => $key . '_url', 'id_value' => $values[$key . '_id'] ?? 0, 'url_value' => $values[$key . '_url'] ?? '']);
+        return;
+    }
+    if ($type === 'image') {
+        cb_admin_image_field(['id' => $id_prefix . '-' . $key, 'label' => $label, 'description' => $description, 'name_base' => $option, 'id_key' => $key . '_id', 'url_key' => $key, 'id_value' => $values[$key . '_id'] ?? 0, 'url_value' => $values[$key] ?? '']);
         return;
     }
     $args = ['id' => $id_prefix . '-' . $key, 'name' => $option . '[' . $key . ']', 'label' => $label, 'description' => $description, 'value' => $values[$key] ?? '', 'default' => $defaults[$key] ?? '', 'choices' => $type === 'select' ? $extra : []];
@@ -550,7 +554,7 @@ function cb_render_simple_settings_page($title, $slug, $option, $group, $default
     cb_render_settings_page($title, $slug, $option, $group, ['settings' => ['label' => __('Cài đặt', 'cb-company-core'), 'fields' => $fields]], $defaults);
 }
 function cb_render_form_settings_page() { cb_render_simple_settings_page(__('Biểu mẫu và email', 'cb-company-core'), 'cb-company-forms', 'cb_form_settings', 'cb_form_settings_group', cb_default_form_settings(), [['admin_email', 'text', __('Email nhận yêu cầu', 'cb-company-core')], ['sender_name', 'text', __('Tên người gửi', 'cb-company-core')], ['subject_en', 'text', __('Tiêu đề email English', 'cb-company-core')], ['subject_zh', 'text', __('Tiêu đề email 中文', 'cb-company-core')], ['auto_reply', 'checkbox', __('Gửi email phản hồi tự động', 'cb-company-core')]]); }
-function cb_render_seo_settings_page() { cb_render_simple_settings_page(__('SEO', 'cb-company-core'), 'cb-company-seo', 'cb_seo_settings', 'cb_seo_settings_group', cb_default_seo_settings(), [['title_suffix', 'text', __('Hậu tố tiêu đề', 'cb-company-core')], ['default_description', 'textarea', __('Mô tả mặc định', 'cb-company-core')], ['default_og_image', 'text', __('Open Graph image mặc định', 'cb-company-core')], ['enable_schema', 'checkbox', __('Bật schema', 'cb-company-core')]]); }
+function cb_render_seo_settings_page() { cb_render_simple_settings_page(__('SEO', 'cb-company-core'), 'cb-company-seo', 'cb_seo_settings', 'cb_seo_settings_group', cb_default_seo_settings(), [['title_suffix', 'text', __('Hậu tố tiêu đề', 'cb-company-core')], ['default_description', 'textarea', __('Mô tả mặc định', 'cb-company-core')], ['default_og_image', 'image', __('Open Graph image mặc định', 'cb-company-core'), __('Chọn từ Media Library hoặc nhập đường dẫn ảnh.', 'cb-company-core')], ['enable_schema', 'checkbox', __('Bật schema', 'cb-company-core')]]); }
 function cb_render_performance_settings_page() { cb_render_simple_settings_page(__('Hiệu năng', 'cb-company-core'), 'cb-company-performance', 'cb_performance_settings', 'cb_performance_settings_group', cb_default_performance_settings(), [['lazy_images', 'checkbox', __('Lazy load hình ảnh', 'cb-company-core')], ['disable_emojis', 'checkbox', __('Tắt tài nguyên emoji WordPress', 'cb-company-core')], ['preload_logo', 'checkbox', __('Preload logo', 'cb-company-core')], ['revision_limit', 'number', __('Số revision tối đa', 'cb-company-core')]]); }
 
 function cb_render_tools_page()
@@ -601,6 +605,8 @@ function cb_handle_reset_settings()
             $key = $field[0];
             if ($field[1] === 'image_pair') {
                 $current[$key . '_id'] = $defaults[$key . '_id'] ?? 0; $current[$key . '_url'] = $defaults[$key . '_url'] ?? '';
+            } elseif ($field[1] === 'image') {
+                $current[$key . '_id'] = $defaults[$key . '_id'] ?? 0; $current[$key] = $defaults[$key] ?? '';
             } else $current[$key] = $defaults[$key] ?? '';
         }
         update_option($option, $current);

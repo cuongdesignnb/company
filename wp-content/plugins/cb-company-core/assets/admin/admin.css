@@ -344,6 +344,32 @@
     max-width: 620px;
 }
 
+.cb-admin-file-control {
+    min-width: 0;
+}
+
+.cb-media-url-label {
+    display: grid;
+    flex: 1 1 320px;
+    gap: 5px;
+    min-width: min(100%, 260px);
+    color: #50575e;
+    font-size: 12px;
+    font-weight: 600;
+}
+
+.cb-media-url-label .cb-image-url,
+.cb-media-url-label .cb-file-url {
+    width: 100%;
+    max-width: 620px;
+}
+
+.cb-current-file {
+    display: inline-block;
+    margin-top: 8px;
+    overflow-wrap: anywhere;
+}
+
 .cb-media-actions {
     display: flex;
     gap: 10px;
@@ -431,6 +457,11 @@
     align-items: center;
     gap: 10px;
     flex-wrap: wrap;
+}
+
+.cb-image-field > .cb-media-actions {
+    flex: 1 0 100%;
+    margin: 0;
 }
 
 .cb-image-preview {

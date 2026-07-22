@@ -103,10 +103,11 @@ function cb_admin_image_field($args)
     $preview = $url_value ? '<img src="' . esc_url($url_value) . '" alt="">' : '';
     $control = '<div class="cb-image-field" data-frame-title="' . esc_attr($args['frame_title'] ?? __('Chọn hình ảnh', 'cb-company-core')) . '">';
     $control .= '<div class="cb-image-preview">' . $preview . '</div>';
-    $control .= '<input type="hidden" class="cb-image-id" id="' . esc_attr($args['id']) . '" name="' . esc_attr($args['name_base'] . '[' . $args['id_key'] . ']') . '" value="' . esc_attr((string) $id_value) . '">';
-    $control .= '<input type="hidden" class="cb-image-url" name="' . esc_attr($args['name_base'] . '[' . $args['url_key'] . ']') . '" value="' . esc_attr($url_value) . '">';
-    $control .= '<button type="button" class="button cb-pick-image"><span class="dashicons dashicons-format-image" aria-hidden="true"></span> ' . esc_html__('Chọn ảnh', 'cb-company-core') . '</button>';
-    $control .= '<button type="button" class="button-link-delete cb-remove-image">' . esc_html__('Xóa ảnh', 'cb-company-core') . '</button></div>';
+    $control .= '<input type="hidden" class="cb-image-id" name="' . esc_attr($args['name_base'] . '[' . $args['id_key'] . ']') . '" value="' . esc_attr((string) $id_value) . '">';
+    $control .= '<label class="cb-media-url-label" for="' . esc_attr($args['id']) . '"><span>' . esc_html__('Hoặc nhập đường dẫn ảnh', 'cb-company-core') . '</span>';
+    $control .= '<input type="url" inputmode="url" class="regular-text cb-image-url" id="' . esc_attr($args['id']) . '" name="' . esc_attr($args['name_base'] . '[' . $args['url_key'] . ']') . '" value="' . esc_attr($url_value) . '" placeholder="https://example.com/image.webp"></label>';
+    $control .= '<div class="cb-media-actions"><button type="button" class="button cb-pick-image"><span class="dashicons dashicons-format-image" aria-hidden="true"></span> ' . esc_html__('Chọn hoặc tải ảnh', 'cb-company-core') . '</button>';
+    $control .= '<button type="button" class="button-link-delete cb-remove-image">' . esc_html__('Xóa ảnh', 'cb-company-core') . '</button></div></div>';
     cb_admin_field_wrap($args + ['type' => 'image'], $control);
 }
 
@@ -140,7 +141,7 @@ function cb_render_repeater_row($name, $index, $item)
     echo '<label class="cb-wide">' . esc_html__('Mô tả', 'cb-company-core') . '<textarea rows="3" name="' . esc_attr($base . '[description]') . '">' . esc_textarea($item['description']) . '</textarea></label>';
     echo '<label>' . esc_html__('Liên kết', 'cb-company-core') . '<input type="url" name="' . esc_attr($base . '[url]') . '" value="' . esc_attr($item['url']) . '"></label>';
     $preview = $item['image_url'] ? '<img src="' . esc_url($item['image_url']) . '" alt="">' : '';
-    echo '<div class="cb-image-field cb-repeater-image" data-frame-title="' . esc_attr__('Chọn hình ảnh', 'cb-company-core') . '"><span class="cb-repeater-field-label">' . esc_html__('Hình ảnh', 'cb-company-core') . '</span><div class="cb-image-preview">' . $preview . '</div><input class="cb-image-id" type="hidden" name="' . esc_attr($base . '[image_id]') . '" value="' . esc_attr((string) absint($item['image_id'])) . '"><input class="cb-image-url" type="hidden" name="' . esc_attr($base . '[image_url]') . '" value="' . esc_attr($item['image_url']) . '"><button type="button" class="button cb-pick-image">' . esc_html__('Chọn ảnh', 'cb-company-core') . '</button><button type="button" class="button-link-delete cb-remove-image">' . esc_html__('Xóa ảnh', 'cb-company-core') . '</button></div></div></div>';
+    echo '<div class="cb-image-field cb-repeater-image" data-frame-title="' . esc_attr__('Chọn hình ảnh', 'cb-company-core') . '"><span class="cb-repeater-field-label">' . esc_html__('Hình ảnh', 'cb-company-core') . '</span><div class="cb-image-preview">' . $preview . '</div><input class="cb-image-id" type="hidden" name="' . esc_attr($base . '[image_id]') . '" value="' . esc_attr((string) absint($item['image_id'])) . '"><label class="cb-media-url-label"><span>' . esc_html__('Hoặc nhập đường dẫn ảnh', 'cb-company-core') . '</span><input class="cb-image-url" type="url" inputmode="url" name="' . esc_attr($base . '[image_url]') . '" value="' . esc_attr($item['image_url']) . '" placeholder="https://example.com/image.webp"></label><div class="cb-media-actions"><button type="button" class="button cb-pick-image">' . esc_html__('Chọn hoặc tải ảnh', 'cb-company-core') . '</button><button type="button" class="button-link-delete cb-remove-image">' . esc_html__('Xóa ảnh', 'cb-company-core') . '</button></div></div></div></div>';
 }
 
 function cb_admin_enqueue_assets($hook)
@@ -164,7 +165,8 @@ function cb_admin_enqueue_assets($hook)
         wp_enqueue_style('wp-color-picker');
         wp_enqueue_script('wp-color-picker');
     }
-    if (in_array($page, ['cb-company-design', 'cb-company-footer'], true)) {
+    if (in_array($page, ['cb-company-design', 'cb-company-footer', 'cb-company-seo'], true)) {
+        wp_enqueue_media();
         wp_enqueue_script('cb-company-admin-media', CB_CORE_URL . 'assets/admin/media.js', [], CB_CORE_VERSION, true);
     }
     if ($page === 'cb-company-footer') {

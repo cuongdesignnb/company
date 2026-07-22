@@ -39,7 +39,10 @@ function cb_content_meta_schemas()
                 '_cb_specs' => [__('Bảng thông số', 'cb-company-core'), 'repeater'],
             ]],
             'gallery' => [__('Thư viện', 'cb-company-core'), ['_cb_gallery' => [__('Hình ảnh sản phẩm', 'cb-company-core'), 'repeater']]],
-            'documents' => [__('Tài liệu và video', 'cb-company-core'), ['_cb_catalog_url' => [__('Catalog PDF URL', 'cb-company-core'), 'url'], '_cb_video_url' => [__('Video URL', 'cb-company-core'), 'url']]],
+            'documents' => [__('Tài liệu và video', 'cb-company-core'), [
+                '_cb_catalog_url' => [__('Catalog PDF', 'cb-company-core'), 'file', ['media_type' => 'application/pdf', 'button_label' => __('Chọn hoặc tải PDF', 'cb-company-core')]],
+                '_cb_video_url' => [__('Video', 'cb-company-core'), 'file', ['media_type' => 'video', 'button_label' => __('Chọn hoặc tải video', 'cb-company-core'), 'placeholder' => 'https://youtube.com/...']],
+            ]],
             'inquiry' => [__('Inquiry', 'cb-company-core'), ['_cb_inquiry_enabled' => [__('Hiện form gửi yêu cầu', 'cb-company-core'), 'checkbox']]],
             'language' => [__('Ngôn ngữ', 'cb-company-core'), $language],
             'seo' => [__('SEO', 'cb-company-core'), $seo],
@@ -56,7 +59,10 @@ function cb_content_meta_schemas()
         ],
         'factory_showcase' => [
             'general' => [__('Thông tin chung', 'cb-company-core'), ['_cb_short_description' => [__('Mô tả ngắn', 'cb-company-core'), 'textarea'], '_cb_featured' => [__('Nội dung nổi bật', 'cb-company-core'), 'checkbox'], '_cb_display_order' => [__('Thứ tự hiển thị', 'cb-company-core'), 'number']]],
-            'media' => [__('Hình ảnh và video', 'cb-company-core'), ['_cb_gallery' => [__('Thư viện hình ảnh', 'cb-company-core'), 'repeater'], '_cb_video_url' => [__('Video URL', 'cb-company-core'), 'url']]],
+            'media' => [__('Hình ảnh và video', 'cb-company-core'), [
+                '_cb_gallery' => [__('Thư viện hình ảnh', 'cb-company-core'), 'repeater'],
+                '_cb_video_url' => [__('Video', 'cb-company-core'), 'file', ['media_type' => 'video', 'button_label' => __('Chọn hoặc tải video', 'cb-company-core'), 'placeholder' => 'https://youtube.com/...']],
+            ]],
             'category' => [__('Danh mục', 'cb-company-core'), ['_cb_factory_category_note' => [__('Ghi chú danh mục', 'cb-company-core'), 'text']]],
             'language' => [__('Ngôn ngữ', 'cb-company-core'), $language],
             'seo' => [__('SEO', 'cb-company-core'), $seo],
@@ -69,7 +75,7 @@ function cb_content_meta_schemas()
                 '_cb_display_order' => [__('Thứ tự hiển thị', 'cb-company-core'), 'number'],
             ]],
             'media' => [__('Hình ảnh và video', 'cb-company-core'), [
-                '_cb_video_url' => [__('Video URL hoặc tệp MP4/WebM', 'cb-company-core'), 'url'],
+                '_cb_video_url' => [__('Video URL hoặc tệp MP4/WebM', 'cb-company-core'), 'file', ['media_type' => 'video', 'button_label' => __('Chọn hoặc tải video', 'cb-company-core'), 'placeholder' => 'https://youtube.com/...']],
             ]],
             'language' => [__('Ngôn ngữ', 'cb-company-core'), $language],
             'seo' => [__('SEO', 'cb-company-core'), $seo],
@@ -87,7 +93,7 @@ function cb_content_meta_schemas()
                 '_cb_needs_content_review' => [__('Nội dung cần xác minh', 'cb-company-core'), 'checkbox'],
             ]],
             'document' => [__('Tài liệu', 'cb-company-core'), [
-                '_cb_pdf_url' => [__('Tệp PDF chứng nhận', 'cb-company-core'), 'file'],
+                '_cb_pdf_url' => [__('Tệp PDF chứng nhận', 'cb-company-core'), 'file', ['media_type' => 'application/pdf', 'button_label' => __('Chọn hoặc tải PDF', 'cb-company-core')]],
             ]],
             'language' => [__('Ngôn ngữ', 'cb-company-core'), $language],
             'seo' => [__('SEO', 'cb-company-core'), $seo],
@@ -155,7 +161,7 @@ function cb_render_content_meta_field($post_id, $key, $field)
     elseif ($field[1] === 'number') cb_admin_number_field($args);
     elseif ($field[1] === 'repeater') cb_admin_repeater_field($args);
     elseif ($field[1] === 'image') cb_admin_image_field(['id' => ltrim($key, '_'), 'label' => $field[0], 'name_base' => 'cb_meta_images', 'id_key' => $key . '_id', 'url_key' => $key, 'id_value' => get_post_meta($post_id, $key . '_id', true), 'url_value' => $value]);
-    elseif ($field[1] === 'file') cb_admin_file_field($post_id, $key, $field[0]);
+    elseif ($field[1] === 'file') cb_admin_file_field($post_id, $key, $field[0], is_array($field[2] ?? null) ? $field[2] : []);
     else cb_admin_text_field($args + ['input_type' => in_array($field[1], ['url', 'email', 'date'], true) ? $field[1] : 'text']);
 }
 
@@ -191,22 +197,25 @@ function cb_save_common_meta_boxes($post_id)
     }
 }
 
-function cb_admin_file_field($post_id, $key, $label)
+function cb_admin_file_field($post_id, $key, $label, $args = [])
 {
     $id_key = str_replace('_url', '_id', $key);
     $file_id = absint(get_post_meta($post_id, $id_key, true));
     $file_url = (string) get_post_meta($post_id, $key, true);
+    $media_type = (string) ($args['media_type'] ?? 'application/pdf');
+    $button_label = (string) ($args['button_label'] ?? __('Chọn hoặc tải tệp', 'cb-company-core'));
+    $placeholder = (string) ($args['placeholder'] ?? 'https://example.com/document.pdf');
     echo '<div class="cb-admin-field cb-admin-file-field">';
     echo '<label>' . esc_html($label) . '</label>';
-    echo '<input type="hidden" class="cb-file-id" name="cb_meta_files[' . esc_attr($id_key) . ']" value="' . esc_attr($file_id) . '">';
-    echo '<input type="url" class="regular-text cb-file-url" name="cb_meta_files[' . esc_attr($key) . ']" value="' . esc_attr($file_url) . '" placeholder="https://.../certificate.pdf">';
+    echo '<div class="cb-admin-file-control"><input type="hidden" class="cb-file-id" name="cb_meta_files[' . esc_attr($id_key) . ']" value="' . esc_attr($file_id) . '">';
+    echo '<label class="cb-media-url-label"><span>' . esc_html__('Hoặc nhập đường dẫn tệp', 'cb-company-core') . '</span><input type="url" inputmode="url" class="regular-text cb-file-url" name="cb_meta_files[' . esc_attr($key) . ']" value="' . esc_attr($file_url) . '" placeholder="' . esc_attr($placeholder) . '"></label>';
     echo '<div class="cb-media-actions">';
-    echo '<button type="button" class="button cb-pick-file" data-media-type="application/pdf">' . esc_html__('Chọn PDF', 'cb-company-core') . '</button> ';
+    echo '<button type="button" class="button cb-pick-file" data-media-type="' . esc_attr($media_type) . '"><span class="dashicons dashicons-upload" aria-hidden="true"></span> ' . esc_html($button_label) . '</button> ';
     echo '<button type="button" class="button-link-delete cb-remove-file">' . esc_html__('Xóa tệp', 'cb-company-core') . '</button>';
     echo '</div>';
     if ($file_url) {
         echo '<a class="cb-current-file" href="' . esc_url($file_url) . '" target="_blank" rel="noopener">' . esc_html__('Xem tệp hiện tại', 'cb-company-core') . '</a>';
     }
-    echo '<p class="description">' . esc_html__('Tải PDF lên Media Library hoặc nhập URL trực tiếp.', 'cb-company-core') . '</p>';
-    echo '</div>';
+    echo '<p class="description">' . esc_html__('Chọn hoặc tải lên Media Library, hoặc nhập URL trực tiếp.', 'cb-company-core') . '</p>';
+    echo '</div></div>';
 }

@@ -250,6 +250,24 @@
     gap: 8px;
 }
 
+.cb-qe-image-url {
+    display: grid;
+    gap: 5px;
+    color: #5e6876;
+    font-size: 12px;
+    font-weight: 800;
+}
+
+.cb-qe-image-url input {
+    width: 100%;
+    min-height: 38px;
+    padding: 8px 10px;
+    color: #17191f;
+    background: #fff;
+    border: 1px solid #cfd6df;
+    border-radius: 6px;
+}
+
 .cb-qe-image-preview {
     display: grid;
     place-items: center;

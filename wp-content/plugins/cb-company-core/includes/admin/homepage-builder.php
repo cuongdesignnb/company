@@ -325,7 +325,10 @@ function cb_render_builder_image_control($base, $key, $values, $label = '', $her
     if ($label) {
         echo '<span class="cb-repeater-field-label">' . esc_html($label) . '</span>';
     }
-    echo '<div class="cb-image-preview">' . ($url ? '<img src="' . esc_url($url) . '" alt="">' : '<span>' . esc_html__('Chưa chọn ảnh', 'cb-company-core') . '</span>') . '</div><input class="cb-image-id" type="hidden" name="' . esc_attr($base . '[' . $key . '_id]') . '" value="' . esc_attr((string) absint($values[$key . '_id'] ?? 0)) . '"><input class="cb-image-url" type="hidden" name="' . esc_attr($base . '[' . $key . '_url]') . '" value="' . esc_attr($url) . '"><button type="button" class="button cb-pick-image">' . esc_html__('Chọn ảnh', 'cb-company-core') . '</button><button type="button" class="button-link-delete cb-remove-image">' . esc_html__('Xóa ảnh', 'cb-company-core') . '</button></div>';
+    echo '<div class="cb-image-preview">' . ($url ? '<img src="' . esc_url($url) . '" alt="">' : '<span>' . esc_html__('Chưa chọn ảnh', 'cb-company-core') . '</span>') . '</div>';
+    echo '<input class="cb-image-id" type="hidden" name="' . esc_attr($base . '[' . $key . '_id]') . '" value="' . esc_attr((string) absint($values[$key . '_id'] ?? 0)) . '">';
+    echo '<label class="cb-media-url-label"><span>' . esc_html__('Hoặc nhập đường dẫn ảnh', 'cb-company-core') . '</span><input class="cb-image-url" type="url" inputmode="url" name="' . esc_attr($base . '[' . $key . '_url]') . '" value="' . esc_attr($url) . '" placeholder="https://example.com/image.webp"></label>';
+    echo '<div class="cb-media-actions"><button type="button" class="button cb-pick-image">' . esc_html__('Chọn hoặc tải ảnh', 'cb-company-core') . '</button><button type="button" class="button-link-delete cb-remove-image">' . esc_html__('Xóa ảnh', 'cb-company-core') . '</button></div></div>';
 }
 
 function cb_render_page_ui_meta_box($post)
@@ -364,7 +367,7 @@ function cb_render_page_override_field($key, $field, $values)
     } elseif ($field[1] === 'checkbox') {
         echo '<input type="hidden" name="' . esc_attr($base . '[value]') . '" value="0"><input type="checkbox" name="' . esc_attr($base . '[value]') . '" value="1" ' . checked($value, '1', false) . '>';
     } elseif ($field[1] === 'image') {
-        echo '<div class="cb-image-field"><div class="cb-image-preview">' . ($value ? '<img src="' . esc_url($value) . '" alt="">' : '<span>' . esc_html__('Chưa chọn ảnh', 'cb-company-core') . '</span>') . '</div><input class="cb-image-id" type="hidden" name="' . esc_attr($base . '[image_id]') . '" value="' . esc_attr((string) absint($values[$key . '_id'] ?? 0)) . '"><input class="cb-image-url" type="hidden" name="' . esc_attr($base . '[value]') . '" value="' . esc_attr($value) . '"><button type="button" class="button cb-pick-image">' . esc_html__('Chọn ảnh', 'cb-company-core') . '</button><button type="button" class="button-link-delete cb-remove-image">' . esc_html__('Xóa ảnh', 'cb-company-core') . '</button></div>';
+        echo '<div class="cb-image-field"><div class="cb-image-preview">' . ($value ? '<img src="' . esc_url($value) . '" alt="">' : '<span>' . esc_html__('Chưa chọn ảnh', 'cb-company-core') . '</span>') . '</div><input class="cb-image-id" type="hidden" name="' . esc_attr($base . '[image_id]') . '" value="' . esc_attr((string) absint($values[$key . '_id'] ?? 0)) . '"><label class="cb-media-url-label"><span>' . esc_html__('Hoặc nhập đường dẫn ảnh', 'cb-company-core') . '</span><input class="cb-image-url" type="url" inputmode="url" name="' . esc_attr($base . '[value]') . '" value="' . esc_attr($value) . '" placeholder="https://example.com/image.webp"></label><div class="cb-media-actions"><button type="button" class="button cb-pick-image">' . esc_html__('Chọn hoặc tải ảnh', 'cb-company-core') . '</button><button type="button" class="button-link-delete cb-remove-image">' . esc_html__('Xóa ảnh', 'cb-company-core') . '</button></div></div>';
     } else {
         echo '<input type="' . esc_attr($field[1]) . '" name="' . esc_attr($base . '[value]') . '" value="' . esc_attr($value) . '">';
     }

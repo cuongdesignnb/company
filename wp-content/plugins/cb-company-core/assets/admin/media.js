@@ -5,8 +5,8 @@
   const i18n = config.i18n || {};
 
   function applyImage(field, image) {
-    const id = field.querySelector(':scope > .cb-image-id');
-    const url = field.querySelector(':scope > .cb-image-url');
+    const id = field.querySelector('.cb-image-id');
+    const url = field.querySelector('.cb-image-url');
     const preview = field.querySelector(':scope > .cb-image-preview');
     if (id) id.value = image.id;
     if (url) {
@@ -120,7 +120,7 @@
     if (!field) return;
     event.preventDefault();
     if (remove) {
-      field.querySelectorAll(':scope > .cb-image-id, :scope > .cb-image-url').forEach(function (input) {
+      field.querySelectorAll('.cb-image-id, .cb-image-url').forEach(function (input) {
         input.value = '';
         input.dispatchEvent(new Event('change', { bubbles: true }));
       });
@@ -142,5 +142,24 @@
       applyImage(field, { id: image.id, url: image.url });
     });
     frame.open();
+  });
+
+  document.addEventListener('input', function (event) {
+    if (!event.target.matches('.cb-image-url')) return;
+    const field = event.target.closest('.cb-image-field');
+    if (!field) return;
+    const id = field.querySelector('.cb-image-id');
+    const preview = field.querySelector(':scope > .cb-image-preview');
+    const url = event.target.value.trim();
+    if (id) id.value = '';
+    if (preview) {
+      preview.innerHTML = '';
+      if (url) {
+        const image = document.createElement('img');
+        image.src = url;
+        image.alt = '';
+        preview.appendChild(image);
+      }
+    }
   });
 }());

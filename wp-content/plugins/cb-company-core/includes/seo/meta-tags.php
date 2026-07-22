@@ -25,10 +25,16 @@ function cb_render_seo_meta()
         $title = wp_get_document_title();
     }
     if (!$description) {
-        $description = get_bloginfo('description') ?: cb_get_option('footer_description');
+        $seo_settings = cb_get_group_options('cb_seo_settings', cb_default_seo_settings());
+        $description = $seo_settings['default_description'] ?: (get_bloginfo('description') ?: cb_get_option('footer_description'));
+    } else {
+        $seo_settings = cb_get_group_options('cb_seo_settings', cb_default_seo_settings());
     }
     if (!$image && has_post_thumbnail($id)) {
         $image = get_the_post_thumbnail_url($id, 'large');
+    }
+    if (!$image) {
+        $image = $seo_settings['default_og_image'] ?? '';
     }
 
     if (!$canonical && $id && is_page() && cb_page_ui_context($id) === 'home') {

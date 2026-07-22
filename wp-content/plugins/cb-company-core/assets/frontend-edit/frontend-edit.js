@@ -337,7 +337,18 @@
     const urlKey = key === 'image' ? 'image_url' : key + '_url';
     const wrap = document.createElement('div');
     wrap.className = 'cb-qe-field cb-qe-image';
-    wrap.innerHTML = '<span>' + esc(field.label || key) + '</span><div class="cb-qe-image-preview">' + (source[urlKey] ? '<img src="' + esc(source[urlKey]) + '" alt="">' : '<small>' + esc(i18n.selectImage || 'Select image') + '</small>') + '</div><div class="cb-qe-image-actions"><button type="button" class="cb-qe-button" data-pick>' + esc(i18n.selectImage || 'Select image') + '</button><button type="button" class="cb-qe-button cb-qe-button-danger" data-remove>' + esc(i18n.removeImage || 'Remove image') + '</button></div>';
+    wrap.innerHTML = '<span>' + esc(field.label || key) + '</span><div class="cb-qe-image-preview">' + (source[urlKey] ? '<img src="' + esc(source[urlKey]) + '" alt="">' : '<small>' + esc(i18n.selectImage || 'Select image') + '</small>') + '</div><label class="cb-qe-image-url"><span>' + esc(i18n.manualImageUrl || 'Or enter image URL') + '</span><input type="url" inputmode="url" value="' + esc(source[urlKey] || '') + '" placeholder="https://example.com/image.webp"></label><div class="cb-qe-image-actions"><button type="button" class="cb-qe-button" data-pick>' + esc(i18n.selectImage || 'Select image') + '</button><button type="button" class="cb-qe-button cb-qe-button-danger" data-remove>' + esc(i18n.removeImage || 'Remove image') + '</button></div>';
+    const urlInput = wrap.querySelector('.cb-qe-image-url input');
+    urlInput.addEventListener('input', function () {
+      const value = { id: 0, url: urlInput.value.trim() };
+      onChange(key, value);
+      source[idKey] = 0;
+      source[urlKey] = value.url;
+      wrap.querySelector('.cb-qe-image-preview').innerHTML = value.url
+        ? '<img src="' + esc(value.url) + '" alt="">'
+        : '<small>' + esc(i18n.selectImage || 'Select image') + '</small>';
+      state.dirty = true;
+    });
     wrap.querySelector('[data-pick]').addEventListener('click', function () {
       if (!window.wp || !wp.media) return;
       const frame = wp.media({ title: i18n.selectImage || 'Select image', multiple: false, library: { type: 'image' } });
@@ -347,6 +358,7 @@
         onChange(key, value);
         source[idKey] = value.id;
         source[urlKey] = value.url;
+        urlInput.value = value.url;
         wrap.querySelector('.cb-qe-image-preview').innerHTML = '<img src="' + esc(value.url) + '" alt="">';
         state.dirty = true;
       });
@@ -357,6 +369,7 @@
       onChange(key, value);
       source[idKey] = 0;
       source[urlKey] = '';
+      urlInput.value = '';
       wrap.querySelector('.cb-qe-image-preview').innerHTML = '<small>' + esc(i18n.selectImage || 'Select image') + '</small>';
       state.dirty = true;
     });
