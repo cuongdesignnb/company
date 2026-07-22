@@ -165,6 +165,17 @@ function cb_sanitize_design_settings($input) { return cb_sanitize_settings_group
 function cb_sanitize_header_settings($input) { return cb_sanitize_settings_group($input, cb_default_header_settings()); }
 function cb_sanitize_footer_settings($input) { return cb_sanitize_settings_group($input, cb_default_footer_settings()); }
 
+function cb_footer_contact_settings_schema()
+{
+    $schema = cb_footer_settings_schema();
+    if (isset($schema['contact']['fields']) && is_array($schema['contact']['fields'])) {
+        $schema['contact']['fields'][] = ['contact_whatsapp', 'text', __('WhatsApp', 'cb-company-core')];
+        $schema['contact']['fields'][] = ['contact_wechat_id', 'text', __('WeChat ID', 'cb-company-core')];
+        $schema['contact']['fields'][] = ['contact_wechat_qr', 'text', __('URL QR WeChat', 'cb-company-core')];
+    }
+    return $schema;
+}
+
 function cb_sanitize_template_settings($input)
 {
     $input = is_array($input) ? wp_unslash($input) : [];
@@ -298,7 +309,7 @@ function cb_render_dashboard_page()
 
 function cb_render_design_settings_page() { cb_render_settings_page(__('Thiết kế chung', 'cb-company-core'), 'cb-company-design', 'cb_design_settings', 'cb_design_settings_group', cb_design_settings_schema(), cb_default_design_settings()); }
 function cb_render_header_settings_page() { cb_render_settings_page(__('Header', 'cb-company-core'), 'cb-company-header', 'cb_header_settings', 'cb_header_settings_group', cb_header_settings_schema(), cb_default_header_settings()); }
-function cb_render_footer_settings_page() { cb_render_settings_page(__('Footer', 'cb-company-core'), 'cb-company-footer', 'cb_footer_settings', 'cb_footer_settings_group', cb_footer_settings_schema(), cb_default_footer_settings()); }
+function cb_render_footer_settings_page() { cb_render_settings_page(__('Footer', 'cb-company-core'), 'cb-company-footer', 'cb_footer_settings', 'cb_footer_settings_group', cb_footer_contact_settings_schema(), cb_default_footer_settings()); }
 
 function cb_template_context_groups()
 {

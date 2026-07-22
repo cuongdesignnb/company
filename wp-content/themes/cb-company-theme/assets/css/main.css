@@ -2555,6 +2555,7 @@ p {
 }
 
 .cb-contact-rail a {
+    position: relative;
     display: grid;
     place-items: center;
     width: 62px;
@@ -2582,6 +2583,80 @@ p {
 .cb-contact-rail .is-primary {
     color: #fff;
     background: var(--cb-primary, #ef3f45);
+}
+
+.cb-contact-popover {
+    position: absolute;
+    top: 50%;
+    right: calc(100% + 10px);
+    z-index: 2;
+    display: block;
+    min-width: 180px;
+    max-width: 230px;
+    margin: 0;
+    padding: 12px 14px;
+    color: #17191f;
+    background: #fff;
+    border: 1px solid #d9dee5;
+    border-radius: 6px;
+    box-shadow: 0 18px 40px rgba(12, 18, 28, 0.16);
+    font-size: 13px;
+    font-style: normal;
+    font-weight: 800;
+    line-height: 1.4;
+    text-align: left;
+    white-space: normal;
+    opacity: 0;
+    pointer-events: none;
+    transform: translate(8px, -50%);
+    transition: opacity 0.16s ease, transform 0.16s ease;
+}
+
+.cb-contact-popover::after {
+    position: absolute;
+    top: 50%;
+    right: -6px;
+    width: 10px;
+    height: 10px;
+    content: "";
+    background: #fff;
+    border-top: 1px solid #d9dee5;
+    border-right: 1px solid #d9dee5;
+    transform: translateY(-50%) rotate(45deg);
+}
+
+.cb-contact-rail a:hover .cb-contact-popover,
+.cb-contact-rail a:focus-visible .cb-contact-popover {
+    opacity: 1;
+    transform: translate(0, -50%);
+}
+
+.cb-contact-popover-qr {
+    display: grid;
+    gap: 8px;
+    justify-items: center;
+    min-width: 156px;
+    text-align: center;
+}
+
+.cb-contact-popover-qr img {
+    display: block;
+    width: 120px;
+    height: 120px;
+    object-fit: contain;
+    border: 1px solid #edf0f3;
+    border-radius: 4px;
+}
+
+.cb-contact-popover-qr strong,
+.cb-contact-popover-qr small {
+    display: block;
+}
+
+.cb-contact-popover-qr small {
+    color: #5c6470;
+    font-size: 12px;
+    font-weight: 700;
 }
 
 /* Responsive */
@@ -2978,6 +3053,10 @@ p {
     .cb-contact-rail span {
         margin: 0;
         font-size: 10px;
+    }
+
+    .cb-contact-popover {
+        display: none;
     }
 
     .cb-site-footer {

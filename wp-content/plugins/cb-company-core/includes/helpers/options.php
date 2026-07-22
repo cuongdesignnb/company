@@ -54,7 +54,8 @@ function cb_default_footer_settings()
         'footer_text_color' => '#cfd3dc', 'footer_heading_color' => '#ffffff',
         'show_footer_logo' => '0', 'show_footer_products' => '0', 'show_footer_links' => '0',
         'show_footer_contact' => '0', 'show_footer_social' => '0', 'show_footer_subscribe' => '0',
-        'contact_phone' => '', 'contact_email' => '', 'company_address' => '',
+        'contact_phone' => '', 'contact_whatsapp' => '', 'contact_email' => '', 'contact_wechat_id' => 'wechat',
+        'contact_wechat_qr' => '', 'company_address' => '',
         'footer_description' => '', 'copyright_text' => '', 'social_links' => [],
         'floating_contact' => '0',
     ];

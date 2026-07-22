@@ -32,7 +32,29 @@ function cb_core_maybe_migrate()
     }
     if (version_compare($version, '1.7.0', '<')) {
         cb_core_run_migration_170();
+        $version = '1.7.0';
     }
+    if (version_compare($version, '1.7.1', '<')) {
+        cb_core_run_migration_171();
+    }
+}
+
+function cb_core_run_migration_171()
+{
+    $footer = cb_get_group_options('cb_footer_settings', cb_default_footer_settings());
+    $changed = false;
+    if (empty($footer['contact_whatsapp']) && !empty($footer['contact_phone'])) {
+        $footer['contact_whatsapp'] = $footer['contact_phone'];
+        $changed = true;
+    }
+    if (empty($footer['contact_wechat_id'])) {
+        $footer['contact_wechat_id'] = 'wechat';
+        $changed = true;
+    }
+    if ($changed) {
+        update_option('cb_footer_settings', cb_sanitize_footer_settings($footer));
+    }
+    update_option('cb_core_db_version', '1.7.1');
 }
 
 function cb_core_run_migration_170()
@@ -360,6 +382,7 @@ function cb_core_run_migration_140()
         'show_footer_contact' => '1', 'show_footer_social' => '1', 'floating_contact' => '1',
         'footer_description' => 'OEM/ODM kitchen appliance manufacturing for ambitious global brands.',
         'contact_email' => 'info@aureliamanufacturing.com', 'contact_phone' => '+86 000 0000 0000',
+        'contact_whatsapp' => '+86 000 0000 0000', 'contact_wechat_id' => 'wechat',
         'company_address' => 'Manufacturing base in China.',
         'copyright_text' => '© ' . gmdate('Y') . ' Aurelia Manufacturing. All rights reserved.',
     ])));
