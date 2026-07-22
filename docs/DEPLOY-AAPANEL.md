@@ -58,6 +58,11 @@ Khong duoc la:
 cb-site-transfer/cb-site-transfer/cb-site-transfer.php
 ```
 
+Script build se dung ZIP entry theo chuan Linux (`/`), giai nen thu va so sanh
+SHA-256 cua tung file. Khong dung cac goi co chu `FLAT` hoac ZIP tao truc tiep
+bang `Compress-Archive`, vi entry Windows dung dau `\` co the lam mat cac thu
+muc `inc/`, `assets/` va `includes/` khi giai nen tren production.
+
 ## 4. Cai code len production
 
 Trong WordPress Admin, vao **Plugins > Add Plugin > Upload Plugin** va cai theo
@@ -97,7 +102,32 @@ Neu khong the upload trong WordPress, co the upload ZIP bang aaPanel va giai nen
 truc tiep tai `wp-content/plugins/`. Sau khi giai nen, van phai dam bao chi co mot
 cap thu muc `cb-site-transfer`.
 
-## 6. Export du lieu tren local
+## 6. Khoi phuc loi theme thieu `inc/setup.php`
+
+Neu production dang bao fatal error tu thu muc nhu
+`INSTALL-THEME-FLAT-cb-company-theme-1.8.0`, khong tiep tuc kich hoat theme do.
+
+1. Trong aaPanel, mo **Files** va di toi
+   `/www/wwwroot/TEN-DOMAIN/wp-content/themes/`.
+2. Doi ten rieng thu muc loi thanh
+   `INSTALL-THEME-FLAT-cb-company-theme-1.8.0.disabled` de WordPress ngung nap no.
+3. Upload file `dist/cb-company-theme.zip` va giai nen ngay trong thu muc
+   `themes/`.
+4. Kiem tra ba duong dan sau ton tai:
+
+```text
+wp-content/themes/cb-company-theme/style.css
+wp-content/themes/cb-company-theme/functions.php
+wp-content/themes/cb-company-theme/inc/setup.php
+```
+
+5. Vao **Appearance > Themes**, kich hoat **Aurelia Manufacturing**.
+6. Sau khi frontend va admin hoat dong binh thuong, moi xoa thu muc `.disabled`.
+
+Khong can import lai database, package `.cbsite.zip` hoac uploads cho loi dong
+goi theme nay.
+
+## 7. Export du lieu tren local
 
 1. Mo **CB Company > Nhap / Xuat website > Export**.
 2. Giu tat **Inquiry** tru khi thuc su can chuyen du lieu ca nhan.
@@ -106,7 +136,7 @@ cap thu muc `cb-site-transfer`.
    `dist/aurelia-company-1.4.0-20260715.cbsite.zip`.
 5. Giu lai checksum SHA-256 va mot ban package goc.
 
-## 7. Import vao production
+## 8. Import vao production
 
 1. Mo **CB Company > Nhap / Xuat website > Import**.
 2. Upload `aurelia-company-1.4.0-20260715.cbsite.zip`.
@@ -119,7 +149,7 @@ cap thu muc `cb-site-transfer`.
 Plugin khong thay domain production, user admin, database credentials, salts hay
 `wp-config.php`.
 
-## 8. Smoke test sau import
+## 9. Smoke test sau import
 
 Kiem tra toi thieu:
 

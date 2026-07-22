@@ -38,10 +38,23 @@ $packages = [ordered]@{
 }
 
 $requiredEntries = @{
-    "cb-company-theme" = "style.css"
-    "cb-company-core" = "cb-company-core.php"
-    "cb-webp-converter" = "cb-webp-converter.php"
-    "cb-site-transfer" = "cb-site-transfer.php"
+    "cb-company-theme" = @(
+        "style.css",
+        "functions.php",
+        "inc/setup.php",
+        "inc/enqueue.php",
+        "inc/helpers.php",
+        "assets/css/main.css"
+    )
+    "cb-company-core" = @(
+        "cb-company-core.php",
+        "includes/admin/rest.php",
+        "includes/admin/frontend-edit.php",
+        "assets/frontend-edit/frontend-edit.css",
+        "assets/frontend-edit/frontend-edit.js"
+    )
+    "cb-webp-converter" = @("cb-webp-converter.php")
+    "cb-site-transfer" = @("cb-site-transfer.php")
 }
 
 $excludedDirectories = @(
@@ -122,12 +135,17 @@ foreach ($package in $packages.GetEnumerator()) {
     $verificationArchive = [System.IO.Compression.ZipFile]::OpenRead($destination)
     try {
         $entryNames = @($verificationArchive.Entries | ForEach-Object { $_.FullName })
-        $requiredEntry = $package.Key + "/" + $requiredEntries[$package.Key]
-        if ($entryNames -notcontains $requiredEntry) {
-            throw "Package thieu file khoi tao: $requiredEntry"
+        foreach ($requiredRelativePath in $requiredEntries[$package.Key]) {
+            $requiredEntry = $package.Key + "/" + $requiredRelativePath
+            if ($entryNames -notcontains $requiredEntry) {
+                throw "Package thieu file bat buoc: $requiredEntry"
+            }
         }
         if ($entryNames | Where-Object { $_.Contains("\") }) {
             throw "Package chua ZIP entry dung dau gach nguoc Windows: $destination"
+        }
+        if ($entryNames | Where-Object { $_.StartsWith("/", [System.StringComparison]::Ordinal) -or $_.Contains("../") }) {
+            throw "Package chua ZIP entry khong an toan: $destination"
         }
         if ($entryNames | Where-Object { -not $_.StartsWith($package.Key + "/", [System.StringComparison]::Ordinal) }) {
             throw "Package co file nam ngoai thu muc goc: $destination"
@@ -139,6 +157,26 @@ foreach ($package in $packages.GetEnumerator()) {
     finally {
         $verificationArchive.Dispose()
     }
+
+    $verificationRoot = Join-Path $stagingRoot ("verify-" + $package.Key)
+    New-Item -ItemType Directory -Force -Path $verificationRoot | Out-Null
+    [System.IO.Compression.ZipFile]::ExtractToDirectory($destination, $verificationRoot)
+
+    Get-ChildItem -LiteralPath $stagingPackage -File -Recurse -Force | ForEach-Object {
+        $relative = $_.FullName.Substring($stagingPackage.Length).TrimStart([char[]]"\/")
+        $extractedFile = Join-Path (Join-Path $verificationRoot $package.Key) $relative
+        if (-not (Test-Path -LiteralPath $extractedFile -PathType Leaf)) {
+            throw "Package giai nen thieu file: $($package.Key)/$($relative -replace '\\', '/')"
+        }
+
+        $sourceHash = (Get-FileHash -LiteralPath $_.FullName -Algorithm SHA256).Hash
+        $extractedHash = (Get-FileHash -LiteralPath $extractedFile -Algorithm SHA256).Hash
+        if ($sourceHash -ne $extractedHash) {
+            throw "Package giai nen sai noi dung: $($package.Key)/$($relative -replace '\\', '/')"
+        }
+    }
+
+    Remove-Item -LiteralPath $verificationRoot -Recurse -Force
 }
 
 Remove-Item -LiteralPath $stagingRoot -Recurse -Force
