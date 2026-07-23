@@ -2625,11 +2625,17 @@ p {
     transform: translateY(-50%) rotate(45deg);
 }
 
-.cb-contact-rail a:hover .cb-contact-popover,
-.cb-contact-rail a:focus-visible .cb-contact-popover,
 .cb-contact-rail a.is-open .cb-contact-popover {
     opacity: 1;
     transform: translate(0, -50%);
+}
+
+@media (hover: hover) and (pointer: fine) {
+    .cb-contact-rail a:hover .cb-contact-popover,
+    .cb-contact-rail a:focus-visible .cb-contact-popover {
+        opacity: 1;
+        transform: translate(0, -50%);
+    }
 }
 
 .cb-contact-popover-qr {
@@ -3144,6 +3150,7 @@ p {
         gap: 7px;
         border-right: 1px solid #e1e5e8;
         border-bottom: 0;
+        touch-action: manipulation;
     }
 
     .cb-contact-rail span {
