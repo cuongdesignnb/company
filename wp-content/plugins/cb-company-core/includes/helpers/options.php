@@ -209,7 +209,7 @@ function cb_sanitize_settings_group($input, $defaults)
         $value = $input[$key] ?? $default;
         if (is_array($default)) {
             $clean[$key] = cb_sanitize_repeater_items($value);
-        } elseif (str_ends_with($key, '_id')) {
+        } elseif (str_ends_with($key, '_id') && $key !== 'contact_wechat_id') {
             $clean[$key] = (string) absint($value);
         } elseif (str_contains($key, 'url') || in_array($key, ['footer_background_image', 'contact_whatsapp_qr', 'contact_wechat_qr', 'default_og_image'], true)) {
             $clean[$key] = esc_url_raw($value);

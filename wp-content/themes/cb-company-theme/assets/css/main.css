@@ -2726,6 +2726,12 @@ p {
     font-size: 15px;
 }
 
+.cb-contact-identity.is-empty code,
+.cb-contact-id-value.is-empty {
+    color: #7b838f;
+    font-weight: 600;
+}
+
 .cb-contact-route {
     max-width: 100%;
     overflow-wrap: anywhere;

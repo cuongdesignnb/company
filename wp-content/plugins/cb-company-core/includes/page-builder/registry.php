@@ -47,6 +47,7 @@ function cb_builder_field_registry()
         'tertiary_image' => ['label' => __('Hình ảnh bổ sung', 'cb-company-core'), 'type' => 'image', 'group' => 'images', 'for' => ['company_intro']],
         'whatsapp_qr' => ['label' => __('QR WhatsApp', 'cb-company-core'), 'type' => 'image', 'group' => 'images', 'for' => ['contact_info']],
         'wechat_qr' => ['label' => __('QR WeChat', 'cb-company-core'), 'type' => 'image', 'group' => 'images', 'for' => ['contact_info']],
+        'wechat_id' => ['label' => __('WeChat ID (văn bản)', 'cb-company-core'), 'type' => 'text', 'group' => 'content', 'for' => ['contact_info']],
         'items' => ['label' => __('Danh sách nội dung', 'cb-company-core'), 'type' => 'section_repeater', 'group' => 'content', 'for' => $repeaters],
         'limit' => ['label' => __('Số mục hiển thị', 'cb-company-core'), 'type' => 'number', 'group' => 'content', 'for' => $listing],
         'certificate_source' => ['label' => __('Nguồn dữ liệu chứng nhận', 'cb-company-core'), 'type' => 'select', 'group' => 'content', 'for' => ['certificates'], 'choices' => ['certificate_posts' => __('Bài chứng nhận đã xuất bản', 'cb-company-core'), 'manual' => __('Danh sách thủ công cũ', 'cb-company-core')]],

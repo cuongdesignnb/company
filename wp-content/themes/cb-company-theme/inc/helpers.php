@@ -23,6 +23,29 @@ function cb_theme_option_enabled($key, $default = '1')
     return cb_theme_option($key, $default) === '1';
 }
 
+function cb_theme_wechat_id()
+{
+    $footer = (array) get_option('cb_footer_settings', []);
+    $legacy = (array) get_option('cb_theme_options', []);
+    $candidates = [
+        $footer['contact_wechat_id'] ?? '',
+        $legacy['contact_wechat_id'] ?? '',
+        cb_theme_option('contact_wechat_id', ''),
+    ];
+
+    foreach ($candidates as $candidate) {
+        if (!is_scalar($candidate)) {
+            continue;
+        }
+        $candidate = trim((string) $candidate);
+        if ($candidate !== '') {
+            return $candidate;
+        }
+    }
+
+    return '';
+}
+
 function cb_theme_logo($context = 'header')
 {
     $is_mobile = $context === 'mobile';

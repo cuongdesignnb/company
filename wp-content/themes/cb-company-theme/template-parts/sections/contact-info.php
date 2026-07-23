@@ -6,10 +6,10 @@ $wechat_qr = $wechat_qr ?: cb_theme_option('contact_wechat_qr');
 $whatsapp_number = cb_theme_option('contact_whatsapp') ?: cb_theme_option('contact_phone');
 $whatsapp_digits = preg_replace('/[^\d]/', '', $whatsapp_number);
 $whatsapp_url = $whatsapp_digits ? 'https://wa.me/' . $whatsapp_digits : '';
-$wechat_id = trim((string) cb_theme_option('contact_wechat_id', 'wechat'));
+$wechat_id = trim((string) ($section['wechat_id'] ?? '')) ?: cb_theme_wechat_id();
 $qr_labels = cb_theme_lang() === 'zh'
-    ? ['title' => '通过微信联系我们', 'whatsapp' => 'WhatsApp 联系方式', 'wechat' => '微信联系方式', 'wechat_id' => '微信 ID', 'open_whatsapp' => '打开 WhatsApp', 'open_wechat' => '打开微信']
-    : ['title' => 'Contact via WeChat', 'whatsapp' => 'WhatsApp contact', 'wechat' => 'WeChat contact', 'wechat_id' => 'WeChat ID', 'open_whatsapp' => 'Open WhatsApp', 'open_wechat' => 'Open WeChat'];
+    ? ['title' => '通过微信联系我们', 'whatsapp' => 'WhatsApp 联系方式', 'wechat' => '微信联系方式', 'wechat_id' => '微信 ID', 'not_configured' => '尚未配置', 'open_whatsapp' => '打开 WhatsApp', 'open_wechat' => '打开微信']
+    : ['title' => 'Contact via WeChat', 'whatsapp' => 'WhatsApp contact', 'wechat' => 'WeChat contact', 'wechat_id' => 'WeChat ID', 'not_configured' => 'Not configured', 'open_whatsapp' => 'Open WhatsApp', 'open_wechat' => 'Open WeChat'];
 ?>
 <section <?php echo cb_theme_section_attrs($section, 'contact_info', 'cb-soft-band'); ?>>
     <div class="cb-container">
@@ -37,10 +37,8 @@ $qr_labels = cb_theme_lang() === 'zh'
                         <figure class="cb-contact-qr-item">
                             <img src="<?php echo esc_url($wechat_qr); ?>" alt="<?php echo esc_attr($qr_labels['wechat']); ?>">
                             <figcaption>
-                                <?php if ($wechat_id) : ?>
-                                    <strong><?php echo esc_html($qr_labels['wechat_id']); ?></strong>
-                                    <span class="cb-contact-id-value"><?php echo esc_html($wechat_id); ?></span>
-                                <?php endif; ?>
+                                <strong><?php echo esc_html($qr_labels['wechat_id']); ?></strong>
+                                <span class="cb-contact-id-value<?php echo $wechat_id ? '' : ' is-empty'; ?>"><?php echo esc_html($wechat_id ?: $qr_labels['not_configured']); ?></span>
                                 <a class="cb-contact-qr-link" href="weixin://"><?php echo esc_html($qr_labels['open_wechat']); ?></a>
                             </figcaption>
                         </figure>

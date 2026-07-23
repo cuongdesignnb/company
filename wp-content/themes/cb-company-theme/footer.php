@@ -63,11 +63,11 @@ $footer_style = $footer_image ? '--cb-footer-image:url(' . esc_url($footer_image
     $whatsapp_digits = preg_replace('/[^\d]/', '', $whatsapp_number);
     $whatsapp_url = 'https://wa.me/' . $whatsapp_digits;
     $whatsapp_qr = cb_theme_option('contact_whatsapp_qr');
-    $wechat_id = trim((string) cb_theme_option('contact_wechat_id', 'wechat'));
+    $wechat_id = cb_theme_wechat_id();
     $wechat_qr = cb_theme_option('contact_wechat_qr');
     $contact_labels = cb_theme_lang() === 'zh'
-        ? ['phone' => '电话号码', 'wechat_id' => '微信 ID', 'scan' => '扫描二维码联系']
-        : ['phone' => 'Phone number', 'wechat_id' => 'WeChat ID', 'scan' => 'Scan to connect'];
+        ? ['phone' => '电话号码', 'wechat_id' => '微信 ID', 'scan' => '扫描二维码联系', 'not_configured' => '尚未配置']
+        : ['phone' => 'Phone number', 'wechat_id' => 'WeChat ID', 'scan' => 'Scan to connect', 'not_configured' => 'Not configured'];
     ?>
     <nav class="cb-contact-rail" aria-label="<?php echo esc_attr(cb_theme_t('contact_us')); ?>">
         <?php if ($whatsapp_number && $whatsapp_digits) : ?>
@@ -96,12 +96,10 @@ $footer_style = $footer_image ? '--cb-footer-image:url(' . esc_url($footer_image
             <em class="cb-contact-popover cb-contact-popover-qr" id="cb-wechat-qr" role="tooltip">
                 <?php if ($wechat_qr) : ?><img src="<?php echo esc_url($wechat_qr); ?>" alt="<?php echo esc_attr('WeChat QR ' . $wechat_id); ?>"><?php endif; ?>
                 <strong><?php echo esc_html(cb_theme_lang() === 'zh' ? '通过微信联系我们' : 'Contact via WeChat'); ?></strong>
-                <?php if ($wechat_id) : ?>
-                    <span class="cb-contact-identity">
-                        <small><?php echo esc_html($contact_labels['wechat_id']); ?></small>
-                        <code><?php echo esc_html($wechat_id); ?></code>
-                    </span>
-                <?php endif; ?>
+                <span class="cb-contact-identity<?php echo $wechat_id ? '' : ' is-empty'; ?>">
+                    <small><?php echo esc_html($contact_labels['wechat_id']); ?></small>
+                    <code><?php echo esc_html($wechat_id ?: $contact_labels['not_configured']); ?></code>
+                </span>
             </em>
         </a>
     </nav>
