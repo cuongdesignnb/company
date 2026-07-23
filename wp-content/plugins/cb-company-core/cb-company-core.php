@@ -2,7 +2,7 @@
 /**
  * Plugin Name: CB Company Core
  * Description: Dữ liệu doanh nghiệp, đa ngôn ngữ, biểu mẫu, SEO và trình dựng trang.
- * Version: 1.8.5
+ * Version: 1.8.6
  * Author: CB
  * Text Domain: cb-company-core
  * Domain Path: /languages
@@ -13,7 +13,7 @@ if (!defined('ABSPATH')) {
 }
 
 define('CB_CORE_FILE', __FILE__);
-define('CB_CORE_VERSION', '1.8.5');
+define('CB_CORE_VERSION', '1.8.6');
 define('CB_CORE_DB_VERSION', '1.8.5');
 define('CB_CORE_PATH', plugin_dir_path(__FILE__));
 define('CB_CORE_URL', plugin_dir_url(__FILE__));
@@ -34,6 +34,7 @@ require_once CB_CORE_PATH . 'includes/admin/rest.php';
 require_once CB_CORE_PATH . 'includes/admin/homepage-builder.php';
 require_once CB_CORE_PATH . 'includes/admin/content-pages.php';
 require_once CB_CORE_PATH . 'includes/admin/frontend-edit.php';
+require_once CB_CORE_PATH . 'includes/contact-display.php';
 require_once CB_CORE_PATH . 'includes/inquiry/inquiry-form.php';
 require_once CB_CORE_PATH . 'includes/seo/meta-tags.php';
 require_once CB_CORE_PATH . 'includes/seed.php';
@@ -71,6 +72,7 @@ add_action('admin_init', 'cb_register_settings');
 add_action('rest_api_init', 'cb_register_admin_rest_routes');
 add_action('admin_enqueue_scripts', 'cb_admin_enqueue_assets');
 add_action('wp_enqueue_scripts', 'cb_frontend_edit_enqueue_assets');
+add_action('wp_enqueue_scripts', 'cb_contact_display_enqueue_assets', 30);
 add_action('admin_bar_menu', 'cb_frontend_edit_admin_bar', 90);
 add_action('admin_post_cb_export_page_json', 'cb_export_page_json');
 add_action('admin_post_cb_export_inquiries_csv', 'cb_export_inquiries_csv');

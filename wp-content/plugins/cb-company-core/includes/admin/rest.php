@@ -85,6 +85,11 @@ function cb_register_admin_rest_routes()
         'callback' => 'cb_rest_duplicate_page_builder_section',
         'permission_callback' => 'cb_rest_can_edit_page_content',
     ]);
+    register_rest_route('cb-company/v1', '/contact-display', [
+        'methods' => WP_REST_Server::READABLE,
+        'callback' => 'cb_rest_get_contact_display',
+        'permission_callback' => '__return_true',
+    ]);
 }
 
 function cb_rest_can_edit_page_content(WP_REST_Request $request)
