@@ -2,7 +2,7 @@
 /**
  * Plugin Name: CB Company Core
  * Description: Dữ liệu doanh nghiệp, đa ngôn ngữ, biểu mẫu, SEO và trình dựng trang.
- * Version: 1.8.4
+ * Version: 1.8.5
  * Author: CB
  * Text Domain: cb-company-core
  * Domain Path: /languages
@@ -13,8 +13,8 @@ if (!defined('ABSPATH')) {
 }
 
 define('CB_CORE_FILE', __FILE__);
-define('CB_CORE_VERSION', '1.8.4');
-define('CB_CORE_DB_VERSION', '1.7.1');
+define('CB_CORE_VERSION', '1.8.5');
+define('CB_CORE_DB_VERSION', '1.8.5');
 define('CB_CORE_PATH', plugin_dir_path(__FILE__));
 define('CB_CORE_URL', plugin_dir_url(__FILE__));
 

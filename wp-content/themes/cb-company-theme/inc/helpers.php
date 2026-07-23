@@ -23,23 +23,75 @@ function cb_theme_option_enabled($key, $default = '1')
     return cb_theme_option($key, $default) === '1';
 }
 
+function cb_theme_normalize_wechat_id($value)
+{
+    if (!is_scalar($value)) {
+        return '';
+    }
+    $value = trim((string) $value);
+    return trim((string) preg_replace('/^(?:(?:wechat|微信)\s*)?id\s*[:：]\s*/iu', '', $value));
+}
+
+function cb_theme_has_wechat_id($value)
+{
+    return $value !== '' && !in_array(strtolower($value), ['wechat', '0'], true);
+}
+
 function cb_theme_wechat_id()
 {
     $footer = (array) get_option('cb_footer_settings', []);
     $legacy = (array) get_option('cb_theme_options', []);
+    $page_id = get_queried_object_id();
+    $special_pages = (array) get_option('cb_special_pages', []);
+    $contact_page_id = absint($special_pages[cb_theme_lang()]['contact'] ?? 0);
     $candidates = [
+        cb_theme_page_wechat_id($page_id),
+        $contact_page_id !== $page_id ? cb_theme_page_wechat_id($contact_page_id) : '',
         $footer['contact_wechat_id'] ?? '',
+        $footer['wechat_id'] ?? '',
         $legacy['contact_wechat_id'] ?? '',
+        $legacy['wechat_id'] ?? '',
         cb_theme_option('contact_wechat_id', ''),
     ];
 
     foreach ($candidates as $candidate) {
-        if (!is_scalar($candidate)) {
+        $candidate = cb_theme_normalize_wechat_id($candidate);
+        if (cb_theme_has_wechat_id($candidate)) {
+            return $candidate;
+        }
+    }
+
+    return '';
+}
+
+function cb_theme_page_wechat_id($post_id)
+{
+    $post_id = absint($post_id);
+    if (!$post_id) {
+        return '';
+    }
+
+    $sections = function_exists('cb_get_page_sections')
+        ? cb_get_page_sections($post_id)
+        : get_post_meta($post_id, '_cb_page_sections', true);
+    if (!is_array($sections)) {
+        return '';
+    }
+
+    foreach ($sections as $section) {
+        if (($section['type'] ?? '') !== 'contact_info') {
             continue;
         }
-        $candidate = trim((string) $candidate);
-        if ($candidate !== '') {
-            return $candidate;
+        $direct = cb_theme_normalize_wechat_id($section['wechat_id'] ?? ($section['contact_wechat_id'] ?? ''));
+        if (cb_theme_has_wechat_id($direct)) {
+            return $direct;
+        }
+        foreach ((array) ($section['items'] ?? []) as $item) {
+            $label = strtolower(trim((string) ($item['title'] ?? ($item['label'] ?? ''))));
+            $value = cb_theme_normalize_wechat_id($item['description'] ?? ($item['value'] ?? ''));
+            if ((str_contains($label, 'wechat') || str_contains($label, '微信')) && cb_theme_has_wechat_id($value)) {
+                return $value;
+            }
         }
     }
 

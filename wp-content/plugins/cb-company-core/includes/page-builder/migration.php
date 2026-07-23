@@ -36,7 +36,25 @@ function cb_core_maybe_migrate()
     }
     if (version_compare($version, '1.7.1', '<')) {
         cb_core_run_migration_171();
+        $version = '1.7.1';
     }
+    if (version_compare($version, '1.8.5', '<')) {
+        cb_core_run_migration_185();
+    }
+}
+
+function cb_core_run_migration_185()
+{
+    $footer = (array) get_option('cb_footer_settings', []);
+    $wechat_id = strtolower(trim((string) ($footer['contact_wechat_id'] ?? '')));
+    if (in_array($wechat_id, ['wechat', '0'], true)) {
+        if (get_option('cb_footer_settings_backup_185', null) === null) {
+            update_option('cb_footer_settings_backup_185', $footer, false);
+        }
+        $footer['contact_wechat_id'] = '';
+        update_option('cb_footer_settings', cb_sanitize_footer_settings($footer), false);
+    }
+    update_option('cb_core_db_version', '1.8.5');
 }
 
 function cb_core_run_migration_171()
@@ -47,8 +65,8 @@ function cb_core_run_migration_171()
         $footer['contact_whatsapp'] = $footer['contact_phone'];
         $changed = true;
     }
-    if (empty($footer['contact_wechat_id'])) {
-        $footer['contact_wechat_id'] = 'wechat';
+    if (($footer['contact_wechat_id'] ?? '') === 'wechat') {
+        $footer['contact_wechat_id'] = '';
         $changed = true;
     }
     if ($changed) {
@@ -382,7 +400,7 @@ function cb_core_run_migration_140()
         'show_footer_contact' => '1', 'show_footer_social' => '1', 'floating_contact' => '1',
         'footer_description' => 'OEM/ODM kitchen appliance manufacturing for ambitious global brands.',
         'contact_email' => 'info@aureliamanufacturing.com', 'contact_phone' => '+86 000 0000 0000',
-        'contact_whatsapp' => '+86 000 0000 0000', 'contact_wechat_id' => 'wechat',
+        'contact_whatsapp' => '+86 000 0000 0000', 'contact_wechat_id' => '',
         'company_address' => 'Manufacturing base in China.',
         'copyright_text' => '© ' . gmdate('Y') . ' Aurelia Manufacturing. All rights reserved.',
     ])));
