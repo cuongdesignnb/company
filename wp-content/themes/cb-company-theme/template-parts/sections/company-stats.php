@@ -8,7 +8,7 @@ if (!$items) {
     <div class="cb-container cb-company-stats-grid">
         <?php foreach ($items as $item) : ?>
             <article>
-                <strong><?php echo esc_html(($item['number'] ?? '') . ($item['suffix'] ?? '')); ?></strong>
+                <strong data-cb-counter data-cb-value="<?php echo esc_attr($item['number'] ?? ''); ?>" data-cb-suffix="<?php echo esc_attr($item['suffix'] ?? ''); ?>"><?php echo esc_html(($item['number'] ?? '') . ($item['suffix'] ?? '')); ?></strong>
                 <span><?php echo esc_html($item['label'] ?? ''); ?></span>
             </article>
         <?php endforeach; ?>

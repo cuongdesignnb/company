@@ -8,6 +8,15 @@ $header_classes = [
     cb_theme_option_enabled('header_blur') ? 'has-blur' : '',
 ];
 $container_class = cb_theme_option_enabled('header_full_width', '0') ? 'cb-header-fluid' : 'cb-container';
+$current_page_id = get_queried_object_id();
+$special_pages = function_exists('cb_get_group_options')
+    ? cb_get_group_options('cb_special_pages', ['en' => [], 'zh' => []])
+    : [];
+$special_home_ids = array_filter(array_map(
+    static fn($pages) => absint($pages['home'] ?? 0),
+    (array) $special_pages
+));
+$main_class = is_front_page() || in_array($current_page_id, $special_home_ids, true) ? 'cb-home-main' : '';
 ?><!doctype html>
 <html <?php function_exists('cb_html_language_attributes') ? cb_html_language_attributes() : language_attributes(); ?>>
 <head>
@@ -53,4 +62,4 @@ $container_class = cb_theme_option_enabled('header_full_width', '0') ? 'cb-heade
     </div>
 </header>
 <?php endif; ?>
-<main id="content">
+<main id="content"<?php echo $main_class ? ' class="' . esc_attr($main_class) . '"' : ''; ?>>

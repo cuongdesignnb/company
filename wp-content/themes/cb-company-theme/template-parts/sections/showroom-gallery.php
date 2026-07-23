@@ -4,7 +4,7 @@ if (!$items) {
     return;
 }
 ?>
-<section <?php echo cb_theme_section_attrs($section, 'showroom_gallery', 'cb-showroom-gallery'); ?> data-cb-gallery>
+<section <?php echo cb_theme_section_attrs($section, 'showroom_gallery', 'cb-showroom-gallery'); ?> data-cb-gallery data-autoplay="<?php echo esc_attr($section['autoplay'] ?? '1'); ?>" data-delay="<?php echo esc_attr((string) max(2800, absint($section['autoplay_delay'] ?? 4800))); ?>">
     <div class="cb-container cb-showroom-heading">
         <div><?php cb_theme_section_header($section); ?></div>
         <?php if (count($items) > 1) : ?>
@@ -24,4 +24,11 @@ if (!$items) {
             </figure>
         <?php endforeach; ?>
     </div>
+    <?php if (count($items) > 1) : ?>
+        <div class="cb-gallery-dots" aria-label="<?php echo esc_attr(cb_theme_t('carousel')); ?>">
+            <?php foreach ($items as $index => $item) : ?>
+                <button type="button" class="<?php echo $index === 0 ? 'is-active' : ''; ?>" data-cb-gallery-dot="<?php echo esc_attr((string) $index); ?>" aria-label="<?php echo esc_attr(cb_theme_t('go_to_slide') . ' ' . ($index + 1)); ?>"></button>
+            <?php endforeach; ?>
+        </div>
+    <?php endif; ?>
 </section>
