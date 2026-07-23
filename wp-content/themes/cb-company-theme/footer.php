@@ -63,7 +63,7 @@ $footer_style = $footer_image ? '--cb-footer-image:url(' . esc_url($footer_image
     $whatsapp_digits = preg_replace('/[^\d]/', '', $whatsapp_number);
     $whatsapp_url = 'https://wa.me/' . $whatsapp_digits;
     $whatsapp_qr = cb_theme_option('contact_whatsapp_qr');
-    $wechat_id = cb_theme_option('contact_wechat_id', 'wechat') ?: 'wechat';
+    $wechat_id = trim((string) cb_theme_option('contact_wechat_id', 'wechat'));
     $wechat_qr = cb_theme_option('contact_wechat_qr');
     $contact_labels = cb_theme_lang() === 'zh'
         ? ['phone' => '电话号码', 'wechat_id' => '微信 ID', 'scan' => '扫描二维码联系']
@@ -90,16 +90,18 @@ $footer_style = $footer_image ? '--cb-footer-image:url(' . esc_url($footer_image
                 <em class="cb-contact-popover" role="tooltip"><?php echo esc_html(cb_theme_option('contact_email')); ?></em>
             </a>
         <?php endif; ?>
-        <a class="is-primary" href="weixin://" aria-label="<?php echo esc_attr('WeChat ' . $wechat_id); ?>"<?php if ($wechat_qr) : ?> data-cb-contact-qr aria-haspopup="true" aria-expanded="false" aria-controls="cb-wechat-qr"<?php endif; ?>>
+        <a class="is-primary" href="weixin://" aria-label="<?php echo esc_attr('WeChat ' . $wechat_id); ?>"<?php if ($wechat_qr || $wechat_id) : ?> data-cb-contact-qr aria-haspopup="true" aria-expanded="false" aria-controls="cb-wechat-qr"<?php endif; ?>>
             <svg aria-hidden="true" viewBox="0 0 24 24"><path d="M9.8 5.2C5.9 5.2 3 7.6 3 10.6c0 1.8 1 3.3 2.6 4.3l-.5 1.8 2.1-1a8.8 8.8 0 0 0 2.6.4c3.8 0 6.8-2.4 6.8-5.5s-3-5.4-6.8-5.4Z" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/><path d="M14.2 10.8c3.1.3 5.4 2.2 5.4 4.6 0 1.5-.9 2.8-2.2 3.6l.4 1.4-1.7-.8a7.4 7.4 0 0 1-2.1.3c-2.4 0-4.4-1.1-5.2-2.8" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/><circle cx="7.5" cy="9.9" r=".7" fill="currentColor"/><circle cx="12" cy="9.9" r=".7" fill="currentColor"/></svg>
             <span>WeChat</span>
             <em class="cb-contact-popover cb-contact-popover-qr" id="cb-wechat-qr" role="tooltip">
                 <?php if ($wechat_qr) : ?><img src="<?php echo esc_url($wechat_qr); ?>" alt="<?php echo esc_attr('WeChat QR ' . $wechat_id); ?>"><?php endif; ?>
-                <strong>WeChat</strong>
-                <?php if ($wechat_qr) : ?><small><?php echo esc_html($contact_labels['scan']); ?></small><?php endif; ?>
-                <small><?php echo esc_html($contact_labels['wechat_id']); ?></small>
-                <code><?php echo esc_html($wechat_id); ?></code>
-                <small class="cb-contact-route">weixin://</small>
+                <strong><?php echo esc_html(cb_theme_lang() === 'zh' ? '通过微信联系我们' : 'Contact via WeChat'); ?></strong>
+                <?php if ($wechat_id) : ?>
+                    <span class="cb-contact-identity">
+                        <small><?php echo esc_html($contact_labels['wechat_id']); ?></small>
+                        <code><?php echo esc_html($wechat_id); ?></code>
+                    </span>
+                <?php endif; ?>
             </em>
         </a>
     </nav>

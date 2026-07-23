@@ -2704,8 +2704,37 @@ p {
     overflow-wrap: anywhere;
 }
 
+.cb-contact-identity {
+    display: grid;
+    gap: 5px;
+    width: 100%;
+    padding-top: 12px;
+    border-top: 1px solid #e5e8ec;
+    text-align: center;
+}
+
+.cb-contact-identity small {
+    color: #626a76;
+    font-size: 12px;
+    font-style: normal;
+    font-weight: 700;
+}
+
+.cb-contact-identity code {
+    width: 100%;
+    padding: 9px 12px;
+    font-size: 15px;
+}
+
 .cb-contact-route {
     max-width: 100%;
+    overflow-wrap: anywhere;
+}
+
+.cb-contact-id-value {
+    color: var(--cb-heading, #17191f);
+    font-size: 16px;
+    font-weight: 800;
     overflow-wrap: anywhere;
 }
 
