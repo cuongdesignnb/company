@@ -2634,16 +2634,18 @@ p {
 
 .cb-contact-popover-qr {
     display: grid;
-    gap: 8px;
+    gap: 10px;
     justify-items: center;
-    min-width: 156px;
+    min-width: 280px;
+    max-width: 300px;
+    padding: 18px;
     text-align: center;
 }
 
 .cb-contact-popover-qr img {
     display: block;
-    width: 120px;
-    height: 120px;
+    width: 220px;
+    height: 220px;
     object-fit: contain;
     border: 1px solid #edf0f3;
     border-radius: 4px;
@@ -2652,6 +2654,37 @@ p {
 .cb-contact-popover-qr strong,
 .cb-contact-popover-qr small {
     display: block;
+}
+
+.cb-contact-popover-qr code {
+    display: block;
+    max-width: 100%;
+    padding: 6px 9px;
+    color: #17191f;
+    background: #f3f5f7;
+    border-radius: 4px;
+    font-family: inherit;
+    font-size: 13px;
+    font-style: normal;
+    font-weight: 800;
+    overflow-wrap: anywhere;
+}
+
+.cb-contact-route {
+    max-width: 100%;
+    overflow-wrap: anywhere;
+}
+
+.cb-contact-qr-backdrop {
+    position: fixed;
+    z-index: 65;
+    inset: 0;
+    display: none;
+    width: 100%;
+    height: 100%;
+    padding: 0;
+    background: rgba(10, 14, 20, 0.7);
+    border: 0;
 }
 
 .cb-contact-qr-block {
@@ -2667,17 +2700,17 @@ p {
 
 .cb-contact-qr-grid {
     display: grid;
-    grid-template-columns: repeat(2, minmax(0, 220px));
+    grid-template-columns: repeat(2, minmax(0, 340px));
     gap: 18px;
 }
 
 .cb-contact-qr-item {
     display: grid;
-    grid-template-columns: 112px minmax(0, 1fr);
-    gap: 14px;
+    grid-template-columns: 180px minmax(0, 1fr);
+    gap: 18px;
     align-items: center;
     margin: 0;
-    padding: 14px;
+    padding: 18px;
     background: #fff;
     border: 1px solid var(--cb-border, #e5e8ec);
     border-radius: 8px;
@@ -2685,8 +2718,8 @@ p {
 
 .cb-contact-qr-item img {
     display: block;
-    width: 112px;
-    height: 112px;
+    width: 180px;
+    height: 180px;
     object-fit: contain;
 }
 
@@ -2701,6 +2734,19 @@ p {
     color: var(--cb-muted, #6f7782);
     font-size: 12px;
     overflow-wrap: anywhere;
+}
+
+.cb-contact-qr-link {
+    display: inline-flex;
+    align-items: center;
+    min-height: 34px;
+    margin-top: 10px;
+    padding: 6px 10px;
+    color: var(--cb-primary, #ef3f45);
+    border: 1px solid currentColor;
+    border-radius: 4px;
+    font-size: 12px;
+    font-weight: 800;
 }
 
 .cb-contact-popover-qr small {
@@ -3109,30 +3155,44 @@ p {
         display: none;
     }
 
+    body.cb-contact-qr-open {
+        overflow: hidden;
+    }
+
+    .cb-contact-qr-backdrop.is-visible {
+        display: block;
+    }
+
     .cb-contact-rail [data-cb-contact-qr] .cb-contact-popover {
-        top: auto;
-        right: 50%;
-        bottom: calc(100% + 12px);
+        position: fixed;
+        z-index: 3;
+        top: 50%;
+        right: auto;
+        bottom: auto;
+        left: 50%;
         display: grid;
+        width: min(340px, calc(100vw - 32px));
+        min-width: 0;
+        max-width: none;
+        padding: 18px;
         opacity: 0;
         pointer-events: none;
-        transform: translate(50%, 8px);
+        transform: translate(-50%, -46%);
     }
 
     .cb-contact-rail [data-cb-contact-qr] .cb-contact-popover::after {
-        top: auto;
-        right: calc(50% - 5px);
-        bottom: -6px;
-        border: 0;
-        border-right: 1px solid #d9dee5;
-        border-bottom: 1px solid #d9dee5;
-        transform: rotate(45deg);
+        display: none;
     }
 
     .cb-contact-rail [data-cb-contact-qr].is-open .cb-contact-popover {
         opacity: 1;
         pointer-events: auto;
-        transform: translate(50%, 0);
+        transform: translate(-50%, -50%);
+    }
+
+    .cb-contact-popover-qr img {
+        width: min(260px, 68vw);
+        height: min(260px, 68vw);
     }
 
     .cb-contact-qr-grid {
@@ -3140,12 +3200,14 @@ p {
     }
 
     .cb-contact-qr-item {
-        grid-template-columns: 96px minmax(0, 1fr);
+        grid-template-columns: 1fr;
+        justify-items: center;
+        text-align: center;
     }
 
     .cb-contact-qr-item img {
-        width: 96px;
-        height: 96px;
+        width: 180px;
+        height: 180px;
     }
 
     .cb-site-footer {

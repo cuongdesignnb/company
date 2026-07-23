@@ -4,10 +4,12 @@ $wechat_qr = $section['wechat_qr_url'] ?? '';
 $whatsapp_qr = $whatsapp_qr ?: cb_theme_option('contact_whatsapp_qr');
 $wechat_qr = $wechat_qr ?: cb_theme_option('contact_wechat_qr');
 $whatsapp_number = cb_theme_option('contact_whatsapp') ?: cb_theme_option('contact_phone');
+$whatsapp_digits = preg_replace('/[^\d]/', '', $whatsapp_number);
+$whatsapp_url = $whatsapp_digits ? 'https://wa.me/' . $whatsapp_digits : '';
 $wechat_id = cb_theme_option('contact_wechat_id', 'wechat') ?: 'wechat';
 $qr_labels = cb_theme_lang() === 'zh'
-    ? ['title' => '扫码联系我们', 'whatsapp' => 'WhatsApp 联系方式', 'wechat' => '微信联系方式']
-    : ['title' => 'Scan to connect', 'whatsapp' => 'WhatsApp contact', 'wechat' => 'WeChat contact'];
+    ? ['title' => '扫码联系我们', 'whatsapp' => 'WhatsApp 联系方式', 'wechat' => '微信联系方式', 'open_whatsapp' => '打开 WhatsApp', 'open_wechat' => '打开微信']
+    : ['title' => 'Scan to connect', 'whatsapp' => 'WhatsApp contact', 'wechat' => 'WeChat contact', 'open_whatsapp' => 'Open WhatsApp', 'open_wechat' => 'Open WeChat'];
 ?>
 <section <?php echo cb_theme_section_attrs($section, 'contact_info', 'cb-soft-band'); ?>>
     <div class="cb-container">
@@ -28,13 +30,13 @@ $qr_labels = cb_theme_lang() === 'zh'
                     <?php if ($whatsapp_qr) : ?>
                         <figure class="cb-contact-qr-item">
                             <img src="<?php echo esc_url($whatsapp_qr); ?>" alt="<?php echo esc_attr($qr_labels['whatsapp']); ?>">
-                            <figcaption><strong>WhatsApp</strong><span><?php echo esc_html($whatsapp_number); ?></span></figcaption>
+                            <figcaption><strong>WhatsApp</strong><span><?php echo esc_html($whatsapp_number); ?></span><?php if ($whatsapp_url) : ?><a class="cb-contact-qr-link" href="<?php echo esc_url($whatsapp_url); ?>" target="_blank" rel="noopener"><?php echo esc_html($qr_labels['open_whatsapp']); ?></a><?php endif; ?></figcaption>
                         </figure>
                     <?php endif; ?>
                     <?php if ($wechat_qr) : ?>
                         <figure class="cb-contact-qr-item">
                             <img src="<?php echo esc_url($wechat_qr); ?>" alt="<?php echo esc_attr($qr_labels['wechat']); ?>">
-                            <figcaption><strong>WeChat</strong><span><?php echo esc_html($wechat_id); ?></span></figcaption>
+                            <figcaption><strong>WeChat ID</strong><span><?php echo esc_html($wechat_id); ?></span><a class="cb-contact-qr-link" href="weixin://"><?php echo esc_html($qr_labels['open_wechat']); ?></a></figcaption>
                         </figure>
                     <?php endif; ?>
                 </div>

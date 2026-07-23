@@ -68,12 +68,28 @@
 
   const contactQrLinks = Array.from(document.querySelectorAll('[data-cb-contact-qr]'));
   const contactQrMobile = window.matchMedia('(max-width: 768px)');
+  let contactQrBackdrop = null;
+  if (contactQrLinks.length) {
+    contactQrBackdrop = document.createElement('button');
+    contactQrBackdrop.type = 'button';
+    contactQrBackdrop.className = 'cb-contact-qr-backdrop';
+    contactQrBackdrop.setAttribute('aria-label', 'Close QR code');
+    document.body.appendChild(contactQrBackdrop);
+  }
+  function syncContactQrModal() {
+    const open = contactQrMobile.matches && contactQrLinks.some(function (link) {
+      return link.classList.contains('is-open');
+    });
+    document.body.classList.toggle('cb-contact-qr-open', open);
+    contactQrBackdrop?.classList.toggle('is-visible', open);
+  }
   function closeContactQr(except) {
     contactQrLinks.forEach(function (link) {
       if (link === except) return;
       link.classList.remove('is-open');
       link.setAttribute('aria-expanded', 'false');
     });
+    syncContactQrModal();
   }
   contactQrLinks.forEach(function (link) {
     link.addEventListener('click', function (event) {
@@ -83,9 +99,13 @@
         closeContactQr(link);
         link.classList.add('is-open');
         link.setAttribute('aria-expanded', 'true');
+        syncContactQrModal();
+      } else {
+        closeContactQr();
       }
     });
   });
+  contactQrBackdrop?.addEventListener('click', function () { closeContactQr(); });
   document.addEventListener('click', function (event) {
     if (!event.target.closest('[data-cb-contact-qr]')) closeContactQr();
   });
