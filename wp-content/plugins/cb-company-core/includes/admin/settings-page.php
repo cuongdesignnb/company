@@ -566,6 +566,15 @@ function cb_render_tools_page()
     echo '<div class="cb-save-bar"><h1>' . esc_html__('Công cụ', 'cb-company-core') . '</h1></div><div class="cb-dashboard-grid">';
     $csv_url = wp_nonce_url(admin_url('admin-post.php?action=cb_export_inquiries_csv'), 'cb_export_inquiries');
     echo '<article class="cb-dashboard-card"><h2>' . esc_html__('Xuất yêu cầu CSV', 'cb-company-core') . '</h2><p>' . esc_html__('CSV có UTF-8 BOM để Excel đọc đúng tiếng Việt và tiếng Trung.', 'cb-company-core') . '</p><a class="button" href="' . esc_url($csv_url) . '">' . esc_html__('Tải CSV', 'cb-company-core') . '</a></article>';
+    $cache_status = (array) get_option('cb_cache_purge_status', []);
+    echo '<article class="cb-dashboard-card"><h2>' . esc_html__('Cache frontend', 'cb-company-core') . '</h2><p>' . esc_html__('Xóa Nginx FastCGI cache cho giao diện EN/ZH và nội dung công khai.', 'cb-company-core') . '</p>';
+    if ($cache_status) {
+        echo '<p><small>' . esc_html(sprintf(__('Lần gần nhất: %1$s · Thành công: %2$d · Lỗi: %3$d', 'cb-company-core'), $cache_status['checked_at'] ?? '', absint($cache_status['purged'] ?? 0), absint($cache_status['failed'] ?? 0))) . '</small></p>';
+    }
+    echo '<form method="post" action="' . esc_url(admin_url('admin-post.php')) . '"><input type="hidden" name="action" value="cb_purge_frontend_cache">';
+    wp_nonce_field('cb_purge_frontend_cache');
+    submit_button(__('Xóa cache frontend', 'cb-company-core'), 'primary', 'submit', false);
+    echo '</form></article>';
     echo '<article class="cb-dashboard-card"><h2>' . esc_html__('Phiên bản dữ liệu', 'cb-company-core') . '</h2><p><code>' . esc_html((string) get_option('cb_core_db_version', '0')) . '</code></p></article>';
     if (get_option('cb_catalog_layout_backup_140')) {
         echo '<article class="cb-dashboard-card"><h2>' . esc_html__('Bố cục catalogue Aurelia', 'cb-company-core') . '</h2><p>' . esc_html__('Có bản sao lưu Home EN/ZH và thiết lập giao diện trước lần nâng cấp 1.4.0.', 'cb-company-core') . '</p><form method="post" action="' . esc_url(admin_url('admin-post.php')) . '"><input type="hidden" name="action" value="cb_restore_catalog_layout">';

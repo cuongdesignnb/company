@@ -2,7 +2,7 @@
 /**
  * Plugin Name: CB Company Core
  * Description: Dữ liệu doanh nghiệp, đa ngôn ngữ, biểu mẫu, SEO và trình dựng trang.
- * Version: 1.8.6
+ * Version: 1.8.7
  * Author: CB
  * Text Domain: cb-company-core
  * Domain Path: /languages
@@ -13,7 +13,7 @@ if (!defined('ABSPATH')) {
 }
 
 define('CB_CORE_FILE', __FILE__);
-define('CB_CORE_VERSION', '1.8.6');
+define('CB_CORE_VERSION', '1.8.7');
 define('CB_CORE_DB_VERSION', '1.8.5');
 define('CB_CORE_PATH', plugin_dir_path(__FILE__));
 define('CB_CORE_URL', plugin_dir_url(__FILE__));
@@ -35,6 +35,7 @@ require_once CB_CORE_PATH . 'includes/admin/homepage-builder.php';
 require_once CB_CORE_PATH . 'includes/admin/content-pages.php';
 require_once CB_CORE_PATH . 'includes/admin/frontend-edit.php';
 require_once CB_CORE_PATH . 'includes/contact-display.php';
+require_once CB_CORE_PATH . 'includes/cache-control.php';
 require_once CB_CORE_PATH . 'includes/inquiry/inquiry-form.php';
 require_once CB_CORE_PATH . 'includes/seo/meta-tags.php';
 require_once CB_CORE_PATH . 'includes/seed.php';
@@ -80,6 +81,7 @@ add_action('admin_post_cb_reset_settings', 'cb_handle_reset_settings');
 add_action('admin_post_cb_demo_content', 'cb_handle_demo_content_action');
 add_action('admin_post_cb_restore_catalog_layout', 'cb_handle_restore_catalog_layout');
 add_action('admin_post_cb_restore_about_layout', 'cb_handle_restore_about_layout');
+add_action('admin_post_cb_purge_frontend_cache', 'cb_cache_control_handle_manual_purge');
 
 add_filter('post_type_link', 'cb_certificate_post_type_link', 10, 2);
 add_filter('post_type_link', 'cb_language_post_type_link', 20, 2);
